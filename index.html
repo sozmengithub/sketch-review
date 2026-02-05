@@ -1,907 +1,1060 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Review Your Sketch | Show Off Inc</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-      background: #f5f5f5;
-      min-height: 100vh;
-      padding: 20px;
-    }
-    
-    .container {
-      max-width: 700px;
-      margin: 0 auto;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.1);
-      overflow: hidden;
-    }
-    
-    .header {
-      background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%);
-      color: white;
-      padding: 24px;
-      text-align: center;
-    }
-    
-    .header h1 {
-      font-size: 24px;
-      margin-bottom: 8px;
-    }
-    
-    .header p {
-      opacity: 0.9;
-      font-size: 14px;
-    }
-    
-    .order-name {
-      background: rgba(255,255,255,0.15);
-      padding: 8px 16px;
-      border-radius: 20px;
-      display: inline-block;
-      margin-top: 12px;
-      font-weight: 500;
-    }
-    
-    .content {
-      padding: 24px;
-    }
-    
-    .current-sketch {
-      margin-bottom: 24px;
-    }
-    
-    .current-sketch h3 {
-      font-size: 14px;
-      color: #666;
-      margin-bottom: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    
-    .sketch-container {
-      border: 1px solid #e0e0e0;
-      border-radius: 8px;
-      overflow: hidden;
-      background: #fafafa;
-    }
-    
-    .sketch-container img {
-      display: block;
-      width: 100%;
-      height: auto;
-    }
-    
-    /* Decision buttons */
-    .decision-section {
-      margin-top: 24px;
-    }
-    
-    .decision-section h3 {
-      font-size: 16px;
-      color: #333;
-      margin-bottom: 16px;
-      text-align: center;
-    }
-    
-    .decision-buttons {
-      display: flex;
-      gap: 16px;
-    }
-    
-    .decision-btn {
-      flex: 1;
-      padding: 20px;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: all 0.2s;
-      text-align: center;
-      border: 3px solid transparent;
-    }
-    
-    .decision-btn:hover {
-      transform: translateY(-2px);
-    }
-    
-    .decision-btn.approve {
-      background: #f0fdf4;
-      border-color: #bbf7d0;
-    }
-    
-    .decision-btn.approve:hover {
-      border-color: #22c55e;
-      background: #dcfce7;
-    }
-    
-    .decision-btn.revise {
-      background: #fef3c7;
-      border-color: #fde68a;
-    }
-    
-    .decision-btn.revise:hover {
-      border-color: #f59e0b;
-      background: #fef08a;
-    }
-    
-    .decision-btn .icon {
-      font-size: 32px;
-      margin-bottom: 8px;
-    }
-    
-    .decision-btn .title {
-      font-size: 18px;
-      font-weight: 600;
-      margin-bottom: 4px;
-    }
-    
-    .decision-btn.approve .title {
-      color: #166534;
-    }
-    
-    .decision-btn.revise .title {
-      color: #92400e;
-    }
-    
-    .decision-btn .subtitle {
-      font-size: 13px;
-      color: #666;
-    }
-    
-    /* Revision form (hidden by default) */
-    .revision-form {
-      display: none;
-      margin-top: 24px;
-      padding-top: 24px;
-      border-top: 1px solid #eee;
-    }
-    
-    .revision-form.show {
-      display: block;
-    }
-    
-    .revision-form h3 {
-      font-size: 18px;
-      margin-bottom: 16px;
-      color: #333;
-    }
-    
-    .form-section {
-      margin-bottom: 20px;
-    }
-    
-    .form-section label {
-      display: block;
-      font-weight: 600;
-      margin-bottom: 8px;
-      color: #333;
-    }
-    
-    .form-section .hint {
-      font-size: 13px;
-      color: #666;
-      margin-bottom: 8px;
-      font-weight: normal;
-    }
-    
-    .form-section textarea {
-      width: 100%;
-      min-height: 120px;
-      padding: 12px;
-      border: 2px solid #ddd;
-      border-radius: 8px;
-      font-size: 15px;
-      font-family: inherit;
-      resize: vertical;
-      transition: border-color 0.2s;
-      line-height: 1.5;
-    }
-    
-    .form-section textarea:focus {
-      outline: none;
-      border-color: #3B82F6;
-    }
-    
-    .upload-area {
-      border: 2px dashed #ddd;
-      border-radius: 8px;
-      padding: 20px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.2s;
-      background: #fafafa;
-    }
-    
-    .upload-area:hover {
-      border-color: #3B82F6;
-      background: #f0f7ff;
-    }
-    
-    .upload-icon {
-      font-size: 28px;
-      margin-bottom: 4px;
-    }
-    
-    .upload-text {
-      color: #666;
-      font-size: 13px;
-    }
-    
-    .upload-text strong {
-      color: #3B82F6;
-    }
-    
-    #fileInput {
-      display: none;
-    }
-    
-    .preview-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-top: 12px;
-    }
-    
-    .preview-item {
-      position: relative;
-      width: 80px;
-      height: 80px;
-      border-radius: 8px;
-      overflow: hidden;
-      border: 1px solid #ddd;
-    }
-    
-    .preview-item img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    
-    .preview-item .remove-btn {
-      position: absolute;
-      top: 4px;
-      right: 4px;
-      width: 20px;
-      height: 20px;
-      background: rgba(0,0,0,0.6);
-      color: white;
-      border: none;
-      border-radius: 50%;
-      cursor: pointer;
-      font-size: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    
-    .revision-actions {
-      display: flex;
-      gap: 12px;
-      margin-top: 20px;
-    }
-    
-    .btn {
-      padding: 14px 24px;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-      border: none;
-    }
-    
-    .btn-secondary {
-      background: white;
-      border: 2px solid #ddd;
-      color: #666;
-    }
-    
-    .btn-secondary:hover {
-      border-color: #999;
-      color: #333;
-    }
-    
-    .btn-primary {
-      background: #3B82F6;
-      color: white;
-      flex: 1;
-    }
-    
-    .btn-primary:hover {
-      background: #2563eb;
-    }
-    
-    .btn-primary:disabled {
-      background: #93c5fd;
-      cursor: not-allowed;
-    }
-    
-    /* Confirm approval modal */
-    .confirm-modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0,0,0,0.5);
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      z-index: 100;
-    }
-    
-    .confirm-modal.show {
-      display: flex;
-    }
-    
-    .modal-content {
-      background: white;
-      border-radius: 12px;
-      padding: 32px;
-      max-width: 400px;
-      text-align: center;
-    }
-    
-    .modal-icon {
-      font-size: 48px;
-      margin-bottom: 16px;
-    }
-    
-    .modal-content h3 {
-      font-size: 20px;
-      margin-bottom: 12px;
-      color: #333;
-    }
-    
-    .modal-content p {
-      color: #666;
-      margin-bottom: 24px;
-      line-height: 1.5;
-    }
-    
-    .modal-buttons {
-      display: flex;
-      gap: 12px;
-    }
-    
-    .modal-buttons .btn {
-      flex: 1;
-    }
-    
-    .btn-approve {
-      background: #22c55e;
-      color: white;
-    }
-    
-    .btn-approve:hover {
-      background: #16a34a;
-    }
-    
-    /* Loading & Success states */
-    .loading, .success {
-      display: none;
-      text-align: center;
-      padding: 60px 40px;
-    }
-    
-    .loading.show, .success.show {
-      display: block;
-    }
-    
-    .spinner {
-      width: 48px;
-      height: 48px;
-      border: 4px solid #e0e0e0;
-      border-top-color: #3B82F6;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 16px;
-    }
-    
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-    
-    .success-icon {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 24px;
-      font-size: 40px;
-      color: white;
-    }
-    
-    .success-icon.approved {
-      background: #22c55e;
-    }
-    
-    .success-icon.revision {
-      background: #3B82F6;
-    }
-    
-    .success h2 {
-      color: #333;
-      margin-bottom: 12px;
-    }
-    
-    .success p {
-      color: #666;
-      font-size: 16px;
-      line-height: 1.6;
-    }
-    
-    .next-steps {
-      background: #f0fdf4;
-      border-radius: 8px;
-      padding: 20px;
-      margin-top: 24px;
-      text-align: left;
-    }
-    
-    .next-steps.revision {
-      background: #eff6ff;
-    }
-    
-    .next-steps h4 {
-      font-size: 14px;
-      margin-bottom: 8px;
-      color: #166534;
-    }
-    
-    .next-steps.revision h4 {
-      color: #1e40af;
-    }
-    
-    .next-steps p {
-      font-size: 14px;
-      margin: 0;
-      color: #15803d;
-    }
-    
-    .next-steps.revision p {
-      color: #1e40af;
-    }
-    
-    .error-message {
-      background: #fef2f2;
-      border: 1px solid #fecaca;
-      color: #dc2626;
-      padding: 12px 16px;
-      border-radius: 8px;
-      margin-top: 16px;
-      display: none;
-    }
-    
-    .error-message.show {
-      display: block;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review Your Sketch | Show Off</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    .required {
-      color: #dc2626;
-    }
-    
-    @media (max-width: 600px) {
-      .decision-buttons {
-        flex-direction: column;
-      }
-      
-      .revision-actions {
-        flex-direction: column;
-      }
-      
-      .modal-buttons {
-        flex-direction: column;
-      }
-    }
-  </style>
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: #fff;
+            color: #1a1a1a;
+            font-size: 13px;
+            font-weight: 400;
+            line-height: 1.5;
+            letter-spacing: 0.01em;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* SVG filter for ink effect */
+        .svg-filters {
+            position: absolute;
+            width: 0;
+            height: 0;
+        }
+
+        /* Giant diagonal watermark */
+        .watermark-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 86vh;
+            font-weight: 500;
+            letter-spacing: -0.05em;
+            white-space: nowrap;
+            transform: translate(-50%, -50%) rotate(-50deg);
+            transform-origin: center center;
+            user-select: none;
+            color: transparent;
+            background: linear-gradient(
+                135deg,
+                rgba(0,0,0,0.08) 0%,
+                rgba(0,0,0,0.12) 20%,
+                rgba(0,0,0,0.06) 40%,
+                rgba(0,0,0,0.10) 60%,
+                rgba(0,0,0,0.07) 80%,
+                rgba(0,0,0,0.09) 100%
+            );
+            -webkit-background-clip: text;
+            background-clip: text;
+            filter: url(#ink-bleed);
+        }
+
+        .watermark-shadow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 86vh;
+            font-weight: 500;
+            letter-spacing: -0.05em;
+            white-space: nowrap;
+            transform: translate(-49.5%, -50.5%) rotate(-50deg);
+            transform-origin: center center;
+            user-select: none;
+            color: rgba(0,0,0,0.03);
+            filter: blur(2px);
+        }
+
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 40px 24px 60px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 28px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 22px;
+            font-weight: 500;
+            letter-spacing: 0.04em;
+        }
+
+        .order-number {
+            font-size: 10px;
+            color: #666;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        /* Sketch */
+        .sketch-section {
+            margin-bottom: 20px;
+        }
+
+        .sketch-frame {
+            aspect-ratio: 5/4;
+            background: rgba(255,255,255,0.85);
+            border: 1px solid rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            backdrop-filter: blur(8px);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .sketch-frame:hover::after {
+            content: 'Click to enlarge';
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            font-size: 10px;
+            color: #666;
+            background: rgba(255,255,255,0.9);
+            padding: 4px 8px;
+            letter-spacing: 0.05em;
+        }
+
+        .sketch-frame img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .sketch-placeholder {
+            color: #bbb;
+            font-size: 11px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+
+        /* Lightbox */
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .lightbox.active {
+            display: flex;
+        }
+
+        .lightbox img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: #fff;
+            font-size: 24px;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Line Items */
+        .quote-section {
+            margin-bottom: 20px;
+        }
+
+        .section-label {
+            font-size: 9px;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: #888;
+            margin-bottom: 10px;
+        }
+
+        /* Collapsible quote box */
+        .quote-box {
+            background: rgba(255,255,255,0.9);
+            border: 1px solid rgba(0,0,0,0.1);
+            backdrop-filter: blur(8px);
+        }
+
+        .quote-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 14px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .quote-header:hover {
+            background: rgba(0,0,0,0.02);
+        }
+
+        .quote-total-display {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .quote-total-label {
+            font-size: 11px;
+            color: #666;
+        }
+
+        .quote-total-amount {
+            font-size: 16px;
+            font-weight: 500;
+            color: #1a1a1a;
+        }
+
+        .quote-toggle {
+            font-size: 10px;
+            color: #888;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .quote-toggle-icon {
+            transition: transform 0.2s ease;
+        }
+
+        .quote-box.expanded .quote-toggle-icon {
+            transform: rotate(180deg);
+        }
+
+        .line-items {
+            display: none;
+            border-top: 1px solid rgba(0,0,0,0.06);
+        }
+
+        .quote-box.expanded .line-items {
+            display: block;
+        }
+
+        .line-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 10px 14px;
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+        }
+
+        .line-item:last-child {
+            border-bottom: none;
+        }
+
+        .item-details {
+            flex: 1;
+        }
+
+        .item-name {
+            font-weight: 500;
+            font-size: 13px;
+        }
+
+        .item-meta {
+            font-size: 10px;
+            color: #888;
+            margin-top: 1px;
+        }
+
+        .item-price {
+            font-weight: 500;
+            font-size: 13px;
+            white-space: nowrap;
+            margin-left: 12px;
+        }
+
+        /* Totals */
+        .totals {
+            display: none;
+            background: rgba(248,248,248,0.9);
+            padding: 10px 14px;
+            border-top: 1px solid rgba(0,0,0,0.06);
+        }
+
+        .quote-box.expanded .totals {
+            display: block;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 3px 0;
+            font-size: 11px;
+            color: #666;
+        }
+
+        .total-row.grand-total {
+            padding-top: 8px;
+            margin-top: 6px;
+            border-top: 1px solid rgba(0,0,0,0.1);
+            font-size: 14px;
+            font-weight: 500;
+            color: #1a1a1a;
+        }
+
+        /* Actions */
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 13px 16px;
+            font-family: inherit;
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: #1a1a1a;
+            color: #fff;
+            border: 1px solid #1a1a1a;
+        }
+
+        .btn-primary:hover {
+            background: #000;
+        }
+
+        .btn-primary:disabled {
+            background: #999;
+            border-color: #999;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.9);
+            color: #1a1a1a;
+            border: 1px solid #999;
+        }
+
+        .btn-secondary:hover {
+            border-color: #1a1a1a;
+        }
+
+        /* Revision Panel */
+        .revision-panel {
+            display: none;
+            padding-top: 16px;
+            border-top: 1px solid rgba(0,0,0,0.1);
+            margin-bottom: 16px;
+        }
+
+        .revision-panel.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .revision-notes {
+            width: 100%;
+            min-height: 100px;
+            padding: 10px 12px;
+            border: 1px solid #ccc;
+            font-family: inherit;
+            font-size: 13px;
+            resize: vertical;
+            background: rgba(255,255,255,0.95);
+            line-height: 1.5;
+        }
+
+        .revision-notes:focus {
+            outline: none;
+            border-color: #1a1a1a;
+        }
+
+        .revision-notes::placeholder {
+            color: #bbb;
+        }
+
+        /* File Upload */
+        .upload-area {
+            border: 1px dashed #aaa;
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s;
+            background: rgba(255,255,255,0.9);
+        }
+
+        .upload-area:hover {
+            border-color: #666;
+        }
+
+        .upload-area.has-files {
+            border-style: solid;
+            border-color: #1a1a1a;
+        }
+
+        .upload-text {
+            font-size: 11px;
+            color: #888;
+        }
+
+        .upload-text span {
+            color: #1a1a1a;
+            text-decoration: underline;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-list {
+            margin-top: 10px;
+        }
+
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            font-size: 11px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .file-remove {
+            color: #999;
+            cursor: pointer;
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .file-remove:hover {
+            color: #1a1a1a;
+        }
+
+        .submit-revision {
+            width: 100%;
+            margin-top: 14px;
+        }
+
+        .error-message {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 10px 12px;
+            font-size: 12px;
+            margin-top: 12px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        /* Loading & Success States */
+        .loading-view, .success-view {
+            display: none;
+            text-align: center;
+            padding: 80px 20px;
+        }
+
+        .loading-view.active, .success-view.active {
+            display: block;
+        }
+
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 2px solid #e0e0e0;
+            border-top-color: #1a1a1a;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .success-icon {
+            width: 36px;
+            height: 36px;
+            margin: 0 auto 18px;
+            border: 1px solid #1a1a1a;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .success-icon svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .success-title {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 20px;
+            font-weight: 400;
+            margin-bottom: 10px;
+        }
+
+        .success-message {
+            font-size: 12px;
+            color: #666;
+            line-height: 1.6;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+
+        .main-view.hidden {
+            display: none;
+        }
+
+        /* Loading button state */
+        .btn-loading {
+            position: relative;
+            color: transparent !important;
+        }
+
+        .btn-loading::after {
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            top: 50%;
+            left: 50%;
+            margin: -6px 0 0 -6px;
+            border: 1px solid transparent;
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .btn-secondary.btn-loading::after {
+            border-top-color: #1a1a1a;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding-top: 20px;
+            font-size: 10px;
+            color: #aaa;
+            letter-spacing: 0.08em;
+        }
+
+        @media (max-width: 480px) {
+            .watermark, .watermark-shadow {
+                font-size: 70vh;
+            }
+
+            .container {
+                padding: 24px 16px 40px;
+            }
+
+            .actions {
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <h1>Review Your Sketch</h1>
-      <p>Take a look and let us know if you're ready to proceed</p>
-      <div class="order-name">Loading...</div>
-    </div>
-    
-    <div id="mainContent">
-      <div class="content">
-        <div class="current-sketch">
-          <h3>Your Sketch</h3>
-          <div class="sketch-container">
-            <img id="sketchImage" src="" alt="Your costume sketch">
-          </div>
-        </div>
-        
-        <div class="decision-section">
-          <h3>What would you like to do?</h3>
-          <div class="decision-buttons">
-            <div class="decision-btn approve" id="approveBtn">
-              <div class="icon">✓</div>
-              <div class="title">Approve Design</div>
-              <div class="subtitle">Looks great! Ready for measurements.</div>
-            </div>
-            <div class="decision-btn revise" id="reviseBtn">
-              <div class="icon">✏️</div>
-              <div class="title">Request Changes</div>
-              <div class="subtitle">I'd like some modifications.</div>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Revision form (hidden until they click Request Changes) -->
-        <div class="revision-form" id="revisionForm">
-          <h3>Tell us what changes you'd like</h3>
-          
-          <div class="form-section">
-            <label for="revisionNotes">Describe your changes <span class="required">*</span></label>
-            <p class="hint">Be as specific as possible — colors, lengths, styles, details.</p>
-            <textarea 
-              id="revisionNotes" 
-              placeholder="For example:
-• Can we add the logo back to the skirt
-• Make the skirt slit higher
-• Add an armband — I attached a photo of the inspiration"
-            ></textarea>
-          </div>
-          
-          <div class="form-section">
-            <label>Reference Photos (Optional)</label>
-            <p class="hint">Upload inspiration images or examples of what you're looking for.</p>
-            <div class="upload-area" id="uploadArea">
-              <div class="upload-icon">📷</div>
-              <div class="upload-text"><strong>Click to upload</strong> or drag and drop</div>
-            </div>
-            <input type="file" id="fileInput" accept="image/*" multiple>
-            <div class="preview-container" id="previewContainer"></div>
-          </div>
-          
-          <div class="error-message" id="errorMessage"></div>
-          
-          <div class="revision-actions">
-            <button class="btn btn-secondary" id="backBtn">← Back</button>
-            <button class="btn btn-primary" id="submitRevisionBtn">Submit Revision Request</button>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Confirm Approval Modal -->
-    <div class="confirm-modal" id="confirmModal">
-      <div class="modal-content">
-        <div class="modal-icon">✓</div>
-        <h3>Confirm Approval</h3>
-        <p>By approving, you confirm the sketch design is ready. We'll send you the measurement form next!</p>
-        <div class="modal-buttons">
-          <button class="btn btn-secondary" id="cancelApprove">Cancel</button>
-          <button class="btn btn-approve" id="confirmApprove">Yes, Approve Design</button>
-        </div>
-      </div>
-    </div>
-    
-    <div class="loading" id="loadingState">
-      <div class="spinner"></div>
-      <p id="loadingText">Submitting...</p>
-    </div>
-    
-    <div class="success" id="successState">
-      <div class="success-icon" id="successIcon">✓</div>
-      <h2 id="successTitle">Success!</h2>
-      <p id="successMessage"></p>
-      <div class="next-steps" id="nextSteps">
-        <h4>What happens next?</h4>
-        <p id="nextStepsText"></p>
-      </div>
-    </div>
-  </div>
+    <!-- SVG Filters for ink effect -->
+    <svg class="svg-filters">
+        <defs>
+            <filter id="ink-bleed" x="-10%" y="-10%" width="120%" height="120%">
+                <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="4" result="noise" seed="3"/>
+                <feDisplacementMap in="SourceGraphic" in2="noise" scale="4" xChannelSelector="R" yChannelSelector="G"/>
+            </filter>
+        </defs>
+    </svg>
 
-  <script>
-    // Get URL parameters
-    const urlParams = new URLSearchParams(window.location.search);
-    const dealId = urlParams.get('dealId');
-    const sketchUrl = urlParams.get('sketchUrl');
-    const orderName = urlParams.get('orderName') || 'Your Order';
-    
-    // Display order name
-    document.querySelector('.order-name').textContent = orderName;
-    
-    // Load sketch image
-    if (sketchUrl) {
-      document.getElementById('sketchImage').src = sketchUrl;
-    }
-    
-    // TEST MODE - set to false for production
-    const TEST_MODE = false;
-    
-    // Production webhook URL
-    const WEBHOOK_URL = 'https://showoffinc.app.n8n.cloud/webhook/sketch-review';
-    
-    // Auto-bullet formatting for revision notes
-    const revisionNotes = document.getElementById('revisionNotes');
-    
-    revisionNotes.addEventListener('keydown', (e) => {
-      const textarea = e.target;
-      const value = textarea.value;
-      const cursorPos = textarea.selectionStart;
-      
-      // If textarea is empty and they start typing, add first bullet
-      if (value === '' && e.key !== 'Enter' && e.key !== 'Backspace' && e.key.length === 1) {
-        textarea.value = '• ';
-        textarea.selectionStart = textarea.selectionEnd = 2;
-        return;
-      }
-      
-      // On Enter, add new bullet
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        const before = value.substring(0, cursorPos);
-        const after = value.substring(cursorPos);
-        textarea.value = before + '\n• ' + after;
-        textarea.selectionStart = textarea.selectionEnd = cursorPos + 3;
-        return;
-      }
-      
-      // On Backspace at start of a bullet line, remove the bullet
-      if (e.key === 'Backspace') {
-        const lineStart = value.lastIndexOf('\n', cursorPos - 1) + 1;
-        const linePrefix = value.substring(lineStart, cursorPos);
-        if (linePrefix === '• ') {
-          e.preventDefault();
-          const before = value.substring(0, lineStart);
-          const after = value.substring(cursorPos);
-          // If it's the first line, just clear it; otherwise remove the newline too
-          if (lineStart === 0) {
-            textarea.value = after;
-            textarea.selectionStart = textarea.selectionEnd = 0;
-          } else {
-            textarea.value = before.slice(0, -1) + after;
-            textarea.selectionStart = textarea.selectionEnd = lineStart - 1;
-          }
-        }
-      }
-    });
-    
-    // Decision buttons
-    const decisionSection = document.querySelector('.decision-section');
-    const revisionForm = document.getElementById('revisionForm');
-    const confirmModal = document.getElementById('confirmModal');
-    
-    document.getElementById('approveBtn').addEventListener('click', () => {
-      confirmModal.classList.add('show');
-    });
-    
-    document.getElementById('reviseBtn').addEventListener('click', () => {
-      decisionSection.style.display = 'none';
-      revisionForm.classList.add('show');
-    });
-    
-    document.getElementById('backBtn').addEventListener('click', () => {
-      revisionForm.classList.remove('show');
-      decisionSection.style.display = 'block';
-    });
-    
-    document.getElementById('cancelApprove').addEventListener('click', () => {
-      confirmModal.classList.remove('show');
-    });
-    
-    // File upload handling
-    const uploadArea = document.getElementById('uploadArea');
-    const fileInput = document.getElementById('fileInput');
-    const previewContainer = document.getElementById('previewContainer');
-    let uploadedFiles = [];
-    
-    uploadArea.addEventListener('click', () => fileInput.click());
-    
-    uploadArea.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      uploadArea.style.borderColor = '#3B82F6';
-      uploadArea.style.background = '#f0f7ff';
-    });
-    
-    uploadArea.addEventListener('dragleave', () => {
-      uploadArea.style.borderColor = '#ddd';
-      uploadArea.style.background = '#fafafa';
-    });
-    
-    uploadArea.addEventListener('drop', (e) => {
-      e.preventDefault();
-      uploadArea.style.borderColor = '#ddd';
-      uploadArea.style.background = '#fafafa';
-      handleFiles(e.dataTransfer.files);
-    });
-    
-    fileInput.addEventListener('change', (e) => {
-      handleFiles(e.target.files);
-    });
-    
-    function handleFiles(files) {
-      Array.from(files).forEach(file => {
-        if (file.type.startsWith('image/') && file.size <= 10 * 1024 * 1024) {
-          uploadedFiles.push(file);
-          displayPreview(file);
-        }
-      });
-    }
-    
-    function displayPreview(file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const div = document.createElement('div');
-        div.className = 'preview-item';
-        div.innerHTML = `
-          <img src="${e.target.result}" alt="Preview">
-          <button class="remove-btn" onclick="removeFile(${uploadedFiles.length - 1}, this)">&times;</button>
-        `;
-        previewContainer.appendChild(div);
-      };
-      reader.readAsDataURL(file);
-    }
-    
-    window.removeFile = function(index, btn) {
-      uploadedFiles.splice(index, 1);
-      btn.parentElement.remove();
-      document.querySelectorAll('.preview-item .remove-btn').forEach((btn, i) => {
-        btn.setAttribute('onclick', `removeFile(${i}, this)`);
-      });
-    };
-    
-    function fileToBase64(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-    }
-    
-    // Submit Approval
-    document.getElementById('confirmApprove').addEventListener('click', async () => {
-      confirmModal.classList.remove('show');
-      document.getElementById('mainContent').style.display = 'none';
-      document.getElementById('loadingText').textContent = 'Approving your design...';
-      document.getElementById('loadingState').classList.add('show');
-      
-      const payload = {
-        dealId: dealId,
-        orderName: orderName,
-        action: 'approved',
-        approvedAt: new Date().toISOString()
-      };
-      
-      if (TEST_MODE) {
-        console.log('=== APPROVAL PAYLOAD ===');
-        console.log(JSON.stringify(payload, null, 2));
-        await new Promise(r => setTimeout(r, 1000)); // Simulate delay
-        showSuccess('approved');
-        return;
-      }
-      
-      try {
-        const response = await fetch(WEBHOOK_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-        
-        if (response.ok) {
-          showSuccess('approved');
+    <!-- Giant diagonal watermark -->
+    <div class="watermark-container">
+        <div class="watermark-shadow">showoff</div>
+        <div class="watermark">showoff</div>
+    </div>
+
+    <div class="container">
+        <!-- Header - Centered -->
+        <div class="header">
+            <div class="logo">showoff</div>
+        </div>
+
+        <!-- Main View -->
+        <div class="main-view" id="mainView">
+            <!-- Sketch - Clickable -->
+            <div class="sketch-section">
+                <div class="sketch-frame" onclick="openLightbox()">
+                    <img id="sketchImage" src="" alt="Your Design" style="display: none;">
+                    <span class="sketch-placeholder" id="sketchPlaceholder">Loading...</span>
+                </div>
+            </div>
+
+            <!-- Quote Details - Collapsible -->
+            <div class="quote-section">
+                <div class="order-number" id="orderNumber">Loading...</div>
+                <div class="quote-box" id="quoteBox">
+                    <div class="quote-header" onclick="toggleQuote()">
+                        <div class="quote-total-display">
+                            <span class="quote-total-label">Total</span>
+                            <span class="quote-total-amount" id="totalDisplay">$0.00</span>
+                        </div>
+                        <div class="quote-toggle">
+                            <span>Details</span>
+                            <svg class="quote-toggle-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M6 9l6 6 6-6"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="line-items" id="lineItems">
+                        <!-- Line items populated by JS -->
+                    </div>
+                    <div class="totals" id="totalsSection">
+                        <!-- Totals populated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="actions" id="actionButtons">
+                <button class="btn btn-primary" id="approveBtn" onclick="handleApprove()">
+                    Approve
+                </button>
+                <button class="btn btn-secondary" id="revisionToggle" onclick="toggleRevision()">
+                    Request Changes
+                </button>
+            </div>
+
+            <!-- Revision Panel -->
+            <div class="revision-panel" id="revisionPanel">
+                <div class="form-group">
+                    <div class="section-label">What would you like changed?</div>
+                    <textarea
+                        class="revision-notes"
+                        id="revisionNotes"
+                        placeholder="Describe the changes you'd like..."
+                    ></textarea>
+                </div>
+
+                <div class="form-group">
+                    <div class="section-label">Reference Images (Optional)</div>
+                    <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+                        <div class="upload-text">
+                            <span>Choose files</span> or drag here
+                        </div>
+                    </div>
+                    <input type="file" id="fileInput" class="file-input" multiple accept="image/*" onchange="handleFiles(this.files)">
+                    <div class="file-list" id="fileList"></div>
+                </div>
+
+                <div class="error-message" id="errorMessage"></div>
+
+                <button class="btn btn-primary submit-revision" id="submitRevisionBtn" onclick="handleRevision()">
+                    Submit Request
+                </button>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div class="loading-view" id="loadingView">
+            <div class="spinner"></div>
+            <p class="loading-text" id="loadingText">Submitting...</p>
+        </div>
+
+        <!-- Approve Success -->
+        <div class="success-view" id="approveSuccess">
+            <div class="success-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M5 13l4 4L19 7"/>
+                </svg>
+            </div>
+            <h2 class="success-title">Design Approved</h2>
+            <p class="success-message">
+                Your invoice is ready in your inbox. With payment complete and measurements on file, you're into the production queue.
+            </p>
+        </div>
+
+        <!-- Revision Success -->
+        <div class="success-view" id="revisionSuccess">
+            <div class="success-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M5 13l4 4L19 7"/>
+                </svg>
+            </div>
+            <h2 class="success-title">Request Received</h2>
+            <p class="success-message">
+                We've received your revision request. Our design team will review your notes and send an updated sketch soon.
+            </p>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer" id="footer">
+            Show Off Inc.
+        </div>
+    </div>
+
+    <!-- Lightbox -->
+    <div class="lightbox" id="lightbox" onclick="closeLightbox()">
+        <div class="lightbox-close">&times;</div>
+        <img src="" alt="Design Preview" id="lightboxImg">
+    </div>
+
+    <script>
+        // Get URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const dealId = urlParams.get('dealId');
+        const sketchUrl = urlParams.get('sketchUrl');
+        let orderName = urlParams.get('orderName') || 'Your Order';
+
+        // Production webhook URL
+        const WEBHOOK_URL = 'https://showoffinc.app.n8n.cloud/webhook/sketch-review';
+
+        // Display order info
+        document.getElementById('orderNumber').textContent = 'Order #' + (dealId || '—');
+
+        // Load sketch image
+        if (sketchUrl) {
+            const img = document.getElementById('sketchImage');
+            img.src = sketchUrl;
+            img.onload = () => {
+                img.style.display = 'block';
+                document.getElementById('sketchPlaceholder').style.display = 'none';
+            };
+            img.onerror = () => {
+                document.getElementById('sketchPlaceholder').textContent = 'Unable to load sketch';
+            };
         } else {
-          throw new Error('Failed');
+            document.getElementById('sketchPlaceholder').textContent = 'No sketch available';
         }
-      } catch (error) {
-        showError('approval');
-      }
-    });
-    
-    // Submit Revision
-    document.getElementById('submitRevisionBtn').addEventListener('click', async () => {
-      const notes = document.getElementById('revisionNotes').value.trim();
-      
-      if (!notes) {
-        document.getElementById('errorMessage').textContent = 'Please describe what changes you would like.';
-        document.getElementById('errorMessage').classList.add('show');
-        return;
-      }
-      
-      document.getElementById('errorMessage').classList.remove('show');
-      document.getElementById('mainContent').style.display = 'none';
-      document.getElementById('loadingText').textContent = 'Submitting your revision request...';
-      document.getElementById('loadingState').classList.add('show');
-      
-      const referenceImages = await Promise.all(
-        uploadedFiles.map(async (file) => ({
-          name: file.name,
-          type: file.type,
-          data: await fileToBase64(file)
-        }))
-      );
-      
-      const payload = {
-        dealId: dealId,
-        orderName: orderName,
-        action: 'revision_requested',
-        revisionNotes: notes,
-        referenceImages: referenceImages,
-        originalSketchUrl: sketchUrl,
-        submittedAt: new Date().toISOString()
-      };
-      
-      if (TEST_MODE) {
-        console.log('=== REVISION PAYLOAD ===');
-        console.log(JSON.stringify(payload, null, 2));
-        await new Promise(r => setTimeout(r, 1000)); // Simulate delay
-        showSuccess('revision');
-        return;
-      }
-      
-      try {
-        const response = await fetch(WEBHOOK_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
+
+        // Fetch deal data and line items from HubSpot via API
+        async function loadDealData() {
+            if (!dealId) {
+                document.getElementById('totalDisplay').textContent = '$0.00';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/deal?dealId=${dealId}`);
+                if (!response.ok) throw new Error('Failed to fetch');
+
+                const data = await response.json();
+
+                // Update order name if we got it from HubSpot
+                if (data.dealName) {
+                    orderName = data.dealName;
+                }
+
+                // Display total
+                const total = data.total || data.amount || 0;
+                document.getElementById('totalDisplay').textContent = '$' + total.toFixed(2);
+
+                // Populate line items
+                if (data.lineItems && data.lineItems.length > 0) {
+                    document.getElementById('lineItems').innerHTML = data.lineItems.map(item => `
+                        <div class="line-item">
+                            <div class="item-details">
+                                <div class="item-name">${item.name}</div>
+                                <div class="item-meta">Qty: ${item.quantity}${item.description ? ' · ' + item.description : ''}</div>
+                            </div>
+                            <div class="item-price">$${(item.amount || item.price * item.quantity).toFixed(2)}</div>
+                        </div>
+                    `).join('');
+
+                    document.getElementById('totalsSection').innerHTML = `
+                        <div class="total-row">
+                            <span>Subtotal</span>
+                            <span>$${total.toFixed(2)}</span>
+                        </div>
+                        <div class="total-row">
+                            <span>Shipping</span>
+                            <span>TBD</span>
+                        </div>
+                        <div class="total-row grand-total">
+                            <span>Total</span>
+                            <span>$${total.toFixed(2)}</span>
+                        </div>
+                    `;
+                } else {
+                    // No line items - hide the quote section
+                    document.querySelector('.quote-section').style.display = 'none';
+                }
+
+            } catch (error) {
+                console.error('Error loading deal data:', error);
+                // Hide quote section on error
+                document.querySelector('.quote-section').style.display = 'none';
+            }
+        }
+
+        // Load deal data on page load
+        loadDealData();
+
+        let uploadedFiles = [];
+
+        function toggleQuote() {
+            document.getElementById('quoteBox').classList.toggle('expanded');
+        }
+
+        function openLightbox() {
+            const sketchImg = document.getElementById('sketchImage');
+            if (sketchImg && sketchImg.src) {
+                document.getElementById('lightboxImg').src = sketchImg.src;
+                document.getElementById('lightbox').classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeLightbox();
         });
-        
-        if (response.ok) {
-          showSuccess('revision');
-        } else {
-          throw new Error('Failed');
+
+        function toggleRevision() {
+            const panel = document.getElementById('revisionPanel');
+            const toggle = document.getElementById('revisionToggle');
+            const actions = document.getElementById('actionButtons');
+
+            if (panel.classList.contains('active')) {
+                panel.classList.remove('active');
+                toggle.textContent = 'Request Changes';
+                actions.style.display = 'flex';
+            } else {
+                panel.classList.add('active');
+                toggle.textContent = 'Cancel';
+                actions.style.display = 'none';
+                document.getElementById('revisionPanel').insertBefore(
+                    document.getElementById('revisionToggle').parentElement,
+                    null
+                );
+            }
         }
-      } catch (error) {
-        showError('revision');
-      }
-    });
-    
-    function showSuccess(type) {
-      document.getElementById('loadingState').classList.remove('show');
-      
-      const successIcon = document.getElementById('successIcon');
-      const successTitle = document.getElementById('successTitle');
-      const successMessage = document.getElementById('successMessage');
-      const nextSteps = document.getElementById('nextSteps');
-      const nextStepsText = document.getElementById('nextStepsText');
-      
-      if (type === 'approved') {
-        successIcon.className = 'success-icon approved';
-        successIcon.textContent = '✓';
-        successTitle.textContent = 'Design Approved!';
-        successMessage.textContent = 'Thank you for approving your costume design.';
-        nextSteps.className = 'next-steps';
-        nextStepsText.textContent = '📧 You\'ll receive an email shortly with a link to submit your team\'s measurements. Once we have measurements and payment, production begins!';
-      } else {
-        successIcon.className = 'success-icon revision';
-        successIcon.textContent = '✏️';
-        successTitle.textContent = 'Revision Request Submitted!';
-        successMessage.textContent = 'We\'ve received your feedback.';
-        nextSteps.className = 'next-steps revision';
-        nextStepsText.textContent = '🎨 Our design team will review your notes and update your sketch. You\'ll receive an email when the revised sketch is ready for review.';
-      }
-      
-      document.getElementById('successState').classList.add('show');
-    }
-    
-    function showError(type) {
-      document.getElementById('loadingState').classList.remove('show');
-      document.getElementById('mainContent').style.display = 'block';
-      
-      if (type === 'revision') {
-        revisionForm.classList.add('show');
-        decisionSection.style.display = 'none';
-      }
-      
-      alert('Something went wrong. Please try again or contact us directly.');
-    }
-  </script>
+
+        function handleFiles(files) {
+            for (let file of files) {
+                if (file.type.startsWith('image/') && file.size <= 10 * 1024 * 1024) {
+                    uploadedFiles.push(file);
+                }
+            }
+            updateFileList();
+            if (uploadedFiles.length > 0) {
+                document.getElementById('uploadArea').classList.add('has-files');
+            }
+        }
+
+        function updateFileList() {
+            const list = document.getElementById('fileList');
+            list.innerHTML = uploadedFiles.map((file, i) => `
+                <div class="file-item">
+                    <span>${file.name}</span>
+                    <span class="file-remove" onclick="removeFile(${i})">Remove</span>
+                </div>
+            `).join('');
+        }
+
+        function removeFile(index) {
+            uploadedFiles.splice(index, 1);
+            updateFileList();
+            if (uploadedFiles.length === 0) {
+                document.getElementById('uploadArea').classList.remove('has-files');
+            }
+        }
+
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function handleApprove() {
+            // Confirmation dialog
+            const confirmed = confirm(
+                "Approve this sketch?\n\n" +
+                "By approving, you're confirming the design is final and ready for production. " +
+                "You'll receive an invoice for payment immediately.\n\n" +
+                "If you'd like to request changes, please click 'Cancel' and then select 'Request Changes' instead."
+            );
+
+            if (!confirmed) {
+                return; // User cancelled
+            }
+
+            const btn = document.getElementById('approveBtn');
+            btn.classList.add('btn-loading');
+            btn.disabled = true;
+
+            document.getElementById('mainView').classList.add('hidden');
+            document.getElementById('loadingText').textContent = 'Approving your design...';
+            document.getElementById('loadingView').classList.add('active');
+
+            const payload = {
+                dealId: dealId,
+                orderName: orderName,
+                action: 'approved',
+                approvedAt: new Date().toISOString()
+            };
+
+            try {
+                const response = await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    document.getElementById('loadingView').classList.remove('active');
+                    document.getElementById('approveSuccess').classList.add('active');
+                    document.getElementById('footer').style.display = 'none';
+                } else {
+                    throw new Error('Failed');
+                }
+            } catch (error) {
+                document.getElementById('loadingView').classList.remove('active');
+                document.getElementById('mainView').classList.remove('hidden');
+                btn.classList.remove('btn-loading');
+                btn.disabled = false;
+                alert('Something went wrong. Please try again.');
+            }
+        }
+
+        async function handleRevision() {
+            const btn = document.getElementById('submitRevisionBtn');
+            const notes = document.getElementById('revisionNotes').value.trim();
+
+            if (!notes) {
+                document.getElementById('errorMessage').textContent = 'Please describe what changes you would like.';
+                document.getElementById('errorMessage').classList.add('show');
+                document.getElementById('revisionNotes').focus();
+                return;
+            }
+
+            document.getElementById('errorMessage').classList.remove('show');
+            btn.classList.add('btn-loading');
+            btn.disabled = true;
+
+            document.getElementById('mainView').classList.add('hidden');
+            document.getElementById('loadingText').textContent = 'Submitting your revision request...';
+            document.getElementById('loadingView').classList.add('active');
+
+            const referenceImages = await Promise.all(
+                uploadedFiles.map(async (file) => ({
+                    name: file.name,
+                    type: file.type,
+                    data: await fileToBase64(file)
+                }))
+            );
+
+            const payload = {
+                dealId: dealId,
+                orderName: orderName,
+                action: 'revision_requested',
+                revisionNotes: notes,
+                referenceImages: referenceImages,
+                originalSketchUrl: sketchUrl,
+                submittedAt: new Date().toISOString()
+            };
+
+            try {
+                const response = await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    document.getElementById('loadingView').classList.remove('active');
+                    document.getElementById('revisionSuccess').classList.add('active');
+                    document.getElementById('footer').style.display = 'none';
+                } else {
+                    throw new Error('Failed');
+                }
+            } catch (error) {
+                document.getElementById('loadingView').classList.remove('active');
+                document.getElementById('mainView').classList.remove('hidden');
+                btn.classList.remove('btn-loading');
+                btn.disabled = false;
+                alert('Something went wrong. Please try again.');
+            }
+        }
+
+        // Drag and drop
+        const uploadArea = document.getElementById('uploadArea');
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#1a1a1a';
+        });
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.borderColor = uploadedFiles.length > 0 ? '#1a1a1a' : '#aaa';
+        });
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = uploadedFiles.length > 0 ? '#1a1a1a' : '#aaa';
+            handleFiles(e.dataTransfer.files);
+        });
+    </script>
 </body>
 </html>
