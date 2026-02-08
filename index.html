@@ -346,7 +346,7 @@
         .btn-primary {
             background: #2a2220;
             color: #fff;
-            border: 1px solid #2a2220;
+            border: 2px solid #2a2220;
         }
 
         .btn-primary:hover {
@@ -363,12 +363,22 @@
         .btn-secondary {
             background: rgba(255,255,255,0.5);
             color: #2a2220;
-            border: 1px solid rgba(200,180,170,0.35);
+            border: 2px solid rgba(42,34,32,0.35);
         }
 
         .btn-secondary:hover {
             border-color: #2a2220;
             background: rgba(255,255,255,0.7);
+        }
+
+        .btn-hint {
+            font-family: 'Inter', -apple-system, sans-serif;
+            font-size: 9px;
+            color: #aaa;
+            letter-spacing: 0.02em;
+            line-height: 1.5;
+            margin-top: 6px;
+            font-style: italic;
         }
 
         /* Revision Panel */
@@ -891,12 +901,18 @@
 
             <!-- Actions -->
             <div class="actions" id="actionButtons">
-                <button class="btn btn-primary" id="approveBtn" onclick="handleApprove()">
-                    Approve Your Design As Is
-                </button>
-                <button class="btn btn-secondary" id="revisionToggle" onclick="toggleRevision()">
-                    Request Changes to the Design
-                </button>
+                <div style="flex:1; text-align:center;">
+                    <button class="btn btn-primary" id="approveBtn" onclick="handleApprove()" style="width:100%">
+                        Approve Your Design As Is
+                    </button>
+                    <div class="btn-hint">Approves the sketch &amp; prices as shown</div>
+                </div>
+                <div style="flex:1; text-align:center;">
+                    <button class="btn btn-secondary" id="revisionToggle" onclick="toggleRevision()" style="width:100%">
+                        Request Design Change
+                    </button>
+                    <div class="btn-hint">Send design change requests to your designer</div>
+                </div>
             </div>
 
             <!-- Revision Panel -->
@@ -1140,7 +1156,7 @@
 
             if (panel.classList.contains('active')) {
                 panel.classList.remove('active');
-                toggle.textContent = 'Request Changes to the Design';
+                toggle.textContent = 'Request Design Change';
                 actions.style.display = 'flex';
             } else {
                 panel.classList.add('active');
