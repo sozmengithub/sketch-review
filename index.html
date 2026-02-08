@@ -16,7 +16,7 @@
 
         body {
             font-family: 'Inter', -apple-system, sans-serif;
-            background: #fff;
+            background: #faf9f7;
             color: #1a1a1a;
             font-size: 13px;
             font-weight: 400;
@@ -25,68 +25,25 @@
             min-height: 100vh;
             overflow-x: hidden;
             position: relative;
+            opacity: 0;
+            animation: pageEnter 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.1s forwards;
         }
 
-        /* SVG filter for ink effect */
-        .svg-filters {
-            position: absolute;
-            width: 0;
-            height: 0;
-        }
+        @media (prefers-reduced-motion: reduce) { body { opacity: 1; animation: none; } }
 
-        /* Giant diagonal watermark */
-        .watermark-container {
+        @keyframes pageEnter { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Grain texture overlay */
+        .grain-overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
             pointer-events: none;
-            overflow: hidden;
-            z-index: 0;
-        }
-
-        .watermark {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            font-family: 'Cormorant Garamond', Georgia, serif;
-            font-size: 86vh;
-            font-weight: 500;
-            letter-spacing: -0.05em;
-            white-space: nowrap;
-            transform: translate(-50%, -50%) rotate(-50deg);
-            transform-origin: center center;
-            user-select: none;
-            color: transparent;
-            background: linear-gradient(
-                135deg,
-                rgba(0,0,0,0.08) 0%,
-                rgba(0,0,0,0.12) 20%,
-                rgba(0,0,0,0.06) 40%,
-                rgba(0,0,0,0.10) 60%,
-                rgba(0,0,0,0.07) 80%,
-                rgba(0,0,0,0.09) 100%
-            );
-            -webkit-background-clip: text;
-            background-clip: text;
-            filter: url(#ink-bleed);
-        }
-
-        .watermark-shadow {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            font-family: 'Cormorant Garamond', Georgia, serif;
-            font-size: 86vh;
-            font-weight: 500;
-            letter-spacing: -0.05em;
-            white-space: nowrap;
-            transform: translate(-49.5%, -50.5%) rotate(-50deg);
-            transform-origin: center center;
-            user-select: none;
-            color: rgba(0,0,0,0.03);
-            filter: blur(2px);
+            z-index: 999;
+            opacity: 0.025;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
         }
 
         .container {
@@ -95,6 +52,14 @@
             padding: 40px 24px 60px;
             position: relative;
             z-index: 1;
+            background: rgba(255,255,255,0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.3);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+            border-radius: 2px;
+            margin-top: 20px;
+            margin-bottom: 20px;
         }
 
         /* Header */
@@ -102,7 +67,18 @@
             text-align: center;
             margin-bottom: 28px;
             padding-bottom: 16px;
-            border-bottom: 1px solid rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 1px;
+            background: rgba(0,0,0,0.15);
         }
 
         .logo {
@@ -128,7 +104,8 @@
         .sketch-frame {
             aspect-ratio: 5/4;
             background: rgba(255,255,255,0.85);
-            border: 1px solid rgba(0,0,0,0.1);
+            border: 1px solid rgba(200,180,170,0.2);
+            border-radius: 2px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -136,6 +113,7 @@
             backdrop-filter: blur(8px);
             cursor: pointer;
             position: relative;
+            box-shadow: 0 1px 8px rgba(180,150,140,0.06);
         }
 
         .sketch-frame:hover::after {
@@ -208,18 +186,20 @@
         }
 
         .section-label {
-            font-size: 9px;
-            letter-spacing: 0.18em;
+            font-size: 8px;
+            letter-spacing: 0.25em;
             text-transform: uppercase;
-            color: #888;
+            color: #999;
             margin-bottom: 10px;
         }
 
         /* Collapsible quote box */
         .quote-box {
-            background: rgba(255,255,255,0.9);
-            border: 1px solid rgba(0,0,0,0.1);
+            background: linear-gradient(145deg, rgba(255,255,255,0.92), rgba(255,252,250,0.88));
+            border: 1px solid rgba(200,180,170,0.2);
+            border-radius: 2px;
             backdrop-filter: blur(8px);
+            box-shadow: 0 1px 8px rgba(180,150,140,0.06);
         }
 
         .quote-header {
@@ -362,36 +342,38 @@
         }
 
         .btn-primary {
-            background: #1a1a1a;
+            background: #2a2220;
             color: #fff;
-            border: 1px solid #1a1a1a;
+            border: 1px solid #2a2220;
         }
 
         .btn-primary:hover {
-            background: #000;
+            background: #1a1510;
+            border-color: #1a1510;
         }
 
         .btn-primary:disabled {
-            background: #999;
-            border-color: #999;
+            background: #b0a5a0;
+            border-color: #b0a5a0;
             cursor: not-allowed;
         }
 
         .btn-secondary {
-            background: rgba(255,255,255,0.9);
-            color: #1a1a1a;
-            border: 1px solid #999;
+            background: rgba(255,255,255,0.5);
+            color: #2a2220;
+            border: 1px solid rgba(200,180,170,0.35);
         }
 
         .btn-secondary:hover {
-            border-color: #1a1a1a;
+            border-color: #2a2220;
+            background: rgba(255,255,255,0.7);
         }
 
         /* Revision Panel */
         .revision-panel {
             display: none;
             padding-top: 16px;
-            border-top: 1px solid rgba(0,0,0,0.1);
+            border-top: 1px solid rgba(200,180,170,0.2);
             margin-bottom: 16px;
         }
 
@@ -407,40 +389,46 @@
             width: 100%;
             min-height: 100px;
             padding: 10px 12px;
-            border: 1px solid #ccc;
+            border: 1px solid rgba(200,180,170,0.2);
+            border-radius: 3px;
             font-family: inherit;
             font-size: 13px;
             resize: vertical;
-            background: rgba(255,255,255,0.95);
+            background: rgba(255,255,255,0.6);
             line-height: 1.5;
+            transition: all 0.25s ease;
         }
 
         .revision-notes:focus {
             outline: none;
-            border-color: #1a1a1a;
+            border-color: rgba(200,170,155,0.6);
+            background: rgba(255,255,255,0.95);
+            box-shadow: 0 0 0 3px rgba(200,170,155,0.1), 0 2px 8px rgba(200,170,155,0.08);
         }
 
         .revision-notes::placeholder {
-            color: #bbb;
+            color: rgba(180,160,150,0.5);
         }
 
         /* File Upload */
         .upload-area {
-            border: 1px dashed #aaa;
+            border: 1px dashed rgba(200,180,170,0.35);
+            border-radius: 3px;
             padding: 16px;
             text-align: center;
             cursor: pointer;
-            transition: border-color 0.2s;
-            background: rgba(255,255,255,0.9);
+            transition: all 0.25s ease;
+            background: linear-gradient(145deg, rgba(255,252,250,0.4), rgba(248,245,242,0.3));
         }
 
         .upload-area:hover {
-            border-color: #666;
+            border-color: rgba(200,170,155,0.5);
+            background: linear-gradient(145deg, rgba(255,252,250,0.7), rgba(248,245,242,0.6));
         }
 
         .upload-area.has-files {
             border-style: solid;
-            border-color: #1a1a1a;
+            border-color: #2a2220;
         }
 
         .upload-text {
@@ -449,8 +437,10 @@
         }
 
         .upload-text span {
-            color: #1a1a1a;
+            color: #2a2220;
             text-decoration: underline;
+            text-underline-offset: 3px;
+            text-decoration-color: rgba(200,170,155,0.4);
         }
 
         .file-input {
@@ -478,7 +468,7 @@
         }
 
         .file-remove:hover {
-            color: #1a1a1a;
+            color: #2a2220;
         }
 
         .submit-revision {
@@ -514,8 +504,8 @@
         .spinner {
             width: 32px;
             height: 32px;
-            border: 2px solid #e0e0e0;
-            border-top-color: #1a1a1a;
+            border: 2px solid rgba(200,180,170,0.2);
+            border-top-color: #2a2220;
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
             margin: 0 auto 16px;
@@ -534,7 +524,7 @@
             width: 36px;
             height: 36px;
             margin: 0 auto 18px;
-            border: 1px solid #1a1a1a;
+            border: 1px solid #2a2220;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -586,7 +576,7 @@
         }
 
         .btn-secondary.btn-loading::after {
-            border-top-color: #1a1a1a;
+            border-top-color: #2a2220;
         }
 
         /* Footer */
@@ -602,23 +592,27 @@
         .designer-notes {
             margin-bottom: 20px;
             padding: 14px 16px;
-            background: rgba(250, 249, 247, 0.95);
-            border: 1px solid rgba(0,0,0,0.08);
+            background: linear-gradient(145deg, rgba(255,252,250,0.6), rgba(248,245,242,0.5));
+            border: 1px solid rgba(200,180,170,0.15);
+            border-left: 2px solid rgba(200,170,155,0.3);
             backdrop-filter: blur(8px);
+            border-radius: 2px;
             display: none;
         }
 
         .designer-notes-label {
-            font-size: 9px;
-            letter-spacing: 0.18em;
-            text-transform: uppercase;
-            color: #888;
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 11px;
+            font-weight: 600;
+            font-style: italic;
+            letter-spacing: 0.05em;
+            color: #2a2220;
             margin-bottom: 8px;
         }
 
         .designer-notes-text {
             font-size: 13px;
-            color: #444;
+            color: #555;
             line-height: 1.6;
             font-style: italic;
         }
@@ -634,23 +628,25 @@
             align-items: center;
             gap: 10px;
             padding: 12px 16px;
-            background: rgba(250, 249, 247, 0.95);
-            border: 1px solid rgba(0,0,0,0.08);
+            background: linear-gradient(145deg, rgba(255,252,250,0.6), rgba(248,245,242,0.5));
+            border: 1px solid rgba(200,180,170,0.15);
             backdrop-filter: blur(8px);
+            border-radius: 2px;
             cursor: pointer;
             text-decoration: none;
             color: #1a1a1a;
-            transition: border-color 0.2s;
+            transition: all 0.25s ease;
         }
 
         .video-link:hover {
-            border-color: rgba(0,0,0,0.2);
+            border-color: rgba(200,170,155,0.35);
+            box-shadow: 0 2px 12px rgba(180,150,140,0.08);
         }
 
         .video-icon {
             width: 36px;
             height: 36px;
-            background: #1a1a1a;
+            background: #2a2220;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -686,9 +682,11 @@
         }
 
         .addons-box {
-            background: rgba(255,255,255,0.9);
-            border: 1px solid rgba(0,0,0,0.1);
+            background: linear-gradient(145deg, rgba(255,255,255,0.92), rgba(255,252,250,0.88));
+            border: 1px solid rgba(200,180,170,0.2);
+            border-radius: 2px;
             backdrop-filter: blur(8px);
+            box-shadow: 0 1px 8px rgba(180,150,140,0.06);
         }
 
         .addon-item {
@@ -765,7 +763,7 @@
         }
 
         .toggle-switch input:checked + .toggle-slider {
-            background-color: #1a1a1a;
+            background-color: #2a2220;
         }
 
         .toggle-switch input:checked + .toggle-slider:before {
@@ -775,12 +773,13 @@
         .addon-item.active { background: rgba(0,0,0,0.02); }
 
         @media (max-width: 480px) {
-            .watermark, .watermark-shadow {
-                font-size: 70vh;
-            }
-
             .container {
                 padding: 24px 16px 40px;
+                margin-top: 10px;
+                margin-bottom: 10px;
+                border-radius: 0;
+                border-left: none;
+                border-right: none;
             }
 
             .actions {
@@ -791,21 +790,8 @@
     </style>
 </head>
 <body>
-    <!-- SVG Filters for ink effect -->
-    <svg class="svg-filters">
-        <defs>
-            <filter id="ink-bleed" x="-10%" y="-10%" width="120%" height="120%">
-                <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="4" result="noise" seed="3"/>
-                <feDisplacementMap in="SourceGraphic" in2="noise" scale="4" xChannelSelector="R" yChannelSelector="G"/>
-            </filter>
-        </defs>
-    </svg>
-
-    <!-- Giant diagonal watermark -->
-    <div class="watermark-container">
-        <div class="watermark-shadow">showoff</div>
-        <div class="watermark">showoff</div>
-    </div>
+    <!-- Grain texture -->
+    <div class="grain-overlay"></div>
 
     <div class="container">
         <!-- Header - Centered -->
