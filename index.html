@@ -196,7 +196,7 @@
         /* Collapsible quote box */
         .quote-box {
             background: linear-gradient(145deg, rgba(255,255,255,0.92), rgba(255,252,250,0.88));
-            border: 1px solid rgba(200,180,170,0.2);
+            border: 1.5px solid rgba(42,34,32,0.25);
             border-radius: 2px;
             backdrop-filter: blur(8px);
             box-shadow: 0 1px 8px rgba(180,150,140,0.06);
@@ -228,7 +228,7 @@
 
         .quote-total-amount {
             font-size: 16px;
-            font-weight: 500;
+            font-weight: 400;
             color: #1a1a1a;
         }
 
@@ -276,7 +276,7 @@
         }
 
         .item-name {
-            font-weight: 500;
+            font-weight: 400;
             font-size: 13px;
         }
 
@@ -287,7 +287,7 @@
         }
 
         .item-price {
-            font-weight: 500;
+            font-weight: 400;
             font-size: 13px;
             white-space: nowrap;
             margin-left: 12px;
@@ -318,7 +318,7 @@
             margin-top: 6px;
             border-top: 1px solid rgba(0,0,0,0.1);
             font-size: 14px;
-            font-weight: 500;
+            font-weight: 400;
             color: #1a1a1a;
         }
 
@@ -683,7 +683,7 @@
 
         .addons-box {
             background: linear-gradient(145deg, rgba(255,255,255,0.92), rgba(255,252,250,0.88));
-            border: 1px solid rgba(200,180,170,0.2);
+            border: 1.5px solid rgba(42,34,32,0.25);
             border-radius: 2px;
             backdrop-filter: blur(8px);
             box-shadow: 0 1px 8px rgba(180,150,140,0.06);
@@ -704,7 +704,7 @@
         .addon-info { flex: 1; }
 
         .addon-name {
-            font-weight: 500;
+            font-weight: 400;
             font-size: 13px;
         }
 
@@ -716,7 +716,7 @@
 
         .addon-price {
             font-size: 13px;
-            font-weight: 500;
+            font-weight: 400;
             margin-right: 14px;
             white-space: nowrap;
         }
@@ -833,31 +833,6 @@
                 </a>
             </div>
 
-            <!-- Quote Details - Collapsible -->
-            <div class="quote-section">
-                <div class="order-number" id="orderNumber">Loading...</div>
-                <div class="quote-box" id="quoteBox">
-                    <div class="quote-header" onclick="toggleQuote()">
-                        <div class="quote-total-display">
-                            <span class="quote-total-label">Total</span>
-                            <span class="quote-total-amount" id="totalDisplay">$0.00</span>
-                        </div>
-                        <div class="quote-toggle">
-                            <span>Details</span>
-                            <svg class="quote-toggle-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M6 9l6 6 6-6"/>
-                            </svg>
-                        </div>
-                    </div>
-                    <div class="line-items" id="lineItems">
-                        <!-- Line items populated by JS -->
-                    </div>
-                    <div class="totals" id="totalsSection">
-                        <!-- Totals populated by JS -->
-                    </div>
-                </div>
-            </div>
-
             <!-- Optional Add-Ons -->
             <div class="addons-section" id="addonsSection">
                 <div class="section-label">Optional Add-Ons</div>
@@ -883,6 +858,31 @@
                             <input type="checkbox" id="toggleBraCups" onchange="updateAddons()">
                             <span class="toggle-slider"></span>
                         </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Products & Pricing - Default Open -->
+            <div class="quote-section">
+                <div class="section-label" id="orderNumber">Products &amp; Pricing You're Approving</div>
+                <div class="quote-box expanded" id="quoteBox">
+                    <div class="quote-header" onclick="toggleQuote()">
+                        <div class="quote-total-display">
+                            <span class="quote-total-label">Total</span>
+                            <span class="quote-total-amount" id="totalDisplay">$0.00</span>
+                        </div>
+                        <div class="quote-toggle">
+                            <span>Details</span>
+                            <svg class="quote-toggle-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M6 9l6 6 6-6"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="line-items" id="lineItems">
+                        <!-- Line items populated by JS -->
+                    </div>
+                    <div class="totals" id="totalsSection">
+                        <!-- Totals populated by JS -->
                     </div>
                 </div>
             </div>
@@ -985,8 +985,7 @@
         const ADDON_PRICES = { hairpiece: 30.00, braCups: 21.50 };
         let baseSubtotal = 0;
 
-        // Display order info
-        document.getElementById('orderNumber').textContent = 'Order #' + (dealId || '—');
+        // Display order info — label is set in HTML, no override needed
 
         // Load sketch image
         if (sketchUrl) {
