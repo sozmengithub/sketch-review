@@ -33,7 +33,7 @@ export default async function handler(req, res) {
     let hubspotDealId = dealId;
 
     const directResponse = await fetch(
-      `https://api.hubapi.com/crm/v3/objects/deals/${dealId}?properties=dealname,amount`,
+      `https://api.hubapi.com/crm/v3/objects/deals/${dealId}?properties=dealname,amount,designer_notes,sketch_video_url`,
       { headers }
     );
 
@@ -56,7 +56,7 @@ export default async function handler(req, res) {
                 value: dealId
               }]
             }],
-            properties: ['dealname', 'amount'],
+            properties: ['dealname', 'amount', 'designer_notes', 'sketch_video_url'],
             limit: 1
           })
         }
@@ -123,7 +123,9 @@ export default async function handler(req, res) {
       dealName: deal.properties.dealname || 'Your Order',
       amount: parseFloat(deal.properties.amount) || total,
       lineItems: lineItems,
-      total: total
+      total: total,
+      designerNotes: deal.properties.designer_notes || null,
+      sketchVideoUrl: deal.properties.sketch_video_url || null
     });
 
   } catch (error) {

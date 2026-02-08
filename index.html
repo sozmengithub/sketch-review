@@ -598,6 +598,182 @@
             letter-spacing: 0.08em;
         }
 
+        /* Designer Notes */
+        .designer-notes {
+            margin-bottom: 20px;
+            padding: 14px 16px;
+            background: rgba(250, 249, 247, 0.95);
+            border: 1px solid rgba(0,0,0,0.08);
+            backdrop-filter: blur(8px);
+            display: none;
+        }
+
+        .designer-notes-label {
+            font-size: 9px;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: #888;
+            margin-bottom: 8px;
+        }
+
+        .designer-notes-text {
+            font-size: 13px;
+            color: #444;
+            line-height: 1.6;
+            font-style: italic;
+        }
+
+        /* Zoom Clip */
+        .video-section {
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .video-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            background: rgba(250, 249, 247, 0.95);
+            border: 1px solid rgba(0,0,0,0.08);
+            backdrop-filter: blur(8px);
+            cursor: pointer;
+            text-decoration: none;
+            color: #1a1a1a;
+            transition: border-color 0.2s;
+        }
+
+        .video-link:hover {
+            border-color: rgba(0,0,0,0.2);
+        }
+
+        .video-icon {
+            width: 36px;
+            height: 36px;
+            background: #1a1a1a;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .video-icon svg {
+            width: 14px;
+            height: 14px;
+            fill: #fff;
+            margin-left: 2px;
+        }
+
+        .video-info { flex: 1; }
+
+        .video-title {
+            font-size: 12px;
+            font-weight: 500;
+            letter-spacing: 0.02em;
+        }
+
+        .video-subtitle {
+            font-size: 10px;
+            color: #888;
+            letter-spacing: 0.05em;
+            margin-top: 1px;
+        }
+
+        /* Add-Ons */
+        .addons-section {
+            margin-bottom: 20px;
+        }
+
+        .addons-box {
+            background: rgba(255,255,255,0.9);
+            border: 1px solid rgba(0,0,0,0.1);
+            backdrop-filter: blur(8px);
+        }
+
+        .addon-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 16px;
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+            transition: background 0.15s;
+        }
+
+        .addon-item:last-child { border-bottom: none; }
+        .addon-item:hover { background: rgba(0,0,0,0.015); }
+
+        .addon-info { flex: 1; }
+
+        .addon-name {
+            font-weight: 500;
+            font-size: 13px;
+        }
+
+        .addon-desc {
+            font-size: 10px;
+            color: #888;
+            margin-top: 1px;
+        }
+
+        .addon-price {
+            font-size: 13px;
+            font-weight: 500;
+            margin-right: 14px;
+            white-space: nowrap;
+        }
+
+        .addon-added-tag {
+            display: none;
+            font-size: 9px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #16a34a;
+            font-weight: 500;
+        }
+
+        .addon-item.active .addon-added-tag { display: inline; }
+
+        .toggle-switch {
+            position: relative;
+            width: 42px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ddd;
+            transition: 0.25s;
+            border-radius: 24px;
+        }
+
+        .toggle-slider:before {
+            content: "";
+            position: absolute;
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.25s;
+            border-radius: 50%;
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background-color: #1a1a1a;
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(18px);
+        }
+
+        .addon-item.active { background: rgba(0,0,0,0.02); }
+
         @media (max-width: 480px) {
             .watermark, .watermark-shadow {
                 font-size: 70vh;
@@ -647,6 +823,30 @@
                 </div>
             </div>
 
+            <!-- Designer Notes (shown by JS if data exists) -->
+            <div class="designer-notes" id="designerNotes">
+                <div class="designer-notes-label">Note from your designer</div>
+                <div class="designer-notes-text" id="designerNotesText"></div>
+            </div>
+
+            <!-- Zoom Clip (shown by JS if URL exists) -->
+            <div class="video-section" id="videoSection">
+                <a class="video-link" id="videoLink" href="#" target="_blank" rel="noopener">
+                    <div class="video-icon">
+                        <svg viewBox="0 0 24 24"><polygon points="8,5 19,12 8,19"/></svg>
+                    </div>
+                    <div class="video-info">
+                        <div class="video-title">Design Walkthrough Video</div>
+                        <div class="video-subtitle">Your designer recorded a quick explanation of this sketch</div>
+                    </div>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="1.5">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                        <polyline points="15 3 21 3 21 9"/>
+                        <line x1="10" y1="14" x2="21" y2="3"/>
+                    </svg>
+                </a>
+            </div>
+
             <!-- Quote Details - Collapsible -->
             <div class="quote-section">
                 <div class="order-number" id="orderNumber">Loading...</div>
@@ -672,13 +872,42 @@
                 </div>
             </div>
 
+            <!-- Optional Add-Ons -->
+            <div class="addons-section" id="addonsSection">
+                <div class="section-label">Optional Add-Ons</div>
+                <div class="addons-box">
+                    <div class="addon-item" id="addonHairpiece">
+                        <div class="addon-info">
+                            <div class="addon-name">Hairpiece <span class="addon-added-tag">Added</span></div>
+                            <div class="addon-desc">Custom-matched hairpiece for your costume</div>
+                        </div>
+                        <span class="addon-price">+$30.00</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="toggleHairpiece" onchange="updateAddons()">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="addon-item" id="addonBraCups">
+                        <div class="addon-info">
+                            <div class="addon-name">Bra Cups <span class="addon-added-tag">Added</span></div>
+                            <div class="addon-desc">Sewn-in support cups for comfortable fit</div>
+                        </div>
+                        <span class="addon-price">+$21.50</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="toggleBraCups" onchange="updateAddons()">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
             <!-- Actions -->
             <div class="actions" id="actionButtons">
                 <button class="btn btn-primary" id="approveBtn" onclick="handleApprove()">
-                    Approve
+                    Approve Your Design As Is
                 </button>
                 <button class="btn btn-secondary" id="revisionToggle" onclick="toggleRevision()">
-                    Request Changes
+                    Request Changes to the Design
                 </button>
             </div>
 
@@ -726,7 +955,7 @@
                 </svg>
             </div>
             <h2 class="success-title">Design Approved</h2>
-            <p class="success-message">
+            <p class="success-message" id="approveSuccessMessage">
                 Your invoice is ready in your inbox. With payment complete and measurements on file, you're into the production queue.
             </p>
         </div>
@@ -766,6 +995,10 @@
         // Production webhook URL
         const WEBHOOK_URL = 'https://showoffinc.app.n8n.cloud/webhook/sketch-review';
 
+        // Add-on pricing
+        const ADDON_PRICES = { hairpiece: 30.00, braCups: 21.50 };
+        let baseSubtotal = 0;
+
         // Display order info
         document.getElementById('orderNumber').textContent = 'Order #' + (dealId || '—');
 
@@ -804,7 +1037,20 @@
 
                 // Display total
                 const total = data.total || data.amount || 0;
+                baseSubtotal = total;
                 document.getElementById('totalDisplay').textContent = '$' + total.toFixed(2);
+
+                // Show designer notes if present
+                if (data.designerNotes) {
+                    document.getElementById('designerNotesText').textContent = '\u201C' + data.designerNotes + '\u201D';
+                    document.getElementById('designerNotes').style.display = 'block';
+                }
+
+                // Show video section if present
+                if (data.sketchVideoUrl) {
+                    document.getElementById('videoLink').href = data.sketchVideoUrl;
+                    document.getElementById('videoSection').style.display = 'block';
+                }
 
                 // Populate line items
                 if (data.lineItems && data.lineItems.length > 0) {
@@ -812,7 +1058,7 @@
                         <div class="line-item">
                             <div class="item-details">
                                 <div class="item-name">${item.name}</div>
-                                <div class="item-meta">Qty: ${item.quantity}${item.description ? ' · ' + item.description : ''}</div>
+                                <div class="item-meta">Qty: ${item.quantity}${item.description ? ' \u00B7 ' + item.description : ''}</div>
                             </div>
                             <div class="item-price">$${(item.amount || item.price * item.quantity).toFixed(2)}</div>
                         </div>
@@ -821,7 +1067,15 @@
                     document.getElementById('totalsSection').innerHTML = `
                         <div class="total-row">
                             <span>Subtotal</span>
-                            <span>$${total.toFixed(2)}</span>
+                            <span id="subtotalDisplay">$${total.toFixed(2)}</span>
+                        </div>
+                        <div class="total-row" id="addonRow1" style="display:none">
+                            <span>+ Hairpiece</span>
+                            <span>$30.00</span>
+                        </div>
+                        <div class="total-row" id="addonRow2" style="display:none">
+                            <span>+ Bra Cups</span>
+                            <span>$21.50</span>
                         </div>
                         <div class="total-row">
                             <span>Shipping</span>
@@ -829,7 +1083,7 @@
                         </div>
                         <div class="total-row grand-total">
                             <span>Total</span>
-                            <span>$${total.toFixed(2)}</span>
+                            <span id="grandTotalDisplay">$${total.toFixed(2)}</span>
                         </div>
                     `;
                 } else {
@@ -871,6 +1125,27 @@
             if (e.key === 'Escape') closeLightbox();
         });
 
+        function updateAddons() {
+            const hairpiece = document.getElementById('toggleHairpiece').checked;
+            const braCups = document.getElementById('toggleBraCups').checked;
+
+            document.getElementById('addonHairpiece').classList.toggle('active', hairpiece);
+            document.getElementById('addonBraCups').classList.toggle('active', braCups);
+
+            var row1 = document.getElementById('addonRow1');
+            var row2 = document.getElementById('addonRow2');
+            if (row1) row1.style.display = hairpiece ? 'flex' : 'none';
+            if (row2) row2.style.display = braCups ? 'flex' : 'none';
+
+            var total = baseSubtotal;
+            if (hairpiece) total += ADDON_PRICES.hairpiece;
+            if (braCups) total += ADDON_PRICES.braCups;
+
+            document.getElementById('totalDisplay').textContent = '$' + total.toFixed(2);
+            var gt = document.getElementById('grandTotalDisplay');
+            if (gt) gt.textContent = '$' + total.toFixed(2);
+        }
+
         function toggleRevision() {
             const panel = document.getElementById('revisionPanel');
             const toggle = document.getElementById('revisionToggle');
@@ -878,7 +1153,7 @@
 
             if (panel.classList.contains('active')) {
                 panel.classList.remove('active');
-                toggle.textContent = 'Request Changes';
+                toggle.textContent = 'Request Changes to the Design';
                 actions.style.display = 'flex';
             } else {
                 panel.classList.add('active');
@@ -931,17 +1206,25 @@
         }
 
         async function handleApprove() {
+            // Build add-ons list
+            var addOns = [];
+            if (document.getElementById('toggleHairpiece').checked) addOns.push({ name: 'Hairpiece', price: 30.00 });
+            if (document.getElementById('toggleBraCups').checked) addOns.push({ name: 'Bra Cups', price: 21.50 });
+
+            var addonSummary = addOns.length > 0
+                ? '\n\nAdd-ons selected:\n' + addOns.map(function(a) { return '  \u2022 ' + a.name + ': $' + a.price.toFixed(2); }).join('\n')
+                : '';
+
             // Confirmation dialog
             const confirmed = confirm(
-                "Approve this sketch?\n\n" +
+                "Approve this design?\n\n" +
                 "By approving, you're confirming the design is final and ready for production. " +
-                "You'll receive an invoice for payment immediately.\n\n" +
-                "If you'd like to request changes, please click 'Cancel' and then select 'Request Changes' instead."
+                "You'll receive an invoice for payment immediately." +
+                addonSummary +
+                "\n\nIf you'd like to request changes, please click 'Cancel' and then select 'Request Changes to the Design' instead."
             );
 
-            if (!confirmed) {
-                return; // User cancelled
-            }
+            if (!confirmed) return;
 
             const btn = document.getElementById('approveBtn');
             btn.classList.add('btn-loading');
@@ -955,6 +1238,7 @@
                 dealId: dealId,
                 orderName: orderName,
                 action: 'approved',
+                addOns: addOns,
                 approvedAt: new Date().toISOString()
             };
 
@@ -967,6 +1251,13 @@
 
                 if (response.ok) {
                     document.getElementById('loadingView').classList.remove('active');
+
+                    // Update success message to mention add-ons
+                    var msg = addOns.length > 0
+                        ? 'Your invoice is ready in your inbox \u2014 including ' + addOns.map(function(a) { return a.name.toLowerCase(); }).join(' and ') + '. With payment complete and measurements on file, you\'re into the production queue.'
+                        : 'Your invoice is ready in your inbox. With payment complete and measurements on file, you\'re into the production queue.';
+                    document.getElementById('approveSuccessMessage').textContent = msg;
+
                     document.getElementById('approveSuccess').classList.add('active');
                     document.getElementById('footer').style.display = 'none';
                 } else {
