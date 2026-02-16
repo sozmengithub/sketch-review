@@ -784,6 +784,77 @@
 
         .addon-item.active { background: rgba(0,0,0,0.02); }
 
+        /* Stoning Budget Section */
+        .stoning-section {
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .stoning-box {
+            background: linear-gradient(145deg, rgba(255,252,250,0.92), rgba(255,248,242,0.88));
+            border: 1.5px solid rgba(180,140,100,0.3);
+            border-radius: 2px;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 1px 8px rgba(180,150,140,0.06);
+            padding: 16px;
+        }
+
+        .stoning-label {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 13px;
+            font-weight: 600;
+            color: #2a2220;
+            margin-bottom: 4px;
+        }
+
+        .stoning-range {
+            font-size: 20px;
+            font-weight: 400;
+            color: #2a2220;
+            margin-bottom: 8px;
+            letter-spacing: 0.01em;
+        }
+
+        .stoning-note {
+            font-size: 11px;
+            color: #777;
+            line-height: 1.5;
+            margin-bottom: 14px;
+        }
+
+        .stoning-checkbox-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 12px;
+            background: rgba(255,255,255,0.7);
+            border: 1px solid rgba(200,180,170,0.2);
+            border-radius: 2px;
+        }
+
+        .stoning-checkbox-row input[type="checkbox"] {
+            margin-top: 2px;
+            flex-shrink: 0;
+            width: 16px;
+            height: 16px;
+            accent-color: #2a2220;
+        }
+
+        .stoning-checkbox-label {
+            font-size: 12px;
+            color: #444;
+            line-height: 1.5;
+            cursor: pointer;
+        }
+
+        .stoning-required-hint {
+            display: none;
+            font-size: 10px;
+            color: #dc2626;
+            margin-top: 6px;
+            letter-spacing: 0.02em;
+        }
+
         @media (max-width: 480px) {
             .container {
                 padding: 24px 16px 40px;
@@ -874,6 +945,30 @@
                 </div>
             </div>
 
+            <!-- Stoning Budget (shown by JS if deal has stoning) -->
+            <div class="stoning-section" id="stoningSection">
+                <div class="section-label">Rhinestone Stoning</div>
+                <div class="stoning-box">
+                    <div class="stoning-label">Estimated Stoning Budget</div>
+                    <div class="stoning-range" id="stoningRange">$0 - $0</div>
+                    <div class="stoning-note">
+                        Rhinestone stoning is billed separately once stoning is complete.
+                        The final cost will fall within this range. You will receive a
+                        separate invoice for the stoning after your costume is stoned.
+                    </div>
+                    <div class="stoning-checkbox-row">
+                        <input type="checkbox" id="stoningApprovalCheckbox" onchange="updateStoningApproval()">
+                        <label class="stoning-checkbox-label" for="stoningApprovalCheckbox">
+                            I understand and approve the rhinestone stoning budget range shown above.
+                            I agree to receive a separate invoice for the actual stoning cost once stoning is complete.
+                        </label>
+                    </div>
+                    <div class="stoning-required-hint" id="stoningRequiredHint">
+                        You must approve the stoning budget range before approving the design.
+                    </div>
+                </div>
+            </div>
+
             <!-- Products & Pricing - Default Open -->
             <div class="quote-section">
                 <div class="section-label" id="orderNumber">Products &amp; Pricing You're Approving</div>
@@ -960,7 +1055,7 @@
             </div>
             <h2 class="success-title">Design Approved</h2>
             <p class="success-message" id="approveSuccessMessage">
-                Your invoice is ready in your inbox. With payment complete and measurements on file, you're into the production queue.
+                Thank you! Your design has been approved and an invoice is on its way. Once payment and measurements are complete, your order moves into production.
             </p>
         </div>
 
@@ -1002,6 +1097,10 @@
         // Add-on pricing
         const ADDON_PRICES = { hairpiece: 30.00, braCups: 21.50 };
         let baseSubtotal = 0;
+        let hasPayer = false;
+        let hasStoning = false;
+        let stoningBudgetLow = 0;
+        let stoningBudgetHigh = 0;
 
         // Display order info — label is set in HTML, no override needed
 
@@ -1038,6 +1137,9 @@
                     orderName = data.dealName;
                 }
 
+                // Track payer status
+                hasPayer = data.hasPayer || false;
+
                 // Display total
                 const total = data.total || data.amount || 0;
                 baseSubtotal = total;
@@ -1053,6 +1155,19 @@
                 if (data.sketchVideoUrl) {
                     document.getElementById('videoLink').href = data.sketchVideoUrl;
                     document.getElementById('videoSection').style.display = 'block';
+                }
+
+                // Show stoning section if deal has stoning with valid budget
+                if (data.hasStoning && data.stoningBudgetLow > 0 && data.stoningBudgetHigh > 0) {
+                    hasStoning = true;
+                    stoningBudgetLow = data.stoningBudgetLow;
+                    stoningBudgetHigh = data.stoningBudgetHigh;
+                    document.getElementById('stoningRange').textContent =
+                        '$' + stoningBudgetLow.toLocaleString() + ' \u2013 $' + stoningBudgetHigh.toLocaleString();
+                    document.getElementById('stoningSection').style.display = 'block';
+                    // Disable approve button until stoning checkbox is checked
+                    document.getElementById('approveBtn').disabled = true;
+                    document.getElementById('stoningRequiredHint').style.display = 'block';
                 }
 
                 // Populate line items
@@ -1123,6 +1238,12 @@
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') closeLightbox();
         });
+
+        function updateStoningApproval() {
+            var checked = document.getElementById('stoningApprovalCheckbox').checked;
+            document.getElementById('approveBtn').disabled = !checked;
+            document.getElementById('stoningRequiredHint').style.display = checked ? 'none' : 'block';
+        }
 
         function updateAddons() {
             const hairpiece = document.getElementById('toggleHairpiece').checked;
@@ -1214,12 +1335,17 @@
                 ? '\n\nAdd-ons selected:\n' + addOns.map(function(a) { return '  \u2022 ' + a.name + ': $' + a.price.toFixed(2); }).join('\n')
                 : '';
 
+            var stoningSummary = hasStoning
+                ? '\n\nRhinestone stoning: $' + stoningBudgetLow.toLocaleString() + ' \u2013 $' + stoningBudgetHigh.toLocaleString() + ' (billed separately after stoning)'
+                : '';
+
             // Confirmation dialog
             const confirmed = confirm(
                 "Approve this design?\n\n" +
                 "By approving, you're confirming the design is final and ready for production. " +
                 "You'll receive an invoice for payment immediately." +
                 addonSummary +
+                stoningSummary +
                 "\n\nIf you'd like to request changes, please click 'Cancel' and then select 'Request Changes to the Design' instead."
             );
 
@@ -1238,7 +1364,10 @@
                 orderName: orderName,
                 action: 'approved',
                 addOns: addOns,
-                approvedAt: new Date().toISOString()
+                approvedAt: new Date().toISOString(),
+                stoningBudgetApproved: hasStoning,
+                stoningBudgetLow: hasStoning ? stoningBudgetLow : null,
+                stoningBudgetHigh: hasStoning ? stoningBudgetHigh : null
             };
 
             try {
@@ -1251,11 +1380,19 @@
                 if (response.ok) {
                     document.getElementById('loadingView').classList.remove('active');
 
-                    // Update success message to mention add-ons
-                    var msg = addOns.length > 0
-                        ? 'Your invoice is ready in your inbox \u2014 including ' + addOns.map(function(a) { return a.name.toLowerCase(); }).join(' and ') + '. With payment complete and measurements on file, you\'re into the production queue.'
-                        : 'Your invoice is ready in your inbox. With payment complete and measurements on file, you\'re into the production queue.';
-                    document.getElementById('approveSuccessMessage').textContent = msg;
+                    // Update success message
+                    var msg = 'Thank you! Your design has been approved and an invoice is on its way';
+                    if (addOns.length > 0) {
+                        msg += ' \u2014 including ' + addOns.map(function(a) { return a.name.toLowerCase(); }).join(' and ');
+                    }
+                    msg += '. Once payment and measurements are complete, your order moves into production.';
+                    if (hasStoning) {
+                        msg += '\n\nA separate invoice for rhinestone stoning ($' + stoningBudgetLow.toLocaleString() + ' \u2013 $' + stoningBudgetHigh.toLocaleString() + ') will follow once stoning is complete.';
+                    }
+                    if (hasPayer) {
+                        msg += '\n\nIf there is a different payer on this order, please follow up with them to ensure payment or PO issuance is submitted to Show Off to begin production.';
+                    }
+                    document.getElementById('approveSuccessMessage').innerText = msg;
 
                     document.getElementById('approveSuccess').classList.add('active');
                     document.getElementById('footer').style.display = 'none';

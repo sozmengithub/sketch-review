@@ -1,3 +1,18 @@
+async function reportError(system, endpoint, error, dealId) {
+  try {
+    await fetch('https://showoffinc.app.n8n.cloud/webhook/error-alert', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        system, endpoint,
+        error: error.message || String(error),
+        dealId: dealId || 'unknown',
+        timestamp: new Date().toISOString()
+      })
+    });
+  } catch (e) { /* silent */ }
+}
+
 // Vercel serverless function to fetch deal + line items from HubSpot
 export default async function handler(req, res) {
   // Enable CORS
@@ -33,7 +48,7 @@ export default async function handler(req, res) {
     let hubspotDealId = dealId;
 
     const directResponse = await fetch(
-      `https://api.hubapi.com/crm/v3/objects/deals/${dealId}?properties=dealname,amount,designer_notes,sketch_video_url`,
+      `https://api.hubapi.com/crm/v3/objects/deals/${dealId}?properties=dealname,amount,designer_notes,sketch_video_url,has_stoning,stoning_budget_low,stoning_budget_high`,
       { headers }
     );
 
@@ -56,7 +71,7 @@ export default async function handler(req, res) {
                 value: dealId
               }]
             }],
-            properties: ['dealname', 'amount', 'designer_notes', 'sketch_video_url'],
+            properties: ['dealname', 'amount', 'designer_notes', 'sketch_video_url', 'has_stoning', 'stoning_budget_low', 'stoning_budget_high'],
             limit: 1
           })
         }
@@ -74,6 +89,21 @@ export default async function handler(req, res) {
     if (!deal) {
       return res.status(404).json({ error: 'Deal not found', dealId });
     }
+
+    // Check for payer contact on the deal
+    let hasPayer = false;
+    try {
+      const contactAssocResponse = await fetch(
+        `https://api.hubapi.com/crm/v4/objects/deals/${hubspotDealId}/associations/contacts`,
+        { headers }
+      );
+      if (contactAssocResponse.ok) {
+        const contactAssocData = await contactAssocResponse.json();
+        hasPayer = (contactAssocData.results || []).some(r =>
+          (r.associationTypes || []).some(a => a.typeId === 102 && a.label === 'Payer')
+        );
+      }
+    } catch (e) { /* non-critical, default to false */ }
 
     // Get associated line items
     const assocResponse = await fetch(
@@ -125,11 +155,16 @@ export default async function handler(req, res) {
       lineItems: lineItems,
       total: total,
       designerNotes: deal.properties.designer_notes || null,
-      sketchVideoUrl: deal.properties.sketch_video_url || null
+      sketchVideoUrl: deal.properties.sketch_video_url || null,
+      hasPayer: hasPayer,
+      hasStoning: deal.properties.has_stoning === 'Yes',
+      stoningBudgetLow: parseFloat(deal.properties.stoning_budget_low) || null,
+      stoningBudgetHigh: parseFloat(deal.properties.stoning_budget_high) || null
     });
 
   } catch (error) {
     console.error('Error fetching deal:', error.message);
+    await reportError('sketch-review', '/api/deal', error, dealId);
     return res.status(500).json({ error: 'Failed to fetch deal data', details: error.message });
   }
 }
