@@ -116,7 +116,7 @@
             box-shadow: 0 1px 8px rgba(180,150,140,0.06);
         }
 
-        .sketch-frame:hover::after {
+        .sketch-frame:not(.pdf-mode):hover::after {
             content: 'Click to enlarge';
             position: absolute;
             bottom: 10px;
@@ -139,6 +139,29 @@
             font-size: 11px;
             letter-spacing: 0.12em;
             text-transform: uppercase;
+        }
+
+        .pdf-view-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            background: #1a1a1a;
+            color: #fff;
+            border-radius: 12px;
+            padding: 40px 60px;
+            cursor: pointer;
+            transition: background 0.2s;
+            text-align: center;
+        }
+        .pdf-view-btn:hover {
+            background: #333;
+        }
+        .pdf-view-btn span {
+            font-size: 16px;
+            font-weight: 500;
+            letter-spacing: 0.04em;
         }
 
         /* Lightbox */
@@ -888,7 +911,16 @@
             <div class="sketch-section">
                 <div class="sketch-frame" id="sketchFrame" onclick="openLightbox()">
                     <img id="sketchImage" src="" alt="Your Design" style="display: none;">
-                    <iframe id="sketchPdf" style="display:none;width:100%;height:100%;border:none;" title="Your Design"></iframe>
+                    <div id="sketchPdfBtn" style="display:none;" class="pdf-view-btn" onclick="event.stopPropagation(); window.open(sketchUrl, '_blank');">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                            <line x1="16" y1="13" x2="8" y2="13"/>
+                            <line x1="16" y1="17" x2="8" y2="17"/>
+                            <polyline points="10 9 9 9 8 9"/>
+                        </svg>
+                        <span>View Sketch (PDF)</span>
+                    </div>
                     <span class="sketch-placeholder" id="sketchPlaceholder">Loading...</span>
                 </div>
             </div>
@@ -1108,11 +1140,10 @@
         // Load sketch image or PDF
         const isPdfSketch = sketchUrl && sketchUrl.toLowerCase().endsWith('.pdf');
         if (sketchUrl && isPdfSketch) {
-            const pdfFrame = document.getElementById('sketchPdf');
-            pdfFrame.src = 'https://docs.google.com/gview?url=' + encodeURIComponent(sketchUrl) + '&embedded=true';
-            pdfFrame.style.display = 'block';
+            document.getElementById('sketchPdfBtn').style.display = 'flex';
             document.getElementById('sketchPlaceholder').style.display = 'none';
             document.getElementById('sketchFrame').style.cursor = 'default';
+            document.getElementById('sketchFrame').classList.add('pdf-mode');
         } else if (sketchUrl) {
             const img = document.getElementById('sketchImage');
             img.src = sketchUrl;
