@@ -886,8 +886,9 @@
         <div class="main-view" id="mainView">
             <!-- Sketch - Clickable -->
             <div class="sketch-section">
-                <div class="sketch-frame" onclick="openLightbox()">
+                <div class="sketch-frame" id="sketchFrame" onclick="openLightbox()">
                     <img id="sketchImage" src="" alt="Your Design" style="display: none;">
+                    <iframe id="sketchPdf" style="display:none;width:100%;height:100%;border:none;" title="Your Design"></iframe>
                     <span class="sketch-placeholder" id="sketchPlaceholder">Loading...</span>
                 </div>
             </div>
@@ -1104,8 +1105,15 @@
 
         // Display order info — label is set in HTML, no override needed
 
-        // Load sketch image
-        if (sketchUrl) {
+        // Load sketch image or PDF
+        const isPdfSketch = sketchUrl && sketchUrl.toLowerCase().endsWith('.pdf');
+        if (sketchUrl && isPdfSketch) {
+            const pdfFrame = document.getElementById('sketchPdf');
+            pdfFrame.src = 'https://docs.google.com/gview?url=' + encodeURIComponent(sketchUrl) + '&embedded=true';
+            pdfFrame.style.display = 'block';
+            document.getElementById('sketchPlaceholder').style.display = 'none';
+            document.getElementById('sketchFrame').style.cursor = 'default';
+        } else if (sketchUrl) {
             const img = document.getElementById('sketchImage');
             img.src = sketchUrl;
             img.onload = () => {
@@ -1222,6 +1230,10 @@
         }
 
         function openLightbox() {
+            if (isPdfSketch) {
+                window.open(sketchUrl, '_blank');
+                return;
+            }
             const sketchImg = document.getElementById('sketchImage');
             if (sketchImg && sketchImg.src) {
                 document.getElementById('lightboxImg').src = sketchImg.src;
