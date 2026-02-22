@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review Your Options | Show Off</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: #faf9f7;
+            color: #1a1a1a;
+            font-size: 13px;
+            font-weight: 400;
+            line-height: 1.5;
+            letter-spacing: 0.01em;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            opacity: 0;
+            animation: pageEnter 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.1s forwards;
+        }
+
+        @media (prefers-reduced-motion: reduce) { body { opacity: 1; animation: none; } }
+        @keyframes pageEnter { from { opacity: 0; } to { opacity: 1; } }
+
+        .grain-overlay {
+            position: fixed; top: -50%; left: -50%; width: 200%; height: 200%;
+            pointer-events: none; z-index: 999; opacity: 0.025;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+        }
+
+        .container {
+            max-width: 480px;
+            margin: 20px auto;
+            padding: 40px 24px 60px;
+            position: relative; z-index: 1;
+            background: rgba(255,255,255,0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.3);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+            border-radius: 2px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 28px;
+            padding-bottom: 16px;
+            position: relative;
+        }
+
+        .header::after {
+            content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+            width: 40px; height: 1px; background: rgba(0,0,0,0.15);
+        }
+
+        .logo {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 22px; font-weight: 500; letter-spacing: 0.04em;
+        }
+
+        .order-number {
+            font-size: 10px; color: #666; letter-spacing: 0.1em;
+            text-transform: uppercase; margin-bottom: 8px;
+        }
+
+        /* Sketch Section */
+        .sketch-section { margin-bottom: 20px; }
+
+        .sketch-frame {
+            aspect-ratio: 5/4;
+            background: rgba(255,255,255,0.85);
+            border: 1px solid rgba(200,180,170,0.2);
+            border-radius: 2px;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden;
+            backdrop-filter: blur(8px);
+            cursor: pointer;
+            position: relative;
+            box-shadow: 0 1px 8px rgba(180,150,140,0.06);
+        }
+
+        .sketch-frame:not(.pdf-mode):hover::after {
+            content: 'Click to enlarge';
+            position: absolute; bottom: 10px; right: 10px;
+            font-size: 10px; color: #666;
+            background: rgba(255,255,255,0.9);
+            padding: 4px 8px; letter-spacing: 0.05em;
+        }
+
+        .sketch-frame img { max-width: 100%; max-height: 100%; object-fit: contain; }
+        .sketch-placeholder { color: #bbb; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; }
+
+        .pdf-view-btn {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 16px; background: #1a1a1a; color: #fff; border-radius: 12px;
+            padding: 40px 60px; cursor: pointer; transition: background 0.2s; text-align: center;
+        }
+        .pdf-view-btn:hover { background: #333; }
+        .pdf-view-btn span { font-size: 16px; font-weight: 500; letter-spacing: 0.04em; }
+
+        /* Lightbox */
+        .lightbox {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center; cursor: pointer;
+        }
+        .lightbox.active { display: flex; }
+        .lightbox img { max-width: 90%; max-height: 90%; object-fit: contain; }
+        .lightbox-close {
+            position: absolute; top: 20px; right: 20px; color: #fff; font-size: 24px;
+            cursor: pointer; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+        }
+
+        /* Designer Notes */
+        .designer-notes {
+            margin-bottom: 20px; padding: 14px 16px;
+            background: linear-gradient(145deg, rgba(255,252,250,0.6), rgba(248,245,242,0.5));
+            border: 1px solid rgba(200,180,170,0.15);
+            border-left: 2px solid rgba(200,170,155,0.3);
+            backdrop-filter: blur(8px); border-radius: 2px; display: none;
+        }
+        .designer-notes-label {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 11px; font-weight: 600; font-style: italic;
+            letter-spacing: 0.05em; color: #2a2220; margin-bottom: 8px;
+        }
+        .designer-notes-text { font-size: 13px; color: #555; line-height: 1.6; font-style: italic; }
+
+        /* Zoom Clip */
+        .video-section { margin-bottom: 20px; display: none; }
+        .video-link {
+            display: flex; align-items: center; gap: 10px; padding: 12px 16px;
+            background: linear-gradient(145deg, rgba(255,252,250,0.6), rgba(248,245,242,0.5));
+            border: 1px solid rgba(200,180,170,0.15);
+            backdrop-filter: blur(8px); border-radius: 2px;
+            cursor: pointer; text-decoration: none; color: #1a1a1a; transition: all 0.25s ease;
+        }
+        .video-link:hover { border-color: rgba(200,170,155,0.35); box-shadow: 0 2px 12px rgba(180,150,140,0.08); }
+        .video-icon {
+            width: 36px; height: 36px; background: #2a2220; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .video-icon svg { width: 14px; height: 14px; fill: #fff; margin-left: 2px; }
+        .video-info { flex: 1; }
+        .video-title { font-size: 12px; font-weight: 500; letter-spacing: 0.02em; }
+        .video-subtitle { font-size: 10px; color: #888; letter-spacing: 0.05em; margin-top: 1px; }
+
+        /* Section Labels */
+        .section-label {
+            font-size: 8px; letter-spacing: 0.25em; text-transform: uppercase;
+            color: #999; margin-bottom: 10px;
+        }
+
+        /* Option Cards */
+        .options-section { margin-bottom: 20px; }
+
+        .options-intro {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 16px; font-weight: 500; color: #2a2220;
+            text-align: center; margin-bottom: 14px;
+        }
+
+        .option-card {
+            background: linear-gradient(145deg, rgba(255,255,255,0.92), rgba(255,252,250,0.88));
+            border: 1.5px solid rgba(42,34,32,0.15);
+            border-radius: 2px;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 1px 8px rgba(180,150,140,0.06);
+            margin-bottom: 10px;
+            transition: all 0.2s ease;
+        }
+
+        .option-card-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 14px 8px;
+        }
+
+        .option-card-header-left {
+            display: flex; align-items: center; gap: 10px;
+        }
+
+        .option-radio {
+            display: none;
+            width: 18px; height: 18px;
+            border: 2px solid rgba(42,34,32,0.3);
+            border-radius: 50%; flex-shrink: 0; position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .selecting-mode .option-radio { display: block; }
+
+        .option-card.selected .option-radio {
+            border-color: #2a2220;
+        }
+
+        .option-card.selected .option-radio::after {
+            content: ''; position: absolute; top: 3px; left: 3px;
+            width: 8px; height: 8px; background: #2a2220; border-radius: 50%;
+        }
+
+        .option-label {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 14px; font-weight: 600; color: #2a2220; letter-spacing: 0.03em;
+        }
+
+        .option-total {
+            font-size: 15px; font-weight: 400; color: #2a2220;
+        }
+
+        .option-items {
+            border-top: 1px solid rgba(0,0,0,0.06);
+        }
+
+        .option-item {
+            display: flex; justify-content: space-between; align-items: flex-start;
+            padding: 10px 14px; border-bottom: 1px solid rgba(0,0,0,0.06);
+        }
+        .option-item:last-child { border-bottom: none; }
+
+        .option-item-details { flex: 1; }
+        .option-item-name { font-weight: 400; font-size: 13px; }
+        .option-item-meta { font-size: 10px; color: #888; margin-top: 1px; }
+        .option-item-price { font-weight: 400; font-size: 13px; white-space: nowrap; margin-left: 12px; }
+
+        .selecting-mode .option-card {
+            cursor: pointer;
+        }
+
+        .selecting-mode .option-card:hover {
+            border-color: rgba(42,34,32,0.35);
+            box-shadow: 0 2px 12px rgba(180,150,140,0.12);
+        }
+
+        .selecting-mode .option-card.selected {
+            border-color: #2a2220;
+            border-width: 2px;
+            background: linear-gradient(145deg, rgba(255,252,248,0.95), rgba(255,250,245,0.92));
+        }
+
+        .options-hint {
+            font-size: 11px; color: #888; text-align: center;
+            margin-top: 4px; margin-bottom: 8px; font-style: italic;
+        }
+
+        /* Add-ons */
+        .addons-section { margin-bottom: 20px; }
+        .addons-box {
+            background: linear-gradient(145deg, rgba(255,255,255,0.92), rgba(255,252,250,0.88));
+            border: 1.5px solid rgba(42,34,32,0.25);
+            border-radius: 2px; backdrop-filter: blur(8px);
+            box-shadow: 0 1px 8px rgba(180,150,140,0.06);
+        }
+        .addon-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 14px 16px; border-bottom: 1px solid rgba(0,0,0,0.06); transition: background 0.15s;
+        }
+        .addon-item:last-child { border-bottom: none; }
+        .addon-item:hover { background: rgba(0,0,0,0.015); }
+        .addon-info { flex: 1; }
+        .addon-name { font-weight: 400; font-size: 13px; }
+        .addon-desc { font-size: 10px; color: #888; margin-top: 1px; }
+        .addon-price { font-size: 13px; font-weight: 400; margin-right: 14px; white-space: nowrap; }
+        .addon-added-tag {
+            display: none; font-size: 9px; letter-spacing: 0.1em;
+            text-transform: uppercase; color: #16a34a; font-weight: 500;
+        }
+        .addon-item.active .addon-added-tag { display: inline; }
+        .toggle-switch { position: relative; width: 42px; height: 24px; flex-shrink: 0; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ddd; transition: 0.25s; border-radius: 24px;
+        }
+        .toggle-slider:before {
+            content: ""; position: absolute; height: 18px; width: 18px; left: 3px; bottom: 3px;
+            background-color: white; transition: 0.25s; border-radius: 50%;
+        }
+        .toggle-switch input:checked + .toggle-slider { background-color: #2a2220; }
+        .toggle-switch input:checked + .toggle-slider:before { transform: translateX(18px); }
+        .addon-item.active { background: rgba(0,0,0,0.02); }
+
+        /* Stoning */
+        .stoning-section { margin-bottom: 20px; display: none; }
+        .stoning-box {
+            background: linear-gradient(145deg, rgba(255,252,250,0.92), rgba(255,248,242,0.88));
+            border: 1.5px solid rgba(180,140,100,0.3);
+            border-radius: 2px; backdrop-filter: blur(8px);
+            box-shadow: 0 1px 8px rgba(180,150,140,0.06); padding: 16px;
+        }
+        .stoning-label {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 13px; font-weight: 600; color: #2a2220; margin-bottom: 4px;
+        }
+        .stoning-range { font-size: 20px; font-weight: 400; color: #2a2220; margin-bottom: 8px; letter-spacing: 0.01em; }
+        .stoning-note { font-size: 11px; color: #777; line-height: 1.5; margin-bottom: 14px; }
+        .stoning-checkbox-row {
+            display: flex; align-items: flex-start; gap: 10px; padding: 12px;
+            background: rgba(255,255,255,0.7); border: 1px solid rgba(200,180,170,0.2); border-radius: 2px;
+        }
+        .stoning-checkbox-row input[type="checkbox"] {
+            margin-top: 2px; flex-shrink: 0; width: 16px; height: 16px; accent-color: #2a2220;
+        }
+        .stoning-checkbox-label { font-size: 12px; color: #444; line-height: 1.5; cursor: pointer; }
+        .stoning-required-hint { display: none; font-size: 10px; color: #dc2626; margin-top: 6px; letter-spacing: 0.02em; }
+
+        /* Buttons */
+        .actions { display: flex; gap: 10px; margin-bottom: 16px; }
+
+        .btn {
+            flex: 1; padding: 22px 24px;
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 16px; font-weight: 500; letter-spacing: 0.04em;
+            text-transform: none; cursor: pointer; transition: all 0.2s ease;
+            border-radius: 2px; line-height: 1.3;
+        }
+
+        .btn-primary {
+            background: #2a2220; color: #fff; border: 2px solid #2a2220;
+        }
+        .btn-primary:hover { background: #1a1510; border-color: #1a1510; }
+        .btn-primary:disabled { background: #b0a5a0; border-color: #b0a5a0; cursor: not-allowed; }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.5); color: #2a2220; border: 2px solid rgba(42,34,32,0.35);
+        }
+        .btn-secondary:hover { border-color: #2a2220; background: rgba(255,255,255,0.7); }
+
+        .btn-hint {
+            font-family: 'Inter', -apple-system, sans-serif;
+            font-size: 9px; color: #aaa; letter-spacing: 0.02em;
+            line-height: 1.5; margin-top: 6px; font-style: italic;
+        }
+
+        /* Revision Panel */
+        .revision-panel { display: none; padding-top: 16px; border-top: 1px solid rgba(200,180,170,0.2); margin-bottom: 16px; }
+        .revision-panel.active { display: block; }
+
+        .revision-helper {
+            font-size: 12px; color: #666; font-style: italic; line-height: 1.6;
+            margin-bottom: 12px; padding: 10px 12px;
+            background: rgba(255,252,250,0.5);
+            border-left: 2px solid rgba(200,170,155,0.3); border-radius: 2px;
+        }
+
+        .form-group { margin-bottom: 14px; }
+
+        .revision-notes {
+            width: 100%; min-height: 100px; padding: 10px 12px;
+            border: 1px solid rgba(200,180,170,0.2); border-radius: 3px;
+            font-family: inherit; font-size: 13px; resize: vertical;
+            background: rgba(255,255,255,0.6); line-height: 1.5; transition: all 0.25s ease;
+        }
+        .revision-notes:focus {
+            outline: none; border-color: rgba(200,170,155,0.6);
+            background: rgba(255,255,255,0.95);
+            box-shadow: 0 0 0 3px rgba(200,170,155,0.1), 0 2px 8px rgba(200,170,155,0.08);
+        }
+        .revision-notes::placeholder { color: rgba(180,160,150,0.5); }
+
+        /* File Upload */
+        .upload-area {
+            border: 1px dashed rgba(200,180,170,0.35); border-radius: 3px;
+            padding: 16px; text-align: center; cursor: pointer; transition: all 0.25s ease;
+            background: linear-gradient(145deg, rgba(255,252,250,0.4), rgba(248,245,242,0.3));
+        }
+        .upload-area:hover { border-color: rgba(200,170,155,0.5); background: linear-gradient(145deg, rgba(255,252,250,0.7), rgba(248,245,242,0.6)); }
+        .upload-area.has-files { border-style: solid; border-color: #2a2220; }
+        .upload-text { font-size: 11px; color: #888; }
+        .upload-text span { color: #2a2220; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: rgba(200,170,155,0.4); }
+        .file-input { display: none; }
+        .file-list { margin-top: 10px; }
+        .file-item { display: flex; justify-content: space-between; padding: 6px 0; font-size: 11px; border-bottom: 1px solid #f0f0f0; }
+        .file-remove { color: #999; cursor: pointer; font-size: 9px; text-transform: uppercase; letter-spacing: 0.05em; }
+        .file-remove:hover { color: #2a2220; }
+        .submit-revision { width: 100%; margin-top: 14px; }
+
+        .error-message {
+            background: #fef2f2; border: 1px solid #fecaca; color: #dc2626;
+            padding: 10px 12px; font-size: 12px; margin-top: 12px; display: none;
+        }
+        .error-message.show { display: block; }
+
+        /* Loading & Success */
+        .loading-view, .success-view { display: none; text-align: center; padding: 80px 20px; }
+        .loading-view.active, .success-view.active { display: block; }
+
+        .spinner {
+            width: 32px; height: 32px;
+            border: 2px solid rgba(200,180,170,0.2); border-top-color: #2a2220;
+            border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-text { font-size: 12px; color: #666; }
+
+        .success-icon {
+            width: 36px; height: 36px; margin: 0 auto 18px;
+            border: 1px solid #2a2220; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .success-icon svg { width: 16px; height: 16px; }
+        .success-title {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 20px; font-weight: 400; margin-bottom: 10px;
+        }
+        .success-message { font-size: 12px; color: #666; line-height: 1.6; max-width: 300px; margin: 0 auto; }
+        .main-view.hidden { display: none; }
+
+        .btn-loading { position: relative; color: transparent !important; }
+        .btn-loading::after {
+            content: ''; position: absolute; width: 12px; height: 12px;
+            top: 50%; left: 50%; margin: -6px 0 0 -6px;
+            border: 1px solid transparent; border-top-color: #fff;
+            border-radius: 50%; animation: spin 0.8s linear infinite;
+        }
+        .btn-secondary.btn-loading::after { border-top-color: #2a2220; }
+
+        .footer { text-align: center; padding-top: 20px; font-size: 10px; color: #aaa; letter-spacing: 0.08em; }
+
+        /* Approve confirmation step */
+        .approve-step { display: none; margin-bottom: 16px; }
+        .approve-step.active { display: block; }
+        .approve-step-hint {
+            font-size: 11px; color: #666; text-align: center;
+            margin-bottom: 10px; font-style: italic;
+        }
+        .approve-confirm-actions {
+            display: flex; gap: 10px;
+        }
+
+        @media (max-width: 480px) {
+            .container { padding: 24px 16px 40px; margin-top: 10px; margin-bottom: 10px; border-radius: 0; border-left: none; border-right: none; }
+            .actions { flex-direction: column; gap: 8px; }
+            .approve-confirm-actions { flex-direction: column; gap: 8px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="grain-overlay"></div>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo">showoff</div>
+        </div>
+
+        <!-- Main View -->
+        <div class="main-view" id="mainView">
+            <!-- Sketch -->
+            <div class="sketch-section">
+                <div class="sketch-frame" id="sketchFrame" onclick="openLightbox()">
+                    <img id="sketchImage" src="" alt="Your Design" style="display: none;">
+                    <div id="sketchPdfBtn" style="display:none;" class="pdf-view-btn" onclick="event.stopPropagation(); window.open(sketchUrl, '_blank');">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                            <line x1="16" y1="13" x2="8" y2="13"/>
+                            <line x1="16" y1="17" x2="8" y2="17"/>
+                            <polyline points="10 9 9 9 8 9"/>
+                        </svg>
+                        <span>View Sketch (PDF)</span>
+                    </div>
+                    <span class="sketch-placeholder" id="sketchPlaceholder">Loading...</span>
+                </div>
+            </div>
+
+            <!-- Designer Notes -->
+            <div class="designer-notes" id="designerNotes">
+                <div class="designer-notes-label">Note from your designer</div>
+                <div class="designer-notes-text" id="designerNotesText"></div>
+            </div>
+
+            <!-- Zoom Clip -->
+            <div class="video-section" id="videoSection">
+                <a class="video-link" id="videoLink" href="#" target="_blank" rel="noopener">
+                    <div class="video-icon">
+                        <svg viewBox="0 0 24 24"><polygon points="8,5 19,12 8,19"/></svg>
+                    </div>
+                    <div class="video-info">
+                        <div class="video-title">Design Walkthrough Video</div>
+                        <div class="video-subtitle">Your designer recorded a quick explanation of this sketch</div>
+                    </div>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="1.5">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                        <polyline points="15 3 21 3 21 9"/>
+                        <line x1="10" y1="14" x2="21" y2="3"/>
+                    </svg>
+                </a>
+            </div>
+
+            <!-- Option Cards -->
+            <div class="options-section" id="optionsSection">
+                <div class="section-label">Your Designer Has Prepared Options</div>
+                <div class="options-intro">Review each option and share your thoughts</div>
+                <div id="optionCards"></div>
+                <div class="options-hint">Each option represents a different design direction with its own pricing.</div>
+            </div>
+
+            <!-- Optional Add-Ons -->
+            <div class="addons-section" id="addonsSection">
+                <div class="section-label">Optional Add-Ons</div>
+                <div class="addons-box">
+                    <div class="addon-item" id="addonHairpiece">
+                        <div class="addon-info">
+                            <div class="addon-name">Hairpiece <span class="addon-added-tag">Added</span></div>
+                            <div class="addon-desc">Custom-matched hairpiece for your costume</div>
+                        </div>
+                        <span class="addon-price">+$30.00</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="toggleHairpiece" onchange="updateAddons()">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="addon-item" id="addonBraCups">
+                        <div class="addon-info">
+                            <div class="addon-name">Bra Cups <span class="addon-added-tag">Added</span></div>
+                            <div class="addon-desc">Sewn-in support cups for comfortable fit</div>
+                        </div>
+                        <span class="addon-price">+$21.50</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="toggleBraCups" onchange="updateAddons()">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stoning Budget -->
+            <div class="stoning-section" id="stoningSection">
+                <div class="section-label">Rhinestone Stoning</div>
+                <div class="stoning-box">
+                    <div class="stoning-label">Estimated Stoning Budget</div>
+                    <div class="stoning-range" id="stoningRange">$0 - $0</div>
+                    <div class="stoning-note">
+                        Rhinestone stoning is billed separately once stoning is complete.
+                        The final cost will fall within this range. You will receive a
+                        separate invoice for the stoning after your costume is stoned.
+                    </div>
+                    <div class="stoning-checkbox-row">
+                        <input type="checkbox" id="stoningApprovalCheckbox" onchange="updateStoningApproval()">
+                        <label class="stoning-checkbox-label" for="stoningApprovalCheckbox">
+                            I understand and approve the rhinestone stoning budget range shown above.
+                            I agree to receive a separate invoice for the actual stoning cost once stoning is complete.
+                        </label>
+                    </div>
+                    <div class="stoning-required-hint" id="stoningRequiredHint">
+                        You must approve the stoning budget range before approving the design.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons — Feedback first, Approve second -->
+            <div class="actions" id="actionButtons">
+                <div style="flex:1; text-align:center;">
+                    <button class="btn btn-primary" id="feedbackBtn" onclick="toggleRevision()" style="width:100%">
+                        Share Your Feedback
+                    </button>
+                    <div class="btn-hint">Tell your designer which elements you prefer</div>
+                </div>
+                <div style="flex:1; text-align:center;">
+                    <button class="btn btn-secondary" id="approveToggleBtn" onclick="startApproveFlow()" style="width:100%">
+                        Approve Option As-Is
+                    </button>
+                    <div class="btn-hint">Pick one option and approve it directly</div>
+                </div>
+            </div>
+
+            <!-- Approve Step: select an option then confirm -->
+            <div class="approve-step" id="approveStep">
+                <div class="approve-step-hint">Select the option you'd like to approve, then confirm below.</div>
+                <div class="approve-confirm-actions">
+                    <button class="btn btn-primary" id="confirmApproveBtn" onclick="handleApprove()" style="flex:1" disabled>
+                        Confirm Approval
+                    </button>
+                    <button class="btn btn-secondary" onclick="cancelApproveFlow()" style="flex:1">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+
+            <!-- Revision Panel -->
+            <div class="revision-panel" id="revisionPanel">
+                <div class="revision-helper">
+                    Which option(s) do you like? What would you change?<br>
+                    <em>e.g., "I like Option A's neckline but prefer the skirt from Option B"</em>
+                </div>
+
+                <div class="form-group">
+                    <div class="section-label">Your Feedback</div>
+                    <textarea
+                        class="revision-notes"
+                        id="revisionNotes"
+                        placeholder="Describe what you like and what you'd change..."
+                    ></textarea>
+                </div>
+
+                <div class="form-group">
+                    <div class="section-label">Reference Images (Optional)</div>
+                    <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+                        <div class="upload-text">
+                            <span>Choose files</span> or drag here
+                        </div>
+                    </div>
+                    <input type="file" id="fileInput" class="file-input" multiple accept="image/*" onchange="handleFiles(this.files)">
+                    <div class="file-list" id="fileList"></div>
+                </div>
+
+                <div class="error-message" id="errorMessage"></div>
+
+                <button class="btn btn-primary submit-revision" id="submitRevisionBtn" onclick="handleRevision()">
+                    Submit Feedback
+                </button>
+
+                <div style="text-align:center; margin-top: 10px;">
+                    <span style="font-size:11px; color:#888; cursor:pointer; text-decoration:underline;" onclick="toggleRevision()">Cancel</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div class="loading-view" id="loadingView">
+            <div class="spinner"></div>
+            <p class="loading-text" id="loadingText">Submitting...</p>
+        </div>
+
+        <!-- Approve Success -->
+        <div class="success-view" id="approveSuccess">
+            <div class="success-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <h2 class="success-title">Design Approved</h2>
+            <p class="success-message" id="approveSuccessMessage">
+                Thank you! Your design has been approved and an invoice is on its way. Once payment and measurements are complete, your order moves into production.
+            </p>
+        </div>
+
+        <!-- Revision Success -->
+        <div class="success-view" id="revisionSuccess">
+            <div class="success-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <h2 class="success-title">Feedback Received</h2>
+            <p class="success-message">
+                We've received your feedback. Your designer will review your notes and send an updated sketch soon.
+            </p>
+        </div>
+
+        <div class="footer" id="footer">Show Off Inc.</div>
+    </div>
+
+    <!-- Lightbox -->
+    <div class="lightbox" id="lightbox" onclick="closeLightbox()">
+        <div class="lightbox-close">&times;</div>
+        <img src="" alt="Design Preview" id="lightboxImg">
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const dealId = urlParams.get('dealId');
+        const sketchUrl = urlParams.get('sketchUrl');
+        let orderName = urlParams.get('orderName') || 'Your Order';
+
+        const WEBHOOK_URL = 'https://showoffinc.app.n8n.cloud/webhook/sketch-review';
+        const ADDON_PRICES = { hairpiece: 30.00, braCups: 21.50 };
+
+        let hasPayer = false;
+        let hasStoning = false;
+        let stoningBudgetLow = 0;
+        let stoningBudgetHigh = 0;
+        let sketchOptions = null;
+        let selectedOptionLabel = null;
+        let selectingMode = false;
+
+        // Load sketch image/PDF
+        const isPdfSketch = sketchUrl && sketchUrl.toLowerCase().endsWith('.pdf');
+        if (sketchUrl && isPdfSketch) {
+            document.getElementById('sketchPdfBtn').style.display = 'flex';
+            document.getElementById('sketchPlaceholder').style.display = 'none';
+            document.getElementById('sketchFrame').style.cursor = 'default';
+            document.getElementById('sketchFrame').classList.add('pdf-mode');
+        } else if (sketchUrl) {
+            const img = document.getElementById('sketchImage');
+            img.src = sketchUrl;
+            img.onload = () => { img.style.display = 'block'; document.getElementById('sketchPlaceholder').style.display = 'none'; };
+            img.onerror = () => { document.getElementById('sketchPlaceholder').textContent = 'Unable to load sketch'; };
+        } else {
+            document.getElementById('sketchPlaceholder').textContent = 'No sketch available';
+        }
+
+        // Fetch deal data
+        async function loadDealData() {
+            if (!dealId) return;
+
+            try {
+                const response = await fetch('/api/deal?dealId=' + dealId);
+                if (!response.ok) throw new Error('Failed to fetch');
+                const data = await response.json();
+
+                if (data.dealName) orderName = data.dealName;
+                hasPayer = data.hasPayer || false;
+
+                // Designer notes
+                if (data.designerNotes) {
+                    document.getElementById('designerNotesText').textContent = '\u201C' + data.designerNotes + '\u201D';
+                    document.getElementById('designerNotes').style.display = 'block';
+                }
+
+                // Video
+                if (data.sketchVideoUrl) {
+                    document.getElementById('videoLink').href = data.sketchVideoUrl;
+                    document.getElementById('videoSection').style.display = 'block';
+                }
+
+                // Stoning
+                if (data.hasStoning && data.stoningBudgetLow > 0 && data.stoningBudgetHigh > 0) {
+                    hasStoning = true;
+                    stoningBudgetLow = data.stoningBudgetLow;
+                    stoningBudgetHigh = data.stoningBudgetHigh;
+                    document.getElementById('stoningRange').textContent =
+                        '$' + stoningBudgetLow.toLocaleString() + ' \u2013 $' + stoningBudgetHigh.toLocaleString();
+                    document.getElementById('stoningSection').style.display = 'block';
+                }
+
+                // Render option cards
+                if (data.sketchOptions && data.sketchOptions.length > 0) {
+                    sketchOptions = data.sketchOptions;
+                    renderOptionCards(sketchOptions);
+                } else {
+                    // No options — shouldn't be on this page, but handle gracefully
+                    document.getElementById('optionsSection').innerHTML =
+                        '<p style="text-align:center; color:#888; font-size:12px;">No options found for this order.</p>';
+                }
+
+            } catch (error) {
+                console.error('Error loading deal data:', error);
+                document.getElementById('optionsSection').innerHTML =
+                    '<p style="text-align:center; color:#888; font-size:12px;">Unable to load order details.</p>';
+            }
+        }
+
+        function renderOptionCards(options) {
+            const container = document.getElementById('optionCards');
+            container.innerHTML = options.map(function(opt) {
+                const optTotal = opt.items.reduce(function(sum, item) {
+                    return sum + (parseFloat(item.price) || 0) * (parseInt(item.quantity) || 1);
+                }, 0);
+
+                const itemsHtml = opt.items.map(function(item) {
+                    var qty = parseInt(item.quantity) || 1;
+                    var price = parseFloat(item.price) || 0;
+                    return '<div class="option-item">' +
+                        '<div class="option-item-details">' +
+                            '<div class="option-item-name">' + escapeHtml(item.name) + '</div>' +
+                            (qty > 1 ? '<div class="option-item-meta">Qty: ' + qty + '</div>' : '') +
+                        '</div>' +
+                        '<div class="option-item-price">$' + (price * qty).toFixed(2) + '</div>' +
+                    '</div>';
+                }).join('');
+
+                return '<div class="option-card" data-label="' + escapeHtml(opt.label) + '" onclick="selectOption(this)">' +
+                    '<div class="option-card-header">' +
+                        '<div class="option-card-header-left">' +
+                            '<div class="option-radio"></div>' +
+                            '<div class="option-label">Option ' + escapeHtml(opt.label) + (opt.name ? ' \u2014 ' + escapeHtml(opt.name) : '') + '</div>' +
+                        '</div>' +
+                        '<div class="option-total">$' + optTotal.toFixed(2) + '</div>' +
+                    '</div>' +
+                    '<div class="option-items">' + itemsHtml + '</div>' +
+                '</div>';
+            }).join('');
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        }
+
+        function selectOption(card) {
+            if (!selectingMode) return;
+            // Deselect all
+            document.querySelectorAll('.option-card').forEach(function(c) { c.classList.remove('selected'); });
+            // Select this one
+            card.classList.add('selected');
+            selectedOptionLabel = card.getAttribute('data-label');
+            // Enable confirm button (check stoning too)
+            updateApproveButton();
+        }
+
+        function updateApproveButton() {
+            var btn = document.getElementById('confirmApproveBtn');
+            if (!selectedOptionLabel) { btn.disabled = true; return; }
+            if (hasStoning && !document.getElementById('stoningApprovalCheckbox').checked) { btn.disabled = true; return; }
+            btn.disabled = false;
+        }
+
+        function updateStoningApproval() {
+            var checked = document.getElementById('stoningApprovalCheckbox').checked;
+            document.getElementById('stoningRequiredHint').style.display = checked ? 'none' : 'block';
+            updateApproveButton();
+        }
+
+        function updateAddons() {
+            var hairpiece = document.getElementById('toggleHairpiece').checked;
+            var braCups = document.getElementById('toggleBraCups').checked;
+            document.getElementById('addonHairpiece').classList.toggle('active', hairpiece);
+            document.getElementById('addonBraCups').classList.toggle('active', braCups);
+        }
+
+        // -- Feedback / Revision Flow --
+        function toggleRevision() {
+            var panel = document.getElementById('revisionPanel');
+            var actions = document.getElementById('actionButtons');
+
+            if (panel.classList.contains('active')) {
+                panel.classList.remove('active');
+                actions.style.display = 'flex';
+            } else {
+                // Cancel approve mode if active
+                cancelApproveFlow();
+                panel.classList.add('active');
+                actions.style.display = 'none';
+            }
+        }
+
+        // -- Direct Approve Flow (rare) --
+        function startApproveFlow() {
+            selectingMode = true;
+            selectedOptionLabel = null;
+            document.getElementById('optionsSection').classList.add('selecting-mode');
+            document.querySelectorAll('.option-card').forEach(function(c) { c.classList.remove('selected'); });
+            document.getElementById('actionButtons').style.display = 'none';
+            document.getElementById('approveStep').classList.add('active');
+            document.getElementById('confirmApproveBtn').disabled = true;
+            // Scroll to options
+            document.getElementById('optionsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function cancelApproveFlow() {
+            selectingMode = false;
+            selectedOptionLabel = null;
+            document.getElementById('optionsSection').classList.remove('selecting-mode');
+            document.querySelectorAll('.option-card').forEach(function(c) { c.classList.remove('selected'); });
+            document.getElementById('approveStep').classList.remove('active');
+            document.getElementById('actionButtons').style.display = 'flex';
+        }
+
+        async function handleApprove() {
+            if (!selectedOptionLabel || !sketchOptions) return;
+
+            var selectedOpt = sketchOptions.find(function(o) { return o.label === selectedOptionLabel; });
+            if (!selectedOpt) return;
+
+            var addOns = [];
+            if (document.getElementById('toggleHairpiece').checked) addOns.push({ name: 'Hairpiece', price: 30.00 });
+            if (document.getElementById('toggleBraCups').checked) addOns.push({ name: 'Bra Cups', price: 21.50 });
+
+            var optTotal = selectedOpt.items.reduce(function(sum, item) {
+                return sum + (parseFloat(item.price) || 0) * (parseInt(item.quantity) || 1);
+            }, 0);
+
+            var addonSummary = addOns.length > 0
+                ? '\n\nAdd-ons selected:\n' + addOns.map(function(a) { return '  \u2022 ' + a.name + ': $' + a.price.toFixed(2); }).join('\n')
+                : '';
+
+            var stoningSummary = hasStoning
+                ? '\n\nRhinestone stoning: $' + stoningBudgetLow.toLocaleString() + ' \u2013 $' + stoningBudgetHigh.toLocaleString() + ' (billed separately after stoning)'
+                : '';
+
+            var confirmed = confirm(
+                'Approve Option ' + selectedOptionLabel + '?\n\n' +
+                'Total: $' + optTotal.toFixed(2) +
+                addonSummary +
+                stoningSummary +
+                '\n\nBy approving, you\'re confirming this design is final and ready for production. You\'ll receive an invoice for payment.'
+            );
+            if (!confirmed) return;
+
+            var btn = document.getElementById('confirmApproveBtn');
+            btn.classList.add('btn-loading');
+            btn.disabled = true;
+
+            document.getElementById('mainView').classList.add('hidden');
+            document.getElementById('loadingText').textContent = 'Approving your design...';
+            document.getElementById('loadingView').classList.add('active');
+
+            var payload = {
+                dealId: dealId,
+                orderName: orderName,
+                action: 'approved',
+                selectedOption: selectedOptionLabel,
+                selectedItems: selectedOpt.items.map(function(item) {
+                    return { name: item.name, quantity: parseInt(item.quantity) || 1, price: parseFloat(item.price) || 0 };
+                }),
+                addOns: addOns,
+                approvedAt: new Date().toISOString(),
+                stoningBudgetApproved: hasStoning,
+                stoningBudgetLow: hasStoning ? stoningBudgetLow : null,
+                stoningBudgetHigh: hasStoning ? stoningBudgetHigh : null
+            };
+
+            try {
+                var response = await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    document.getElementById('loadingView').classList.remove('active');
+
+                    var msg = 'Thank you! You\'ve approved Option ' + selectedOptionLabel + ' and an invoice is on its way';
+                    if (addOns.length > 0) {
+                        msg += ' \u2014 including ' + addOns.map(function(a) { return a.name.toLowerCase(); }).join(' and ');
+                    }
+                    msg += '. Once payment and measurements are complete, your order moves into production.';
+                    if (hasStoning) {
+                        msg += '\n\nA separate invoice for rhinestone stoning ($' + stoningBudgetLow.toLocaleString() + ' \u2013 $' + stoningBudgetHigh.toLocaleString() + ') will follow once stoning is complete.';
+                    }
+                    if (hasPayer) {
+                        msg += '\n\nIf there is a different payer on this order, please follow up with them to ensure payment or PO issuance is submitted to Show Off to begin production.';
+                    }
+                    document.getElementById('approveSuccessMessage').innerText = msg;
+                    document.getElementById('approveSuccess').classList.add('active');
+                    document.getElementById('footer').style.display = 'none';
+                } else {
+                    throw new Error('Failed');
+                }
+            } catch (error) {
+                document.getElementById('loadingView').classList.remove('active');
+                document.getElementById('mainView').classList.remove('hidden');
+                btn.classList.remove('btn-loading');
+                btn.disabled = false;
+                alert('Something went wrong. Please try again.');
+            }
+        }
+
+        // -- Revision Submit --
+        let uploadedFiles = [];
+
+        function handleFiles(files) {
+            for (let file of files) {
+                if (file.type.startsWith('image/') && file.size <= 10 * 1024 * 1024) uploadedFiles.push(file);
+            }
+            updateFileList();
+            if (uploadedFiles.length > 0) document.getElementById('uploadArea').classList.add('has-files');
+        }
+
+        function updateFileList() {
+            document.getElementById('fileList').innerHTML = uploadedFiles.map(function(file, i) {
+                return '<div class="file-item"><span>' + escapeHtml(file.name) + '</span><span class="file-remove" onclick="removeFile(' + i + ')">Remove</span></div>';
+            }).join('');
+        }
+
+        function removeFile(index) {
+            uploadedFiles.splice(index, 1);
+            updateFileList();
+            if (uploadedFiles.length === 0) document.getElementById('uploadArea').classList.remove('has-files');
+        }
+
+        function fileToBase64(file) {
+            return new Promise(function(resolve, reject) {
+                var reader = new FileReader();
+                reader.onload = function() { resolve(reader.result); };
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function handleRevision() {
+            var btn = document.getElementById('submitRevisionBtn');
+            var notes = document.getElementById('revisionNotes').value.trim();
+
+            if (!notes) {
+                document.getElementById('errorMessage').textContent = 'Please describe your feedback.';
+                document.getElementById('errorMessage').classList.add('show');
+                document.getElementById('revisionNotes').focus();
+                return;
+            }
+
+            document.getElementById('errorMessage').classList.remove('show');
+            btn.classList.add('btn-loading');
+            btn.disabled = true;
+
+            document.getElementById('mainView').classList.add('hidden');
+            document.getElementById('loadingText').textContent = 'Submitting your feedback...';
+            document.getElementById('loadingView').classList.add('active');
+
+            var referenceImages = await Promise.all(
+                uploadedFiles.map(async function(file) {
+                    return { name: file.name, type: file.type, data: await fileToBase64(file) };
+                })
+            );
+
+            var payload = {
+                dealId: dealId,
+                orderName: orderName,
+                action: 'revision_requested',
+                revisionNotes: notes,
+                referenceImages: referenceImages,
+                originalSketchUrl: sketchUrl,
+                hasOptions: true,
+                submittedAt: new Date().toISOString()
+            };
+
+            try {
+                var response = await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    document.getElementById('loadingView').classList.remove('active');
+                    document.getElementById('revisionSuccess').classList.add('active');
+                    document.getElementById('footer').style.display = 'none';
+                } else {
+                    throw new Error('Failed');
+                }
+            } catch (error) {
+                document.getElementById('loadingView').classList.remove('active');
+                document.getElementById('mainView').classList.remove('hidden');
+                btn.classList.remove('btn-loading');
+                btn.disabled = false;
+                alert('Something went wrong. Please try again.');
+            }
+        }
+
+        // Lightbox
+        function openLightbox() {
+            if (isPdfSketch) { window.open(sketchUrl, '_blank'); return; }
+            var sketchImg = document.getElementById('sketchImage');
+            if (sketchImg && sketchImg.src) {
+                document.getElementById('lightboxImg').src = sketchImg.src;
+                document.getElementById('lightbox').classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeLightbox(); });
+
+        // Drag and drop
+        var uploadArea = document.getElementById('uploadArea');
+        uploadArea.addEventListener('dragover', function(e) { e.preventDefault(); uploadArea.style.borderColor = '#1a1a1a'; });
+        uploadArea.addEventListener('dragleave', function() { uploadArea.style.borderColor = uploadedFiles.length > 0 ? '#1a1a1a' : '#aaa'; });
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            uploadArea.style.borderColor = uploadedFiles.length > 0 ? '#1a1a1a' : '#aaa';
+            handleFiles(e.dataTransfer.files);
+        });
+
+        // Init
+        loadDealData();
+    </script>
+</body>
+</html>

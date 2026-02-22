@@ -48,7 +48,7 @@ export default async function handler(req, res) {
     let hubspotDealId = dealId;
 
     const directResponse = await fetch(
-      `https://api.hubapi.com/crm/v3/objects/deals/${dealId}?properties=dealname,amount,designer_notes,sketch_video_url,has_stoning,stoning_budget_low,stoning_budget_high`,
+      `https://api.hubapi.com/crm/v3/objects/deals/${dealId}?properties=dealname,amount,designer_notes,sketch_video_url,has_stoning,stoning_budget_low,stoning_budget_high,sketch_options`,
       { headers }
     );
 
@@ -71,7 +71,7 @@ export default async function handler(req, res) {
                 value: dealId
               }]
             }],
-            properties: ['dealname', 'amount', 'designer_notes', 'sketch_video_url', 'has_stoning', 'stoning_budget_low', 'stoning_budget_high'],
+            properties: ['dealname', 'amount', 'designer_notes', 'sketch_video_url', 'has_stoning', 'stoning_budget_low', 'stoning_budget_high', 'sketch_options'],
             limit: 1
           })
         }
@@ -159,7 +159,15 @@ export default async function handler(req, res) {
       hasPayer: hasPayer,
       hasStoning: deal.properties.has_stoning === 'Yes',
       stoningBudgetLow: parseFloat(deal.properties.stoning_budget_low) || null,
-      stoningBudgetHigh: parseFloat(deal.properties.stoning_budget_high) || null
+      stoningBudgetHigh: parseFloat(deal.properties.stoning_budget_high) || null,
+      sketchOptions: (() => {
+        try {
+          const raw = deal.properties.sketch_options;
+          if (!raw) return null;
+          const parsed = JSON.parse(raw);
+          return Array.isArray(parsed) && parsed.length > 0 ? parsed : null;
+        } catch (e) { return null; }
+      })()
     });
 
   } catch (error) {

@@ -1171,6 +1171,12 @@
 
                 const data = await response.json();
 
+                // Redirect to options page if deal has multi-option sketch
+                if (data.sketchOptions && data.sketchOptions.length > 0) {
+                    window.location.href = '/options.html' + window.location.search;
+                    return;
+                }
+
                 // Update order name if we got it from HubSpot
                 if (data.dealName) {
                     orderName = data.dealName;

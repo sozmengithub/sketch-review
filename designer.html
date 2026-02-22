@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Set Sketch Options | Show Off</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: #faf9f7; min-height: 100vh; padding: 20px;
+            color: #2a2220; font-size: 13px; line-height: 1.5;
+        }
+        .container {
+            max-width: 600px; margin: 0 auto;
+            background: rgba(255,255,255,0.75); backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.3);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+            border-radius: 2px; padding: 40px 32px;
+        }
+        .header { text-align: center; margin-bottom: 28px; padding-bottom: 16px; position: relative; }
+        .header::after {
+            content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+            width: 40px; height: 1px; background: rgba(0,0,0,0.15);
+        }
+        h1 {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 24px; font-weight: 500; letter-spacing: 0.04em;
+        }
+        .subtitle { color: #888; font-size: 12px; margin-top: 8px; font-style: italic; }
+
+        .deal-lookup { margin-bottom: 24px; }
+        .deal-lookup-row { display: flex; gap: 10px; }
+        .deal-lookup-row input {
+            flex: 1; padding: 12px 14px; font-size: 14px; font-family: inherit;
+            border: 1px solid rgba(200,180,170,0.25); border-radius: 2px;
+            background: rgba(255,255,255,0.6);
+        }
+        .deal-lookup-row input:focus {
+            outline: none; border-color: rgba(200,170,155,0.6);
+            box-shadow: 0 0 0 3px rgba(200,170,155,0.1);
+        }
+        .lookup-btn {
+            padding: 12px 20px; background: #2a2220; color: #fff; border: none;
+            border-radius: 2px; cursor: pointer; font-family: inherit; font-size: 13px;
+            letter-spacing: 0.03em; transition: background 0.2s;
+        }
+        .lookup-btn:hover { background: #1a1510; }
+        .lookup-btn:disabled { background: #b0a5a0; cursor: not-allowed; }
+
+        .deal-info-bar {
+            display: none; padding: 12px 16px; margin-bottom: 24px;
+            background: linear-gradient(145deg, rgba(255,252,250,0.6), rgba(248,245,242,0.5));
+            border: 1px solid rgba(200,180,170,0.15); border-left: 2px solid #2a2220;
+            border-radius: 2px; font-size: 13px;
+        }
+        .deal-info-bar strong { color: #2a2220; }
+
+        .section-label {
+            font-size: 8px; letter-spacing: 0.25em; text-transform: uppercase;
+            color: #999; margin-bottom: 12px;
+        }
+
+        .options-area { display: none; }
+        .options-area.active { display: block; }
+
+        .option-panel {
+            background: linear-gradient(145deg, rgba(255,255,255,0.92), rgba(255,252,250,0.88));
+            border: 1.5px solid rgba(42,34,32,0.15); border-radius: 2px;
+            padding: 16px; margin-bottom: 14px; position: relative;
+        }
+        .option-panel-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 12px;
+        }
+        .option-panel-title {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 16px; font-weight: 600; color: #2a2220;
+        }
+        .remove-option {
+            font-size: 10px; color: #aaa; cursor: pointer;
+            letter-spacing: 0.05em; text-transform: uppercase;
+        }
+        .remove-option:hover { color: #c62828; }
+
+        .option-items { display: flex; flex-direction: column; gap: 8px; }
+        .option-item-row {
+            display: grid; grid-template-columns: 1fr 80px 80px 40px;
+            gap: 8px; align-items: center;
+        }
+        .option-item-row input {
+            padding: 10px 12px; font-size: 13px; font-family: inherit;
+            border: 1px solid rgba(200,180,170,0.25); border-radius: 2px;
+            background: rgba(255,255,255,0.6);
+        }
+        .option-item-row input:focus {
+            outline: none; border-color: rgba(200,170,155,0.6);
+            box-shadow: 0 0 0 3px rgba(200,170,155,0.1);
+        }
+        .price-wrap { position: relative; }
+        .price-wrap .dollar {
+            position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+            color: #888; font-size: 13px;
+        }
+        .price-wrap input { padding-left: 22px; }
+        .qty-wrap input { text-align: center; }
+        .del-item-btn {
+            padding: 8px; background: transparent; color: #aaa; border: 1px solid rgba(200,180,170,0.2);
+            border-radius: 2px; cursor: pointer; font-size: 12px; transition: all 0.2s;
+        }
+        .del-item-btn:hover { color: #c62828; border-color: #c62828; }
+
+        .add-item-btn {
+            width: 100%; padding: 8px; margin-top: 8px;
+            background: transparent; border: 1px dashed rgba(200,180,170,0.35);
+            border-radius: 2px; cursor: pointer; font-size: 11px; color: #888;
+            font-family: inherit; transition: all 0.2s;
+        }
+        .add-item-btn:hover { border-color: #2a2220; color: #2a2220; }
+
+        .option-total {
+            text-align: right; margin-top: 10px; padding-top: 8px;
+            border-top: 1px solid rgba(200,180,170,0.15);
+            font-size: 14px; color: #2a2220;
+        }
+
+        .col-headers {
+            display: grid; grid-template-columns: 1fr 80px 80px 40px;
+            gap: 8px; padding: 0 0 6px; font-size: 8px; color: #999;
+            letter-spacing: 0.2em; text-transform: uppercase;
+        }
+
+        .add-option-btn {
+            width: 100%; padding: 14px; background: transparent; color: #2a2220;
+            border: 1.5px dashed rgba(200,180,170,0.35); border-radius: 2px;
+            cursor: pointer; font-size: 14px;
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-weight: 500; letter-spacing: 0.04em; transition: all 0.2s; margin-bottom: 20px;
+        }
+        .add-option-btn:hover { border-color: #2a2220; background: rgba(42,34,32,0.03); }
+        .add-option-btn.hidden { display: none; }
+
+        .summary-bar {
+            padding: 14px 16px; margin-bottom: 20px;
+            background: linear-gradient(145deg, rgba(255,255,255,0.92), rgba(255,252,250,0.88));
+            border: 1.5px solid rgba(42,34,32,0.25); border-radius: 2px;
+        }
+        .summary-row {
+            display: flex; justify-content: space-between; padding: 4px 0;
+            font-size: 13px;
+        }
+
+        .save-btn {
+            width: 100%; padding: 20px; font-size: 16px; font-weight: 500;
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            letter-spacing: 0.04em; background: #2a2220; color: #fff;
+            border: 2px solid #2a2220; border-radius: 2px; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .save-btn:hover { background: #1a1510; }
+        .save-btn:disabled { background: #b0a5a0; border-color: #b0a5a0; cursor: not-allowed; }
+
+        .continue-link {
+            display: none; text-align: center; margin-top: 16px;
+        }
+        .continue-link a {
+            display: inline-block; padding: 16px 32px; font-size: 14px;
+            font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 500;
+            color: #2a2220; border: 2px solid rgba(42,34,32,0.35);
+            border-radius: 2px; text-decoration: none; transition: all 0.2s;
+        }
+        .continue-link a:hover { border-color: #2a2220; background: rgba(42,34,32,0.03); }
+
+        .success-msg {
+            display: none; padding: 16px; background: #f0fdf4; border: 1px solid #bbf7d0;
+            border-radius: 2px; text-align: center; color: #166534; font-size: 13px; margin-bottom: 16px;
+        }
+
+        .error-msg {
+            display: none; padding: 12px; background: #fef2f2; border: 1px solid #fecaca;
+            border-radius: 2px; color: #dc2626; font-size: 12px; margin-bottom: 12px;
+        }
+
+        .footer { text-align: center; padding-top: 24px; font-size: 10px; color: #aaa; letter-spacing: 0.08em; }
+
+        @media (max-width: 480px) {
+            .container { padding: 24px 16px; }
+            .option-item-row { grid-template-columns: 1fr 60px 70px 36px; gap: 6px; }
+            .col-headers { grid-template-columns: 1fr 60px 70px 36px; gap: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Set Sketch Options</h1>
+            <div class="subtitle">Define pricing options before uploading the sketch</div>
+        </div>
+
+        <!-- Deal Lookup -->
+        <div class="deal-lookup">
+            <div class="section-label">Deal Number</div>
+            <div class="deal-lookup-row">
+                <input type="text" id="dealInput" placeholder="e.g. 10760" autofocus
+                    onkeydown="if(event.key==='Enter'){event.preventDefault();lookupDeal();}">
+                <button class="lookup-btn" id="lookupBtn" onclick="lookupDeal()">Look Up</button>
+            </div>
+        </div>
+
+        <div class="deal-info-bar" id="dealInfoBar">
+            <strong id="dealNameDisplay"></strong>
+        </div>
+
+        <div class="error-msg" id="errorMsg"></div>
+        <div class="success-msg" id="successMsg"></div>
+
+        <!-- Options Area -->
+        <div class="options-area" id="optionsArea">
+            <div class="section-label">Costume Options</div>
+
+            <div id="optionPanels"></div>
+
+            <button class="add-option-btn" id="addOptionBtn" onclick="addOption()">+ Add Option</button>
+
+            <!-- Summary -->
+            <div class="summary-bar" id="summaryBar" style="display:none">
+                <div id="summaryRows"></div>
+            </div>
+
+            <button class="save-btn" id="saveBtn" onclick="saveOptions()">Save Options to Deal</button>
+
+            <div class="continue-link" id="continueLink">
+                <a id="sketchFormLink" href="#" target="_blank">Continue to Sketch Upload &rarr;</a>
+            </div>
+        </div>
+
+        <div class="footer">Show Off Inc.</div>
+    </div>
+
+    <script>
+        let dealId = null;
+        let dealNumber = '';
+        let optionCount = 0;
+        const MAX_OPTIONS = 3;
+        const labels = ['A', 'B', 'C'];
+
+        async function lookupDeal() {
+            const input = document.getElementById('dealInput').value.trim();
+            if (!input) return;
+
+            const btn = document.getElementById('lookupBtn');
+            btn.disabled = true;
+            btn.textContent = 'Looking up...';
+            hideError();
+
+            try {
+                const resp = await fetch('/api/deal?dealId=' + encodeURIComponent(input));
+                if (!resp.ok) throw new Error('Deal not found');
+                const data = await resp.json();
+
+                dealId = data.dealId;
+                dealNumber = input;
+                document.getElementById('dealNameDisplay').textContent =
+                    'Deal #' + input + ' \u2014 ' + data.dealName;
+                document.getElementById('dealInfoBar').style.display = 'block';
+
+                // Show options area
+                document.getElementById('optionsArea').classList.add('active');
+
+                // Pre-populate if deal already has options
+                if (data.sketchOptions && data.sketchOptions.length > 0) {
+                    document.getElementById('optionPanels').innerHTML = '';
+                    optionCount = 0;
+                    data.sketchOptions.forEach(function(opt) {
+                        addOption(opt);
+                    });
+                } else {
+                    // Start with 2 empty options
+                    document.getElementById('optionPanels').innerHTML = '';
+                    optionCount = 0;
+                    addOption();
+                    addOption();
+                }
+
+                updateSummary();
+
+            } catch (e) {
+                showError('Could not find deal "' + input + '". Check the deal number and try again.');
+            }
+
+            btn.disabled = false;
+            btn.textContent = 'Look Up';
+        }
+
+        function addOption(prefill) {
+            if (optionCount >= MAX_OPTIONS) return;
+
+            const label = labels[optionCount];
+            const panel = document.createElement('div');
+            panel.className = 'option-panel';
+            panel.setAttribute('data-label', label);
+
+            const items = (prefill && prefill.items) ? prefill.items : [{ name: '', quantity: 1, price: '' }];
+
+            let itemsHtml = '';
+            items.forEach(function(item, i) {
+                itemsHtml += buildItemRow(item);
+            });
+
+            panel.innerHTML =
+                '<div class="option-panel-header">' +
+                    '<div class="option-panel-title">Option ' + label + '</div>' +
+                    (optionCount > 0 ? '<span class="remove-option" onclick="removeOption(this)">Remove</span>' : '') +
+                '</div>' +
+                '<div class="col-headers"><span>Item Name</span><span>Qty</span><span>Price</span><span></span></div>' +
+                '<div class="option-items">' + itemsHtml + '</div>' +
+                '<button type="button" class="add-item-btn" onclick="addItemToOption(this)">+ Add Line Item</button>' +
+                '<div class="option-total">Total: $<span class="opt-total-val">0.00</span></div>';
+
+            document.getElementById('optionPanels').appendChild(panel);
+            optionCount++;
+
+            if (optionCount >= MAX_OPTIONS) {
+                document.getElementById('addOptionBtn').classList.add('hidden');
+            }
+
+            updateOptionTotal(panel);
+            updateSummary();
+        }
+
+        function buildItemRow(item) {
+            var name = escapeHtml(item.name || '');
+            var qty = parseInt(item.quantity) || 1;
+            var price = item.price !== undefined && item.price !== '' ? parseFloat(item.price) : '';
+            var priceVal = price !== '' ? price : '';
+
+            return '<div class="option-item-row">' +
+                '<input type="text" value="' + name + '" placeholder="Costume name" oninput="onItemChange(this)">' +
+                '<div class="qty-wrap"><input type="number" value="' + qty + '" min="1" step="1" oninput="onItemChange(this)"></div>' +
+                '<div class="price-wrap"><span class="dollar">$</span><input type="number" value="' + priceVal + '" min="0" step="0.01" placeholder="0.00" oninput="onItemChange(this)"></div>' +
+                '<button type="button" class="del-item-btn" onclick="removeItem(this)">&times;</button>' +
+            '</div>';
+        }
+
+        function escapeHtml(str) {
+            return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        }
+
+        function addItemToOption(btn) {
+            var panel = btn.closest('.option-panel');
+            var container = panel.querySelector('.option-items');
+            container.insertAdjacentHTML('beforeend', buildItemRow({ name: '', quantity: 1, price: '' }));
+            container.lastElementChild.querySelector('input').focus();
+        }
+
+        function removeItem(btn) {
+            var row = btn.closest('.option-item-row');
+            var panel = row.closest('.option-panel');
+            var rows = panel.querySelectorAll('.option-item-row');
+            if (rows.length <= 1) return; // must have at least 1 item
+            row.remove();
+            updateOptionTotal(panel);
+            updateSummary();
+        }
+
+        function removeOption(btn) {
+            var panel = btn.closest('.option-panel');
+            panel.remove();
+            optionCount--;
+
+            // Re-label remaining options
+            var panels = document.querySelectorAll('.option-panel');
+            panels.forEach(function(p, i) {
+                p.setAttribute('data-label', labels[i]);
+                p.querySelector('.option-panel-title').textContent = 'Option ' + labels[i];
+                // Show/hide remove button (first option can't be removed)
+                var rm = p.querySelector('.remove-option');
+                if (i === 0 && rm) rm.remove();
+                if (i > 0 && !rm) {
+                    p.querySelector('.option-panel-header').insertAdjacentHTML('beforeend',
+                        '<span class="remove-option" onclick="removeOption(this)">Remove</span>');
+                }
+            });
+
+            document.getElementById('addOptionBtn').classList.remove('hidden');
+            updateSummary();
+        }
+
+        function onItemChange(input) {
+            var panel = input.closest('.option-panel');
+            updateOptionTotal(panel);
+            updateSummary();
+        }
+
+        function updateOptionTotal(panel) {
+            var total = 0;
+            panel.querySelectorAll('.option-item-row').forEach(function(row) {
+                var inputs = row.querySelectorAll('input[type="number"]');
+                var qty = parseFloat(inputs[0].value) || 1;
+                var price = parseFloat(inputs[1].value) || 0;
+                total += qty * price;
+            });
+            panel.querySelector('.opt-total-val').textContent = total.toFixed(2);
+        }
+
+        function updateSummary() {
+            var panels = document.querySelectorAll('.option-panel');
+            if (panels.length === 0) {
+                document.getElementById('summaryBar').style.display = 'none';
+                return;
+            }
+
+            var html = '';
+            panels.forEach(function(panel) {
+                var label = panel.getAttribute('data-label');
+                var total = panel.querySelector('.opt-total-val').textContent;
+                html += '<div class="summary-row"><span>Option ' + label + '</span><span>$' + total + '</span></div>';
+            });
+
+            document.getElementById('summaryRows').innerHTML = html;
+            document.getElementById('summaryBar').style.display = 'block';
+        }
+
+        function collectOptions() {
+            var options = [];
+            document.querySelectorAll('.option-panel').forEach(function(panel) {
+                var label = panel.getAttribute('data-label');
+                var items = [];
+                panel.querySelectorAll('.option-item-row').forEach(function(row) {
+                    var nameInput = row.querySelector('input[type="text"]');
+                    var numInputs = row.querySelectorAll('input[type="number"]');
+                    var name = nameInput.value.trim();
+                    var qty = parseInt(numInputs[0].value) || 1;
+                    var price = parseFloat(numInputs[1].value) || 0;
+                    if (name && price > 0) {
+                        items.push({ name: name, quantity: qty, price: price });
+                    }
+                });
+                if (items.length > 0) {
+                    options.push({ label: label, items: items });
+                }
+            });
+            return options;
+        }
+
+        async function saveOptions() {
+            if (!dealId) { showError('Look up a deal first.'); return; }
+
+            var options = collectOptions();
+            if (options.length < 2) {
+                showError('Add at least 2 options with pricing.');
+                return;
+            }
+
+            var btn = document.getElementById('saveBtn');
+            btn.disabled = true;
+            btn.textContent = 'Saving...';
+            hideError();
+
+            try {
+                var resp = await fetch('/api/set-options', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ dealId: dealId, options: options })
+                });
+
+                if (!resp.ok) throw new Error('Save failed');
+
+                document.getElementById('successMsg').textContent =
+                    'Options saved! Now upload the sketch using the link below.';
+                document.getElementById('successMsg').style.display = 'block';
+
+                // Show continue link
+                document.getElementById('sketchFormLink').href =
+                    'https://showoffinc.app.n8n.cloud/webhook/sketch-form?deal=' + dealNumber;
+                document.getElementById('continueLink').style.display = 'block';
+
+            } catch (e) {
+                showError('Failed to save: ' + e.message);
+            }
+
+            btn.disabled = false;
+            btn.textContent = 'Save Options to Deal';
+        }
+
+        function showError(msg) {
+            document.getElementById('errorMsg').textContent = msg;
+            document.getElementById('errorMsg').style.display = 'block';
+        }
+
+        function hideError() {
+            document.getElementById('errorMsg').style.display = 'none';
+            document.getElementById('successMsg').style.display = 'none';
+        }
+
+        // Auto-fill deal from URL param
+        var urlDeal = new URLSearchParams(window.location.search).get('deal');
+        if (urlDeal) {
+            document.getElementById('dealInput').value = urlDeal;
+            lookupDeal();
+        }
+    </script>
+</body>
+</html>
