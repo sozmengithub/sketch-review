@@ -1132,6 +1132,7 @@
         let baseSubtotal = 0;
         let hasPayer = false;
         let hasStoning = false;
+        let isPoCustomer = false;
         let stoningBudgetLow = 0;
         let stoningBudgetHigh = 0;
 
@@ -1182,8 +1183,9 @@
                     orderName = data.dealName;
                 }
 
-                // Track payer status
+                // Track payer and PO status
                 hasPayer = data.hasPayer || false;
+                isPoCustomer = data.isPoCustomer || false;
 
                 // Display total
                 const total = data.total || data.amount || 0;
@@ -1389,14 +1391,16 @@
                 : '';
 
             // Confirmation dialog
-            const confirmed = confirm(
-                "Approve this design?\n\n" +
-                "By approving, you're confirming the design is final and ready for production. " +
-                "You'll receive an invoice for payment immediately." +
-                addonSummary +
-                stoningSummary +
-                "\n\nIf you'd like to request changes, please click 'Cancel' and then select 'Request Changes to the Design' instead."
-            );
+            var confirmMsg = "Approve this design?\n\n" +
+                "By approving, you're confirming the design is final and ready for production. ";
+            if (isPoCustomer) {
+                confirmMsg += "A formal quote will follow with your order details.";
+            } else {
+                confirmMsg += "You'll receive an invoice for payment immediately.";
+            }
+            confirmMsg += addonSummary + stoningSummary +
+                "\n\nIf you'd like to request changes, please click 'Cancel' and then select 'Request Changes to the Design' instead.";
+            const confirmed = confirm(confirmMsg);
 
             if (!confirmed) return;
 
@@ -1416,7 +1420,8 @@
                 approvedAt: new Date().toISOString(),
                 stoningBudgetApproved: hasStoning,
                 stoningBudgetLow: hasStoning ? stoningBudgetLow : null,
-                stoningBudgetHigh: hasStoning ? stoningBudgetHigh : null
+                stoningBudgetHigh: hasStoning ? stoningBudgetHigh : null,
+                isPoCustomer: isPoCustomer
             };
 
             try {
@@ -1430,16 +1435,25 @@
                     document.getElementById('loadingView').classList.remove('active');
 
                     // Update success message
-                    var msg = 'Thank you! Your design has been approved and an invoice is on its way';
-                    if (addOns.length > 0) {
-                        msg += ' \u2014 including ' + addOns.map(function(a) { return a.name.toLowerCase(); }).join(' and ');
-                    }
-                    msg += '. Once payment and measurements are complete, your order moves into production.';
-                    if (hasStoning) {
-                        msg += '\n\nA separate invoice for rhinestone stoning ($' + stoningBudgetLow.toLocaleString() + ' \u2013 $' + stoningBudgetHigh.toLocaleString() + ') will follow once stoning is complete.';
-                    }
-                    if (hasPayer) {
-                        msg += '\n\nIf there is a different payer on this order, please follow up with them to ensure payment or PO issuance is submitted to Show Off to begin production.';
+                    var msg;
+                    if (isPoCustomer) {
+                        msg = 'Thank you! Your design has been approved';
+                        if (addOns.length > 0) {
+                            msg += ' \u2014 including ' + addOns.map(function(a) { return a.name.toLowerCase(); }).join(' and ');
+                        }
+                        msg += '. A formal quote with your order details will follow shortly.';
+                    } else {
+                        msg = 'Thank you! Your design has been approved and an invoice is on its way';
+                        if (addOns.length > 0) {
+                            msg += ' \u2014 including ' + addOns.map(function(a) { return a.name.toLowerCase(); }).join(' and ');
+                        }
+                        msg += '. Once payment and measurements are complete, your order moves into production.';
+                        if (hasStoning) {
+                            msg += '\n\nA separate invoice for rhinestone stoning ($' + stoningBudgetLow.toLocaleString() + ' \u2013 $' + stoningBudgetHigh.toLocaleString() + ') will follow once stoning is complete.';
+                        }
+                        if (hasPayer) {
+                            msg += '\n\nIf there is a different payer on this order, please follow up with them to ensure payment or PO issuance is submitted to Show Off to begin production.';
+                        }
                     }
                     document.getElementById('approveSuccessMessage').innerText = msg;
 

@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PO Quote | Show Off</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:'Inter',-apple-system,sans-serif;background:#faf9f7;min-height:100vh;padding:20px;color:#2a2220;font-size:13px;line-height:1.5}
+        .container{max-width:700px;margin:0 auto;background:rgba(255,255,255,0.75);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.3);box-shadow:0 8px 32px rgba(0,0,0,0.08);border-radius:2px;padding:40px 32px}
+        .header{text-align:center;margin-bottom:28px;padding-bottom:16px;position:relative}
+        .header::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:40px;height:1px;background:rgba(0,0,0,0.15)}
+        h1{font-family:'Cormorant Garamond',Georgia,serif;font-size:24px;font-weight:500;letter-spacing:0.04em}
+        .deal-info{color:#888;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;margin-top:6px}
+        .section-label{font-size:8px;letter-spacing:0.25em;text-transform:uppercase;color:#999;margin-bottom:12px;margin-top:24px}
+        .quote-badge{display:inline-block;padding:3px 10px;border-radius:12px;font-size:10px;font-weight:500;letter-spacing:0.05em}
+        .quote-badge.draft{background:rgba(200,170,100,0.15);color:#8b7355}
+        .quote-badge.published{background:rgba(76,175,80,0.12);color:#2e7d32}
+        .quote-badge.new{background:rgba(33,150,243,0.12);color:#1565c0}
+        .line-items{display:flex;flex-direction:column;gap:10px}
+        .line-item{display:grid;grid-template-columns:1fr 70px 100px 50px;gap:10px;align-items:center;padding:12px 14px;background:linear-gradient(145deg,rgba(255,255,255,0.92),rgba(255,252,250,0.88));border-radius:2px;border:1px solid rgba(200,180,170,0.2)}
+        .line-item.new{background:linear-gradient(145deg,rgba(255,252,250,0.6),rgba(248,245,242,0.5))}
+        .line-item.deleted{opacity:0.4}
+        .column-headers{display:grid;grid-template-columns:1fr 70px 100px 50px;gap:10px;padding:0 14px 8px;font-size:8px;color:#999;letter-spacing:0.2em;text-transform:uppercase}
+        input[type=text],input[type=number],input[type=url],textarea{width:100%;padding:10px 12px;font-size:13px;font-family:'Inter',sans-serif;border:1px solid rgba(200,180,170,0.25);border-radius:2px;background:rgba(255,255,255,0.6);color:#2a2220;transition:border-color 0.2s}
+        input:focus,textarea:focus{outline:none;border-color:rgba(200,170,155,0.6);box-shadow:0 0 0 3px rgba(200,170,155,0.1);background:rgba(255,255,255,0.95)}
+        textarea{resize:vertical;min-height:80px}
+        .qty-field input{text-align:center;padding:10px 8px}
+        .price-field{position:relative;display:flex;align-items:center}
+        .price-field .dollar{position:absolute;left:12px;color:#888;font-size:13px}
+        .price-field input{padding-left:24px}
+        .delete-btn{padding:8px 10px;background:transparent;color:#aaa;border:1px solid rgba(200,180,170,0.2);border-radius:2px;cursor:pointer;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;font-family:'Inter',sans-serif;transition:all 0.2s}
+        .delete-btn:hover{color:#c62828;border-color:#c62828}
+        .add-btn{width:100%;padding:12px;background:transparent;color:#2a2220;border:1.5px dashed rgba(200,180,170,0.35);border-radius:2px;cursor:pointer;font-size:12px;font-family:'Cormorant Garamond',Georgia,serif;letter-spacing:0.04em;margin-top:10px}
+        .add-btn:hover{border-color:#2a2220}
+        .totals-box{margin-top:20px;padding:14px 16px;background:linear-gradient(145deg,rgba(255,255,255,0.92),rgba(255,252,250,0.88));border:1.5px solid rgba(42,34,32,0.25);border-radius:2px}
+        .total-row{display:flex;justify-content:space-between;padding:4px 0}
+        .total-row .label{font-size:11px;color:#888}
+        .total-row .amount{font-size:14px;color:#2a2220}
+        .total-row.grand{padding-top:10px;margin-top:8px;border-top:1px solid rgba(200,180,170,0.2)}
+        .total-row.grand .amount{font-family:'Cormorant Garamond',Georgia,serif;font-size:20px}
+        .field-group{margin-top:20px}
+        .field-label{display:block;font-family:'Cormorant Garamond',Georgia,serif;font-size:14px;font-weight:500;color:#2a2220;margin-bottom:6px}
+        .field-hint{font-size:10px;color:#aaa;margin-top:4px;font-style:italic}
+        .verbiage-section{margin-top:28px;padding:20px;background:linear-gradient(145deg,rgba(255,248,230,0.5),rgba(255,252,240,0.4));border:1.5px solid rgba(200,170,100,0.3);border-radius:2px}
+        .verbiage-section h3{font-family:'Cormorant Garamond',Georgia,serif;font-size:16px;font-weight:500;margin-bottom:4px}
+        .verbiage-section p{font-size:11px;color:#8b7355;margin-bottom:16px}
+        .action-btn{width:100%;padding:20px;font-size:16px;font-weight:500;font-family:'Cormorant Garamond',Georgia,serif;letter-spacing:0.04em;background:#2a2220;color:#fff;border:2px solid #2a2220;border-radius:2px;cursor:pointer;transition:all 0.2s;margin-top:24px}
+        .action-btn:hover{background:#1a1510}
+        .action-btn:disabled{background:#b0a5a0;border-color:#b0a5a0;cursor:not-allowed}
+        .success-view{display:none;text-align:center;padding:60px 20px}
+        .success-view.active{display:block}
+        .success-icon{width:64px;height:64px;margin:0 auto 20px;color:#2e7d32}
+        .success-title{font-family:'Cormorant Garamond',Georgia,serif;font-size:22px;margin-bottom:12px}
+        .success-message{font-size:13px;color:#666;line-height:1.6}
+        .contact-info{margin-top:16px;padding:12px 16px;background:rgba(42,34,32,0.04);border-radius:2px;font-size:12px}
+        .loading{display:none;text-align:center;padding:60px 20px}
+        .loading.active{display:block}
+        .spinner{width:32px;height:32px;border:2px solid rgba(42,34,32,0.1);border-top-color:#2a2220;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px}
+        @keyframes spin{to{transform:rotate(360deg)}}
+        .footer{text-align:center;padding-top:24px;font-size:10px;color:#aaa;letter-spacing:0.08em}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>PO Quote</h1>
+            <div class="deal-info" id="dealInfo">Loading...</div>
+        </div>
+
+        <div id="mainView" style="display:none">
+            <!-- Quote Status -->
+            <div style="text-align:center;margin-bottom:20px">
+                <span class="quote-badge" id="quoteBadge"></span>
+            </div>
+
+            <!-- Line Items -->
+            <div class="section-label">Line Items</div>
+            <div class="column-headers"><span>Item Name</span><span>Qty</span><span>Price</span><span></span></div>
+            <div class="line-items" id="lineItems"></div>
+            <button type="button" class="add-btn" onclick="addItem()">+ Add Line Item</button>
+            <div class="totals-box">
+                <div class="total-row"><span class="label">Subtotal</span><span class="amount" id="subtotal">$0.00</span></div>
+                <div class="total-row grand"><span class="label">Total</span><span class="amount" id="totalAmount">$0.00</span></div>
+            </div>
+
+            <!-- Quote Verbiage -->
+            <div class="verbiage-section">
+                <h3>Quote Verbiage</h3>
+                <p>Custom text for the school's finance department</p>
+                <div class="field-group" style="margin-top:0">
+                    <label class="field-label" for="addressee">Addressee</label>
+                    <input type="text" id="addressee" placeholder="e.g. Jane Smith, Procurement Dept">
+                    <div class="field-hint">Who this quote is addressed to</div>
+                </div>
+                <div class="field-group">
+                    <label class="field-label" for="quoteTitle">Quote Title</label>
+                    <input type="text" id="quoteTitle" placeholder="e.g. Jefferson County ISD — Twirling Team">
+                    <div class="field-hint">Defaults to deal name if left blank</div>
+                </div>
+                <div class="field-group">
+                    <label class="field-label" for="quoteNotes">Special Notes</label>
+                    <textarea id="quoteNotes" placeholder="Any special verbiage the finance department requested..."></textarea>
+                    <div class="field-hint">Appears on the quote as a note</div>
+                </div>
+            </div>
+
+            <!-- Contact Preview -->
+            <div class="contact-info" id="contactInfo" style="display:none">
+                <strong>Sending to:</strong> <span id="contactName"></span> (<span id="contactEmail"></span>)
+            </div>
+
+            <button class="action-btn" id="submitBtn" onclick="handleSubmit()">Update & Send Quote</button>
+        </div>
+
+        <!-- Loading -->
+        <div class="loading" id="loadingView">
+            <div class="spinner"></div>
+            <p id="loadingText">Loading deal data...</p>
+        </div>
+
+        <!-- Success -->
+        <div class="success-view" id="successView">
+            <div class="success-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="64" height="64">
+                    <path d="M5 13l4 4L19 7"/>
+                </svg>
+            </div>
+            <h2 class="success-title">Quote Sent</h2>
+            <p class="success-message" id="successMessage">The quote has been updated and sent to the customer.</p>
+        </div>
+
+        <div class="footer">Show Off Inc.</div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const dealId = urlParams.get('dealId');
+        let dealData = null;
+        let itemIndex = 0;
+        let deletedIds = [];
+
+        if (!dealId) {
+            document.getElementById('dealInfo').textContent = 'Error: No dealId provided';
+        } else {
+            loadData();
+        }
+
+        async function loadData() {
+            document.getElementById('loadingView').classList.add('active');
+            try {
+                const res = await fetch(`/api/po-quote?dealId=${dealId}`);
+                if (!res.ok) throw new Error('Failed to fetch');
+                dealData = await res.json();
+
+                document.getElementById('dealInfo').textContent =
+                    `Deal #${dealData.dealName.split(' ')[0]} \u2014 ${dealData.dealName}`;
+
+                // Quote badge
+                const badge = document.getElementById('quoteBadge');
+                if (dealData.existingQuote) {
+                    badge.textContent = dealData.existingQuote.status === 'DRAFT' ? 'Draft Quote' : 'Published Quote';
+                    badge.className = 'quote-badge ' + (dealData.existingQuote.status === 'DRAFT' ? 'draft' : 'published');
+                } else {
+                    badge.textContent = 'New Quote';
+                    badge.className = 'quote-badge new';
+                }
+
+                // Line items
+                const container = document.getElementById('lineItems');
+                dealData.lineItems.forEach(function(item, i) {
+                    container.innerHTML += lineItemHtml(i, item.id, item.name, item.quantity, item.price);
+                    itemIndex = i + 1;
+                });
+
+                // Verbiage fields
+                document.getElementById('addressee').value = dealData.poFields.addressee || '';
+                document.getElementById('quoteTitle').value = dealData.poFields.title || '';
+                document.getElementById('quoteNotes').value = dealData.poFields.notes || '';
+
+                // Contact
+                if (dealData.primaryContact) {
+                    document.getElementById('contactName').textContent = dealData.primaryContact.name;
+                    document.getElementById('contactEmail').textContent = dealData.primaryContact.email;
+                    document.getElementById('contactInfo').style.display = 'block';
+                }
+
+                updateTotal();
+                document.getElementById('loadingView').classList.remove('active');
+                document.getElementById('mainView').style.display = 'block';
+            } catch (err) {
+                document.getElementById('loadingView').classList.remove('active');
+                document.getElementById('dealInfo').textContent = 'Error loading deal: ' + err.message;
+            }
+        }
+
+        function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+        function lineItemHtml(idx, id, name, qty, price) {
+            return '<div class="line-item' + (id === 'new' ? ' new' : '') + '" data-id="' + id + '">' +
+                '<input type="text" data-field="name" value="' + esc(name) + '" placeholder="Item name">' +
+                '<div class="qty-field"><input type="number" data-field="qty" value="' + (qty||1) + '" min="1" step="1" class="qty-input" onchange="updateTotal()"></div>' +
+                '<div class="price-field"><span class="dollar">$</span><input type="number" data-field="price" value="' + (price||'') + '" min="0" step="0.01" class="price-input" onchange="updateTotal()"></div>' +
+                '<button type="button" class="delete-btn" onclick="deleteItem(this)">Delete</button></div>';
+        }
+
+        function addItem() {
+            var container = document.getElementById('lineItems');
+            container.insertAdjacentHTML('beforeend', lineItemHtml(itemIndex, 'new', '', 1, ''));
+            itemIndex++;
+            updateTotal();
+            container.lastElementChild.querySelector('input[data-field="name"]').focus();
+        }
+
+        function deleteItem(btn) {
+            var item = btn.closest('.line-item');
+            var id = item.dataset.id;
+            if (id && id !== 'new') {
+                deletedIds.push(id);
+                item.classList.add('deleted');
+                item.querySelectorAll('input').forEach(function(i){i.disabled=true});
+                btn.textContent = 'Undo';
+                btn.onclick = function(){ undoDelete(btn, id); };
+            } else {
+                item.remove();
+            }
+            updateTotal();
+        }
+
+        function undoDelete(btn, id) {
+            var item = btn.closest('.line-item');
+            deletedIds = deletedIds.filter(function(i){return i !== id});
+            item.classList.remove('deleted');
+            item.querySelectorAll('input').forEach(function(i){i.disabled=false});
+            btn.textContent = 'Delete';
+            btn.onclick = function(){ deleteItem(btn); };
+            updateTotal();
+        }
+
+        function updateTotal() {
+            var total = 0;
+            document.querySelectorAll('.line-item:not(.deleted)').forEach(function(item) {
+                var qty = parseFloat(item.querySelector('[data-field="qty"]').value) || 1;
+                var price = parseFloat(item.querySelector('[data-field="price"]').value) || 0;
+                total += qty * price;
+            });
+            document.getElementById('subtotal').textContent = '$' + total.toFixed(2);
+            document.getElementById('totalAmount').textContent = '$' + total.toFixed(2);
+        }
+
+        async function handleSubmit() {
+            var btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.textContent = 'Sending...';
+
+            var items = [];
+            document.querySelectorAll('.line-item:not(.deleted)').forEach(function(item) {
+                items.push({
+                    id: item.dataset.id,
+                    name: item.querySelector('[data-field="name"]').value,
+                    quantity: item.querySelector('[data-field="qty"]').value,
+                    price: item.querySelector('[data-field="price"]').value
+                });
+            });
+
+            var payload = {
+                dealId: dealId,
+                dealName: dealData.dealName,
+                items: items,
+                deletedItems: deletedIds,
+                existingQuoteId: dealData.existingQuote ? dealData.existingQuote.id : null,
+                addressee: document.getElementById('addressee').value,
+                quoteTitle: document.getElementById('quoteTitle').value || dealData.dealName,
+                quoteNotes: document.getElementById('quoteNotes').value,
+                contactEmail: dealData.primaryContact ? dealData.primaryContact.email : null,
+                contactName: dealData.primaryContact ? dealData.primaryContact.name : null
+            };
+
+            try {
+                var res = await fetch('https://showoffinc.app.n8n.cloud/webhook/process-po-quote', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    document.getElementById('mainView').style.display = 'none';
+                    var msg = 'The quote has been updated and sent';
+                    if (dealData.primaryContact) {
+                        msg += ' to ' + dealData.primaryContact.name + ' at ' + dealData.primaryContact.email;
+                    }
+                    msg += '.';
+                    document.getElementById('successMessage').textContent = msg;
+                    document.getElementById('successView').classList.add('active');
+                } else {
+                    throw new Error('Server error');
+                }
+            } catch (err) {
+                alert('Error: ' + err.message + '. Please try again.');
+                btn.disabled = false;
+                btn.textContent = 'Update & Send Quote';
+            }
+        }
+    </script>
+</body>
+</html>

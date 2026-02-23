@@ -48,7 +48,7 @@ export default async function handler(req, res) {
     let hubspotDealId = dealId;
 
     const directResponse = await fetch(
-      `https://api.hubapi.com/crm/v3/objects/deals/${dealId}?properties=dealname,amount,designer_notes,sketch_video_url,has_stoning,stoning_budget_low,stoning_budget_high,sketch_options`,
+      `https://api.hubapi.com/crm/v3/objects/deals/${dealId}?properties=dealname,amount,designer_notes,sketch_video_url,has_stoning,stoning_budget_low,stoning_budget_high,sketch_options,is_po_customer`,
       { headers }
     );
 
@@ -71,7 +71,7 @@ export default async function handler(req, res) {
                 value: dealId
               }]
             }],
-            properties: ['dealname', 'amount', 'designer_notes', 'sketch_video_url', 'has_stoning', 'stoning_budget_low', 'stoning_budget_high', 'sketch_options'],
+            properties: ['dealname', 'amount', 'designer_notes', 'sketch_video_url', 'has_stoning', 'stoning_budget_low', 'stoning_budget_high', 'sketch_options', 'is_po_customer'],
             limit: 1
           })
         }
@@ -160,6 +160,7 @@ export default async function handler(req, res) {
       hasStoning: deal.properties.has_stoning === 'Yes',
       stoningBudgetLow: parseFloat(deal.properties.stoning_budget_low) || null,
       stoningBudgetHigh: parseFloat(deal.properties.stoning_budget_high) || null,
+      isPoCustomer: deal.properties.is_po_customer === 'true',
       sketchOptions: (() => {
         try {
           const raw = deal.properties.sketch_options;
