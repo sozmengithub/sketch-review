@@ -6,236 +6,245 @@
     <title>Quote Review | Show Off Inc.</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Avenir+Next:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         *{box-sizing:border-box;margin:0;padding:0}
-        body{font-family:'Montserrat',sans-serif;background:#f5f8fa;min-height:100vh;padding:0;color:#33475b;font-size:14px;line-height:1.5}
+        body{font-family:'Avenir Next',-apple-system,'Helvetica Neue',Helvetica,Arial,sans-serif;background:#fff;color:#33475b;font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
 
-        .page-wrap{max-width:800px;margin:0 auto;padding:40px 20px}
+        .quote-page{max-width:740px;margin:0 auto;padding:40px 32px 60px}
 
-        .quote-card{background:#fff;border:1px solid #cbd6e2;border-radius:4px;overflow:hidden}
+        /* Company header */
+        .company-header{font-size:22px;font-weight:700;color:#4C76B8;margin-bottom:24px;letter-spacing:-0.01em}
 
-        /* Header banner */
-        .quote-header{padding:32px 40px;border-bottom:1px solid #cbd6e2}
-        .header-top{display:flex;justify-content:space-between;align-items:flex-start}
-        .company-name{font-size:20px;font-weight:700;color:#33475b}
-        .company-sub{font-size:12px;color:#7c98b6;margin-top:2px}
-        .quote-title-area{text-align:right}
-        .quote-title-area h1{font-size:24px;font-weight:700;color:#33475b;margin:0}
-        .deal-badge{display:inline-block;margin-top:6px;font-size:12px;color:#7c98b6}
+        /* Quote title */
+        .quote-title{text-align:center;font-size:22px;font-weight:600;color:#33475b;margin-bottom:32px}
+        .quote-title .editable-title{font-size:22px;font-weight:600;color:#33475b;text-align:center;border:none;background:transparent;width:100%;font-family:inherit;padding:6px 8px;border-radius:3px;border:1.5px dashed transparent;transition:all 0.15s}
+        .quote-title .editable-title:hover{border-color:#b8d4f0;background:#f7faff}
+        .quote-title .editable-title:focus{outline:none;border-color:#4C76B8;background:#fff;box-shadow:0 0 0 2px rgba(76,118,184,0.12)}
+        .edit-hint{font-size:10px;color:#99acc2;text-align:center;margin-top:2px;opacity:0;transition:opacity 0.15s}
+        .quote-title:hover .edit-hint{opacity:1}
 
-        /* Meta info */
-        .meta-section{display:flex;gap:40px;padding:20px 40px;background:#f5f8fa;border-bottom:1px solid #cbd6e2}
-        .meta-block{display:flex;flex-direction:column}
-        .meta-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#7c98b6;margin-bottom:4px}
-        .meta-value{font-size:14px;color:#33475b}
+        /* Two-column info */
+        .info-row{display:flex;justify-content:space-between;margin-bottom:24px;gap:40px}
+        .info-left{flex:1}
+        .info-right{flex:0 0 auto;text-align:right}
+        .contact-name{font-weight:600;font-size:14px;color:#33475b}
+        .contact-detail{font-size:13px;color:#516f90}
+        .ref-line{font-size:13px;color:#516f90;margin-top:12px}
+        .company-right{font-weight:600;font-size:14px;color:#33475b}
+        .prepared-by{margin-top:12px;font-size:13px;color:#516f90}
+        .prepared-by strong{color:#33475b;font-weight:600}
 
-        /* Line items table */
-        .section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#7c98b6;padding:24px 40px 12px}
+        /* PO Number field inline */
+        .po-line{margin-top:8px;font-size:13px;color:#516f90;display:flex;align-items:center;gap:6px}
+        .po-line label{white-space:nowrap}
+        .po-input{font-size:13px;font-family:inherit;color:#33475b;padding:3px 8px;border:1.5px dashed #b8d4f0;border-radius:3px;background:#f7faff;width:200px;transition:all 0.15s}
+        .po-input:hover{border-color:#7fb3e0}
+        .po-input:focus{outline:none;border-color:#4C76B8;background:#fff;border-style:solid;box-shadow:0 0 0 2px rgba(76,118,184,0.12)}
+        .po-input::placeholder{color:#b0c4de}
 
-        .items-table{width:100%;border-collapse:collapse}
-        .items-table thead th{background:#f5f8fa;padding:10px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#7c98b6;text-align:left;border-top:1px solid #cbd6e2;border-bottom:1px solid #cbd6e2}
-        .items-table thead th:first-child{padding-left:40px}
-        .items-table thead th:last-child{padding-right:40px}
-        .items-table thead th.num{text-align:center;width:80px}
-        .items-table thead th.price{text-align:right;width:120px}
-        .items-table thead th.total{text-align:right;width:120px}
+        /* Total line */
+        .total-header{display:flex;justify-content:space-between;align-items:baseline;padding:16px 0;border-top:2px solid #33475b;border-bottom:1px solid #cbd6e2;margin-bottom:24px}
+        .total-header .t-label{font-size:16px;font-weight:600;color:#33475b}
+        .total-header .t-amount{font-size:18px;font-weight:700;color:#33475b}
 
-        .items-table tbody td{padding:14px 16px;border-bottom:1px solid #eaf0f6;font-size:14px}
-        .items-table tbody td:first-child{padding-left:40px}
-        .items-table tbody td:last-child{padding-right:40px}
-        .items-table tbody td.num{text-align:center;color:#516f90}
-        .items-table tbody td.price{text-align:right;color:#516f90}
-        .items-table tbody td.total{text-align:right;font-weight:600;color:#33475b}
-        .items-table tbody tr:last-child td{border-bottom:none}
+        /* Products table */
+        .products-table{width:100%;border-collapse:collapse;margin-bottom:0}
+        .products-table thead th{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#33475b;padding:10px 12px;text-align:left;border-bottom:2px solid #33475b}
+        .products-table thead th:first-child{padding-left:16px}
+        .products-table thead th.qty{text-align:center;width:100px}
+        .products-table thead th.price{text-align:right;width:120px;padding-right:16px}
+        .products-table tbody td{padding:12px 12px;border-bottom:1px solid #eaf0f6;font-size:14px;color:#33475b}
+        .products-table tbody td:first-child{padding-left:16px}
+        .products-table tbody td.qty{text-align:center;color:#516f90}
+        .products-table tbody td.price{text-align:right;padding-right:16px}
 
-        /* Totals */
-        .totals-section{display:flex;justify-content:flex-end;padding:16px 40px 24px;border-top:1px solid #cbd6e2}
-        .totals-box{min-width:260px}
-        .totals-row{display:flex;justify-content:space-between;padding:6px 0;font-size:14px}
-        .totals-row .t-label{color:#7c98b6}
-        .totals-row .t-amount{font-weight:600;color:#33475b}
-        .totals-row.grand{padding-top:12px;margin-top:8px;border-top:2px solid #33475b}
-        .totals-row.grand .t-label{font-size:16px;font-weight:700;color:#33475b}
-        .totals-row.grand .t-amount{font-size:20px;font-weight:700;color:#33475b}
+        /* Summary */
+        .summary-row{border-bottom:1px solid #eaf0f6}
+        .summary-row td{padding:10px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#33475b;border-bottom:1px solid #eaf0f6}
+        .subtotal-row td{padding:10px 12px;font-size:14px;color:#33475b;border-bottom:none}
+        .subtotal-row td.price{font-weight:400}
 
-        /* Details section */
-        .details-section{padding:24px 40px;border-top:1px solid #cbd6e2}
-        .details-section h3{font-size:14px;font-weight:700;color:#33475b;margin-bottom:4px}
-        .details-section .sub{font-size:12px;color:#7c98b6;margin-bottom:20px}
-        .field-group{margin-bottom:16px}
-        .field-label{display:block;font-size:12px;font-weight:600;color:#33475b;margin-bottom:6px}
-        .field-hint{font-size:11px;color:#99acc2;margin-top:4px}
-        .field-input{width:100%;padding:10px 12px;font-size:14px;font-family:'Montserrat',sans-serif;border:1px solid #cbd6e2;border-radius:3px;background:#fff;color:#33475b;transition:border-color 0.2s}
-        .field-input:focus{outline:none;border-color:#4C76B8;box-shadow:0 0 0 2px rgba(76,118,184,0.15)}
-        textarea.field-input{resize:vertical;min-height:80px}
+        /* Grand total box */
+        .grand-total{display:flex;justify-content:flex-end;margin-top:12px;margin-bottom:32px}
+        .grand-total-box{border:1px solid #cbd6e2;border-collapse:collapse;display:flex}
+        .grand-total-box .gt-label{padding:10px 24px;font-size:14px;font-weight:600;color:#33475b;border-right:1px solid #cbd6e2;display:flex;align-items:center}
+        .grand-total-box .gt-amount{padding:10px 24px;font-size:16px;font-weight:700;color:#33475b;display:flex;align-items:center}
 
-        /* Contact notice */
-        .contact-notice{margin:0 40px;padding:12px 16px;background:#f0f9ff;border:1px solid #d1ecf1;border-radius:3px;font-size:13px;color:#33475b;text-align:center}
-        .contact-notice strong{color:#33475b}
+        /* Comments box */
+        .section-box{border:1px solid #cbd6e2;border-radius:0;margin-bottom:16px;padding:16px 20px}
+        .section-box-label{font-size:13px;font-weight:700;color:#33475b;margin-bottom:8px}
+        .section-box-content{font-size:14px;color:#516f90;line-height:1.6}
 
-        /* Action button */
-        .btn-row{padding:24px 40px 32px}
-        .action-btn{width:100%;padding:14px 20px;font-size:14px;font-weight:600;font-family:'Montserrat',sans-serif;background:#4C76B8;color:#fff;border:none;border-radius:3px;cursor:pointer;transition:all 0.15s}
-        .action-btn:hover:not(:disabled){background:#3d6098}
-        .action-btn:disabled{opacity:0.5;cursor:not-allowed}
+        /* Editable textarea styled as document text */
+        .editable-area{width:100%;font-size:14px;font-family:inherit;color:#33475b;line-height:1.6;padding:8px 10px;border:1.5px dashed #b8d4f0;border-radius:3px;background:#f7faff;resize:vertical;min-height:48px;transition:all 0.15s}
+        .editable-area:hover{border-color:#7fb3e0}
+        .editable-area:focus{outline:none;border-color:#4C76B8;background:#fff;border-style:solid;box-shadow:0 0 0 2px rgba(76,118,184,0.12)}
+        .editable-area::placeholder{color:#b0c4de}
+
+        /* Editable input inline */
+        .editable-inline{font-size:13px;font-family:inherit;color:#33475b;padding:3px 8px;border:1.5px dashed #b8d4f0;border-radius:3px;background:#f7faff;width:100%;transition:all 0.15s}
+        .editable-inline:hover{border-color:#7fb3e0}
+        .editable-inline:focus{outline:none;border-color:#4C76B8;background:#fff;border-style:solid;box-shadow:0 0 0 2px rgba(76,118,184,0.12)}
+        .editable-inline::placeholder{color:#b0c4de}
+
+        /* Finalize button */
+        .finalize-btn{display:inline-block;padding:12px 32px;background:#4C76B8;color:#fff;border:none;border-radius:3px;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;transition:background 0.15s;margin-top:8px}
+        .finalize-btn:hover:not(:disabled){background:#3d6098}
+        .finalize-btn:disabled{opacity:0.5;cursor:not-allowed}
+
+        /* Editable legend */
+        .editable-legend{display:flex;align-items:center;gap:8px;font-size:11px;color:#99acc2;margin-bottom:24px;padding:8px 12px;background:#f7faff;border:1px dashed #b8d4f0;border-radius:3px}
+        .legend-swatch{width:16px;height:12px;border:1.5px dashed #b8d4f0;background:#f7faff;border-radius:2px;flex-shrink:0}
 
         /* States */
-        .loading{display:none;text-align:center;padding:80px 20px}
-        .loading.active{display:block}
-        .spinner{width:36px;height:36px;border:3px solid #eaf0f6;border-top-color:#4C76B8;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px}
+        .loading-view{text-align:center;padding:120px 20px}
+        .spinner{width:32px;height:32px;border:3px solid #eaf0f6;border-top-color:#4C76B8;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px}
         @keyframes spin{to{transform:rotate(360deg)}}
-        .loading p{color:#7c98b6;font-size:14px}
+        .loading-view p{color:#7c98b6;font-size:14px}
 
-        .error-view{display:none;text-align:center;padding:80px 40px}
-        .error-view.active{display:block}
-        .error-icon{width:56px;height:56px;margin:0 auto 20px;background:#f8d7da;border-radius:50%;display:flex;align-items:center;justify-content:center}
-        .error-icon svg{width:28px;height:28px;color:#721c24}
-        .error-title{font-size:20px;font-weight:700;color:#33475b;margin-bottom:10px}
-        .error-message{font-size:14px;color:#7c98b6}
+        .error-view{text-align:center;padding:120px 20px;display:none}
+        .error-view h2{font-size:20px;font-weight:700;color:#33475b;margin-bottom:10px}
+        .error-view p{font-size:14px;color:#7c98b6}
 
-        .success-view{display:none;text-align:center;padding:80px 40px}
-        .success-view.active{display:block}
+        .success-view{text-align:center;padding:80px 20px;display:none}
         .success-icon{width:56px;height:56px;margin:0 auto 20px;background:#d4edda;border-radius:50%;display:flex;align-items:center;justify-content:center}
         .success-icon svg{width:28px;height:28px;color:#155724}
-        .success-title{font-size:20px;font-weight:700;color:#33475b;margin-bottom:10px}
-        .success-message{font-size:14px;color:#7c98b6;line-height:1.6;max-width:400px;margin:0 auto}
-        .quote-link{display:inline-block;margin-top:20px;padding:12px 28px;background:#4C76B8;color:#fff;text-decoration:none;border-radius:3px;font-size:14px;font-weight:600;transition:background 0.15s}
-        .quote-link:hover{background:#3d6098}
+        .success-view h2{font-size:20px;font-weight:700;color:#33475b;margin-bottom:10px}
+        .success-view p{font-size:14px;color:#7c98b6;line-height:1.6}
+        .view-quote-link{display:inline-block;margin-top:20px;padding:12px 32px;background:#4C76B8;color:#fff;text-decoration:none;border-radius:3px;font-size:14px;font-weight:600;transition:background 0.15s}
+        .view-quote-link:hover{background:#3d6098}
 
-        .footer{text-align:center;padding:20px;font-size:11px;color:#99acc2}
-
-        @media(max-width:640px){
-            .page-wrap{padding:16px 8px}
-            .quote-header,.details-section{padding-left:20px;padding-right:20px}
-            .meta-section{flex-direction:column;gap:12px;padding:16px 20px}
-            .section-title{padding-left:20px;padding-right:20px}
-            .items-table thead th:first-child,.items-table tbody td:first-child{padding-left:20px}
-            .items-table thead th:last-child,.items-table tbody td:last-child{padding-right:20px}
-            .totals-section{padding:16px 20px}
-            .contact-notice{margin:0 20px}
-            .btn-row{padding:20px}
-            .header-top{flex-direction:column;gap:12px}
-            .quote-title-area{text-align:left}
+        @media(max-width:600px){
+            .quote-page{padding:24px 16px 40px}
+            .info-row{flex-direction:column;gap:20px}
+            .info-right{text-align:left}
+            .grand-total{justify-content:stretch}
+            .grand-total-box{width:100%}
+            .grand-total-box .gt-label,.grand-total-box .gt-amount{flex:1;justify-content:center}
+            .po-input{width:140px}
         }
     </style>
 </head>
 <body>
-    <div class="page-wrap">
-        <div class="quote-card">
-            <!-- Loading -->
-            <div class="loading active" id="loadingView">
-                <div class="spinner"></div>
-                <p>Loading your quote...</p>
+    <div class="quote-page">
+        <!-- Loading -->
+        <div class="loading-view" id="loadingView">
+            <div class="spinner"></div>
+            <p>Loading your quote...</p>
+        </div>
+
+        <!-- Error -->
+        <div class="error-view" id="errorView">
+            <h2>Unable to Load Quote</h2>
+            <p id="errorMessage">This link may be invalid or expired.</p>
+        </div>
+
+        <!-- Main quote document -->
+        <div id="mainView" style="display:none">
+
+            <!-- Company name -->
+            <div class="company-header">Show-Off</div>
+
+            <!-- Quote title (editable) -->
+            <div class="quote-title">
+                <input type="text" class="editable-title" id="quoteTitle" value="">
+                <div class="edit-hint">Click to edit title</div>
             </div>
 
-            <!-- Error -->
-            <div class="error-view" id="errorView">
-                <div class="error-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
-                    </svg>
-                </div>
-                <h2 class="error-title">Unable to Load Quote</h2>
-                <p class="error-message" id="errorMessage">This link may be invalid or expired.</p>
-            </div>
+            <!-- Two-column info -->
+            <div class="info-row">
+                <div class="info-left">
+                    <div class="contact-name" id="contactName"></div>
+                    <div class="contact-detail" id="contactEmail"></div>
+                    <div class="contact-detail" id="contactPhone"></div>
 
-            <!-- Main content -->
-            <div id="mainView" style="display:none">
-                <!-- Header -->
-                <div class="quote-header">
-                    <div class="header-top">
-                        <div>
-                            <div class="company-name">Show Off Inc.</div>
-                            <div class="company-sub">Custom Performance Wear</div>
-                        </div>
-                        <div class="quote-title-area">
-                            <h1>Quote</h1>
-                            <div class="deal-badge" id="dealNum"></div>
-                        </div>
+                    <div class="ref-line" id="refLine"></div>
+                    <div class="ref-line" id="createdDate"></div>
+                    <div class="ref-line" id="expiresDate"></div>
+
+                    <!-- PO Number (editable) -->
+                    <div class="po-line">
+                        <label>PO Number:</label>
+                        <input type="text" class="po-input" id="poNumber" placeholder="Enter PO #">
                     </div>
                 </div>
-
-                <!-- Meta -->
-                <div class="meta-section">
-                    <div class="meta-block">
-                        <span class="meta-label">Prepared For</span>
-                        <span class="meta-value" id="metaContact">&mdash;</span>
-                    </div>
-                    <div class="meta-block">
-                        <span class="meta-label">Date</span>
-                        <span class="meta-value" id="metaDate"></span>
-                    </div>
-                    <div class="meta-block">
-                        <span class="meta-label">Valid Until</span>
-                        <span class="meta-value" id="metaExpires"></span>
-                    </div>
-                </div>
-
-                <!-- Line items (read-only) -->
-                <div class="section-title">Line Items</div>
-                <table class="items-table">
-                    <thead>
-                        <tr><th>Item</th><th class="num">Qty</th><th class="price">Unit Price</th><th class="total">Total</th></tr>
-                    </thead>
-                    <tbody id="itemsBody"></tbody>
-                </table>
-
-                <!-- Totals -->
-                <div class="totals-section">
-                    <div class="totals-box">
-                        <div class="totals-row"><span class="t-label">Subtotal</span><span class="t-amount" id="subtotal">$0.00</span></div>
-                        <div class="totals-row grand"><span class="t-label">Total</span><span class="t-amount" id="totalAmount">$0.00</span></div>
-                    </div>
-                </div>
-
-                <!-- Editable quote details -->
-                <div class="details-section">
-                    <h3>Quote Details</h3>
-                    <p class="sub">Please review and edit these fields before finalizing</p>
-                    <div class="field-group">
-                        <label class="field-label" for="quoteTitle">Quote Title</label>
-                        <input type="text" class="field-input" id="quoteTitle" placeholder="e.g. Jefferson County ISD — Twirling Team">
-                    </div>
-                    <div class="field-group">
-                        <label class="field-label" for="addressee">Attention</label>
-                        <input type="text" class="field-input" id="addressee" placeholder="e.g. Jane Smith, Procurement Dept">
-                        <div class="field-hint">Who this quote is addressed to</div>
-                    </div>
-                    <div class="field-group">
-                        <label class="field-label" for="poNumber">PO Number</label>
-                        <input type="text" class="field-input" id="poNumber" placeholder="Enter your purchase order number">
-                        <div class="field-hint">Your organization's PO number for this order</div>
-                    </div>
-                    <div class="field-group">
-                        <label class="field-label" for="quoteNotes">Special Notes</label>
-                        <textarea class="field-input" id="quoteNotes" placeholder="Any special terms or notes for this quote..."></textarea>
-                    </div>
-                </div>
-
-                <!-- Contact notice -->
-                <div class="contact-notice" id="contactNotice" style="display:none">
-                    The finalized quote will be sent to <strong id="sentToEmail"></strong>
-                </div>
-
-                <div class="btn-row">
-                    <button class="action-btn" id="finalizeBtn" onclick="handleFinalize()">Finalize Quote</button>
+                <div class="info-right">
+                    <div class="company-right">Show-Off</div>
+                    <div class="prepared-by" style="margin-top:24px"><strong>Prepared by: Scott Sozmen</strong></div>
+                    <div class="contact-detail">scott@showoffinc.com</div>
                 </div>
             </div>
 
-            <!-- Success -->
-            <div class="success-view" id="successView">
-                <div class="success-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M5 13l4 4L19 7"/>
-                    </svg>
-                </div>
-                <h2 class="success-title">Quote Finalized</h2>
-                <p class="success-message" id="successMessage">Your formal quote has been created. A copy has been sent to your email.</p>
-                <a class="quote-link" id="quoteLinkBtn" href="#" target="_blank" style="display:none">View Your Formal Quote</a>
+            <!-- Editable fields legend -->
+            <div class="editable-legend">
+                <span class="legend-swatch"></span>
+                Fields with a dashed border can be edited. Click to type.
             </div>
 
-            <div class="footer">Show Off Inc.</div>
+            <!-- Total header -->
+            <div class="total-header">
+                <span class="t-label">Total</span>
+                <span class="t-amount" id="headerTotal">$0.00</span>
+            </div>
+
+            <!-- Products table -->
+            <table class="products-table">
+                <thead>
+                    <tr>
+                        <th>Products &amp; Services</th>
+                        <th class="qty">Quantity</th>
+                        <th class="price">Price</th>
+                    </tr>
+                </thead>
+                <tbody id="itemsBody"></tbody>
+                <tbody>
+                    <tr class="summary-row"><td colspan="3"><strong>Summary</strong></td></tr>
+                    <tr class="subtotal-row">
+                        <td colspan="2">One-time subtotal</td>
+                        <td class="price" id="subtotalAmount">$0.00</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Grand total -->
+            <div class="grand-total">
+                <div class="grand-total-box">
+                    <div class="gt-label">Total</div>
+                    <div class="gt-amount" id="grandTotal">$0.00</div>
+                </div>
+            </div>
+
+            <!-- Addressee / Attention (editable) -->
+            <div class="section-box">
+                <div class="section-box-label">Attention</div>
+                <input type="text" class="editable-inline" id="addressee" placeholder="e.g. Jane Smith, Procurement Dept">
+            </div>
+
+            <!-- Comments (editable) -->
+            <div class="section-box">
+                <div class="section-box-label">Comments</div>
+                <textarea class="editable-area" id="quoteNotes" placeholder="Any special terms or notes..."></textarea>
+            </div>
+
+            <!-- Purchase terms (read-only display) -->
+            <div class="section-box">
+                <div class="section-box-label">Purchase terms</div>
+                <div class="section-box-content" id="purchaseTerms"></div>
+            </div>
+
+            <!-- Finalize -->
+            <button class="finalize-btn" id="finalizeBtn" onclick="handleFinalize()">Finalize Quote</button>
+        </div>
+
+        <!-- Success -->
+        <div class="success-view" id="successView">
+            <div class="success-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <h2>Quote Finalized</h2>
+            <p id="successMessage">Your formal quote has been created and sent to your email.</p>
+            <a class="view-quote-link" id="quoteLinkBtn" href="#" target="_blank" style="display:none">View Your Formal Quote</a>
         </div>
     </div>
 
@@ -261,16 +270,21 @@
                 if (!res.ok) throw new Error('Failed to load quote');
                 dealData = await res.json();
 
-                // Header
-                var dealNum = dealData.dealName.split(' ')[0];
-                document.getElementById('dealNum').textContent = 'Order #' + dealNum;
+                // Quote title
+                document.getElementById('quoteTitle').value = dealData.poFields.title || dealData.dealName || '';
 
-                // Meta
+                // Contact info
                 if (dealData.primaryContact) {
-                    document.getElementById('metaContact').textContent = dealData.primaryContact.name || dealData.primaryContact.email;
+                    document.getElementById('contactName').textContent = dealData.primaryContact.name || '';
+                    document.getElementById('contactEmail').textContent = dealData.primaryContact.email || '';
                 }
-                document.getElementById('metaDate').textContent = formatDate(new Date());
-                document.getElementById('metaExpires').textContent = formatDate(new Date(dealData.expirationDate));
+
+                // Reference & dates
+                var now = new Date();
+                var refId = now.toISOString().replace(/[-T:]/g,'').substring(0,8) + '-' + dealData.dealId;
+                document.getElementById('refLine').textContent = 'Reference: ' + refId;
+                document.getElementById('createdDate').textContent = 'Quote created: ' + formatDateLong(now);
+                document.getElementById('expiresDate').textContent = 'Quote expires: ' + formatDateLong(new Date(dealData.expirationDate));
 
                 // Line items
                 var tbody = document.getElementById('itemsBody');
@@ -279,28 +293,23 @@
                     var tr = document.createElement('tr');
                     tr.innerHTML =
                         '<td>' + esc(item.name) + '</td>' +
-                        '<td class="num">' + item.quantity + '</td>' +
-                        '<td class="price">$' + item.price.toFixed(2) + '</td>' +
-                        '<td class="total">$' + lineTotal.toFixed(2) + '</td>';
+                        '<td class="qty">' + item.quantity + '</td>' +
+                        '<td class="price">$' + formatNum(lineTotal) + '</td>';
                     tbody.appendChild(tr);
                 });
 
                 // Totals
-                document.getElementById('subtotal').textContent = '$' + dealData.total.toFixed(2);
-                document.getElementById('totalAmount').textContent = '$' + dealData.total.toFixed(2);
+                var total = dealData.total || 0;
+                document.getElementById('headerTotal').textContent = '$' + formatNum(total);
+                document.getElementById('subtotalAmount').textContent = '$' + formatNum(total);
+                document.getElementById('grandTotal').textContent = '$' + formatNum(total);
 
-                // Pre-fill editable fields from admin draft
-                document.getElementById('quoteTitle').value = dealData.poFields.title || dealData.dealName;
+                // Pre-fill editable fields
                 document.getElementById('addressee').value = dealData.poFields.addressee || '';
                 document.getElementById('quoteNotes').value = dealData.poFields.notes || '';
 
-                // Contact notice
-                if (dealData.primaryContact && dealData.primaryContact.email) {
-                    document.getElementById('sentToEmail').textContent = dealData.primaryContact.email;
-                    document.getElementById('contactNotice').style.display = 'block';
-                }
-
-                document.getElementById('loadingView').classList.remove('active');
+                // Hide loading, show quote
+                document.getElementById('loadingView').style.display = 'none';
                 document.getElementById('mainView').style.display = 'block';
             } catch (err) {
                 showError('Unable to load your quote. Please try again or contact Show Off Inc.');
@@ -308,15 +317,19 @@
         }
 
         function showError(msg) {
-            document.getElementById('loadingView').classList.remove('active');
+            document.getElementById('loadingView').style.display = 'none';
             document.getElementById('errorMessage').textContent = msg;
-            document.getElementById('errorView').classList.add('active');
+            document.getElementById('errorView').style.display = 'block';
         }
 
         function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-        function formatDate(d) {
-            var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        function formatNum(n) {
+            return Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function formatDateLong(d) {
+            var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
             return months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
         }
 
@@ -361,7 +374,7 @@
                     }
                     msg += '.';
                     document.getElementById('successMessage').textContent = msg;
-                    document.getElementById('successView').classList.add('active');
+                    document.getElementById('successView').style.display = 'block';
                 } else {
                     throw new Error(data.error || 'Server error');
                 }
