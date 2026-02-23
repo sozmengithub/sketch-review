@@ -560,25 +560,6 @@
                     </button>
                     <div class="btn-hint">Tell your designer which elements you prefer</div>
                 </div>
-                <div style="flex:1; text-align:center;">
-                    <button class="btn btn-secondary" id="approveToggleBtn" onclick="startApproveFlow()" style="width:100%">
-                        Approve Option As-Is
-                    </button>
-                    <div class="btn-hint">Pick one option and approve it directly</div>
-                </div>
-            </div>
-
-            <!-- Approve Step: select an option then confirm -->
-            <div class="approve-step" id="approveStep">
-                <div class="approve-step-hint">Select the option you'd like to approve, then confirm below.</div>
-                <div class="approve-confirm-actions">
-                    <button class="btn btn-primary" id="confirmApproveBtn" onclick="handleApprove()" style="flex:1" disabled>
-                        Confirm Approval
-                    </button>
-                    <button class="btn btn-secondary" onclick="cancelApproveFlow()" style="flex:1">
-                        Cancel
-                    </button>
-                </div>
             </div>
 
             <!-- Revision Panel -->
@@ -626,16 +607,6 @@
             <p class="loading-text" id="loadingText">Submitting...</p>
         </div>
 
-        <!-- Approve Success -->
-        <div class="success-view" id="approveSuccess">
-            <div class="success-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 13l4 4L19 7"/></svg>
-            </div>
-            <h2 class="success-title">Design Approved</h2>
-            <p class="success-message" id="approveSuccessMessage">
-                Thank you! Your design has been approved and an invoice is on its way. Once payment and measurements are complete, your order moves into production.
-            </p>
-        </div>
 
         <!-- Revision Success -->
         <div class="success-view" id="revisionSuccess">
@@ -671,8 +642,6 @@
         let stoningBudgetLow = 0;
         let stoningBudgetHigh = 0;
         let sketchOptions = null;
-        let selectedOptionLabel = null;
-        let selectingMode = false;
 
         // Load sketch image/PDF
         const isPdfSketch = sketchUrl && sketchUrl.toLowerCase().endsWith('.pdf');
@@ -760,10 +729,9 @@
                     '</div>';
                 }).join('');
 
-                return '<div class="option-card" data-label="' + escapeHtml(opt.label) + '" onclick="selectOption(this)">' +
+                return '<div class="option-card">' +
                     '<div class="option-card-header">' +
                         '<div class="option-card-header-left">' +
-                            '<div class="option-radio"></div>' +
                             '<div class="option-label">Option ' + escapeHtml(opt.label) + (opt.name ? ' \u2014 ' + escapeHtml(opt.name) : '') + '</div>' +
                         '</div>' +
                         '<div class="option-total">$' + optTotal.toFixed(2) + '</div>' +
@@ -778,28 +746,9 @@
             return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
         }
 
-        function selectOption(card) {
-            if (!selectingMode) return;
-            // Deselect all
-            document.querySelectorAll('.option-card').forEach(function(c) { c.classList.remove('selected'); });
-            // Select this one
-            card.classList.add('selected');
-            selectedOptionLabel = card.getAttribute('data-label');
-            // Enable confirm button (check stoning too)
-            updateApproveButton();
-        }
-
-        function updateApproveButton() {
-            var btn = document.getElementById('confirmApproveBtn');
-            if (!selectedOptionLabel) { btn.disabled = true; return; }
-            if (hasStoning && !document.getElementById('stoningApprovalCheckbox').checked) { btn.disabled = true; return; }
-            btn.disabled = false;
-        }
-
         function updateStoningApproval() {
             var checked = document.getElementById('stoningApprovalCheckbox').checked;
             document.getElementById('stoningRequiredHint').style.display = checked ? 'none' : 'block';
-            updateApproveButton();
         }
 
         function updateAddons() {
@@ -818,122 +767,8 @@
                 panel.classList.remove('active');
                 actions.style.display = 'flex';
             } else {
-                // Cancel approve mode if active
-                cancelApproveFlow();
                 panel.classList.add('active');
                 actions.style.display = 'none';
-            }
-        }
-
-        // -- Direct Approve Flow (rare) --
-        function startApproveFlow() {
-            selectingMode = true;
-            selectedOptionLabel = null;
-            document.getElementById('optionsSection').classList.add('selecting-mode');
-            document.querySelectorAll('.option-card').forEach(function(c) { c.classList.remove('selected'); });
-            document.getElementById('actionButtons').style.display = 'none';
-            document.getElementById('approveStep').classList.add('active');
-            document.getElementById('confirmApproveBtn').disabled = true;
-            // Scroll to options
-            document.getElementById('optionsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-
-        function cancelApproveFlow() {
-            selectingMode = false;
-            selectedOptionLabel = null;
-            document.getElementById('optionsSection').classList.remove('selecting-mode');
-            document.querySelectorAll('.option-card').forEach(function(c) { c.classList.remove('selected'); });
-            document.getElementById('approveStep').classList.remove('active');
-            document.getElementById('actionButtons').style.display = 'flex';
-        }
-
-        async function handleApprove() {
-            if (!selectedOptionLabel || !sketchOptions) return;
-
-            var selectedOpt = sketchOptions.find(function(o) { return o.label === selectedOptionLabel; });
-            if (!selectedOpt) return;
-
-            var addOns = [];
-            if (document.getElementById('toggleHairpiece').checked) addOns.push({ name: 'Hairpiece', price: 30.00 });
-            if (document.getElementById('toggleBraCups').checked) addOns.push({ name: 'Bra Cups', price: 21.50 });
-
-            var optTotal = selectedOpt.items.reduce(function(sum, item) {
-                return sum + (parseFloat(item.price) || 0) * (parseInt(item.quantity) || 1);
-            }, 0);
-
-            var addonSummary = addOns.length > 0
-                ? '\n\nAdd-ons selected:\n' + addOns.map(function(a) { return '  \u2022 ' + a.name + ': $' + a.price.toFixed(2); }).join('\n')
-                : '';
-
-            var stoningSummary = hasStoning
-                ? '\n\nRhinestone stoning: $' + stoningBudgetLow.toLocaleString() + ' \u2013 $' + stoningBudgetHigh.toLocaleString() + ' (billed separately after stoning)'
-                : '';
-
-            var confirmed = confirm(
-                'Approve Option ' + selectedOptionLabel + '?\n\n' +
-                'Total: $' + optTotal.toFixed(2) +
-                addonSummary +
-                stoningSummary +
-                '\n\nBy approving, you\'re confirming this design is final and ready for production. You\'ll receive an invoice for payment.'
-            );
-            if (!confirmed) return;
-
-            var btn = document.getElementById('confirmApproveBtn');
-            btn.classList.add('btn-loading');
-            btn.disabled = true;
-
-            document.getElementById('mainView').classList.add('hidden');
-            document.getElementById('loadingText').textContent = 'Approving your design...';
-            document.getElementById('loadingView').classList.add('active');
-
-            var payload = {
-                dealId: dealId,
-                orderName: orderName,
-                action: 'approved',
-                selectedOption: selectedOptionLabel,
-                selectedItems: selectedOpt.items.map(function(item) {
-                    return { name: item.name, quantity: parseInt(item.quantity) || 1, price: parseFloat(item.price) || 0 };
-                }),
-                addOns: addOns,
-                approvedAt: new Date().toISOString(),
-                stoningBudgetApproved: hasStoning,
-                stoningBudgetLow: hasStoning ? stoningBudgetLow : null,
-                stoningBudgetHigh: hasStoning ? stoningBudgetHigh : null
-            };
-
-            try {
-                var response = await fetch(WEBHOOK_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                if (response.ok) {
-                    document.getElementById('loadingView').classList.remove('active');
-
-                    var msg = 'Thank you! You\'ve approved Option ' + selectedOptionLabel + ' and an invoice is on its way';
-                    if (addOns.length > 0) {
-                        msg += ' \u2014 including ' + addOns.map(function(a) { return a.name.toLowerCase(); }).join(' and ');
-                    }
-                    msg += '. Once payment and measurements are complete, your order moves into production.';
-                    if (hasStoning) {
-                        msg += '\n\nA separate invoice for rhinestone stoning ($' + stoningBudgetLow.toLocaleString() + ' \u2013 $' + stoningBudgetHigh.toLocaleString() + ') will follow once stoning is complete.';
-                    }
-                    if (hasPayer) {
-                        msg += '\n\nIf there is a different payer on this order, please follow up with them to ensure payment or PO issuance is submitted to Show Off to begin production.';
-                    }
-                    document.getElementById('approveSuccessMessage').innerText = msg;
-                    document.getElementById('approveSuccess').classList.add('active');
-                    document.getElementById('footer').style.display = 'none';
-                } else {
-                    throw new Error('Failed');
-                }
-            } catch (error) {
-                document.getElementById('loadingView').classList.remove('active');
-                document.getElementById('mainView').classList.remove('hidden');
-                btn.classList.remove('btn-loading');
-                btn.disabled = false;
-                alert('Something went wrong. Please try again.');
             }
         }
 
@@ -1013,6 +848,9 @@
                 });
 
                 if (response.ok) {
+                    // Auto-clear sketch_options so next review link shows normal page
+                    try { await fetch('/api/clear-options', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ dealId: dealId }) }); } catch(e) {}
+
                     document.getElementById('loadingView').classList.remove('active');
                     document.getElementById('revisionSuccess').classList.add('active');
                     document.getElementById('footer').style.display = 'none';
