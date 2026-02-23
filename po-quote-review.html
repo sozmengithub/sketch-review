@@ -189,7 +189,6 @@
                         </div>
 
                         <div class="banner-right">
-                            <div class="banner-static" id="refLine"></div>
                             <div class="banner-static" id="createdDate"></div>
                             <div class="banner-static" id="expiresDate"></div>
                             <div class="banner-static" style="margin-top:4px">Quote created by: <strong>Erica Fenn</strong></div>
@@ -207,9 +206,9 @@
                         Fields with a dashed border are editable — click to type
                     </div>
 
-                    <!-- Comments from Erica Fenn -->
+                    <!-- Comments for PO Issuer -->
                     <div class="comments-section">
-                        <div class="comments-label" id="commentsLabel">Comments from Erica Fenn</div>
+                        <div class="comments-label">Comments for PO Issuer</div>
                         <textarea class="light-editable" id="quoteNotes" placeholder="Comments will appear here..."></textarea>
                     </div>
 
@@ -237,16 +236,23 @@
                         <span id="grandTotal">$0.00</span>
                     </div>
 
-                    <!-- Purchase terms (editable) -->
+                    <!-- Purchase terms (fixed) -->
                     <div class="terms-section">
                         <div class="terms-label">Purchase terms</div>
-                        <textarea class="light-editable" id="purchaseTerms" placeholder="Payment terms, conditions, etc..."></textarea>
+                        <div style="font-size:14px;color:#516f90">Net 30</div>
                     </div>
 
                     <!-- PO Number -->
                     <div class="po-section">
                         <div class="po-label">PO Number</div>
                         <input type="text" class="light-input" id="poNumber" placeholder="Enter your PO number">
+                    </div>
+
+                    <!-- Send quote to (editable email) -->
+                    <div class="po-section">
+                        <div class="po-label">Send finalized quote to</div>
+                        <input type="email" class="light-input" id="sendToEmail" placeholder="email@example.com" style="width:320px">
+                        <div style="font-size:11px;color:#99acc2;margin-top:4px">Change this if you need the quote sent to a different email (e.g. AP department)</div>
                     </div>
 
                     <!-- Questions? Contact me -->
@@ -259,7 +265,6 @@
                     <!-- Finalize -->
                     <div class="finalize-section">
                         <button class="finalize-btn" id="finalizeBtn" onclick="handleFinalize()">Finalize Quote</button>
-                        <span class="finalize-note" id="finalizeNote"></span>
                     </div>
                 </div>
             </div>
@@ -315,22 +320,17 @@
                 document.getElementById('addrZip').value = v.mailingZip || '';
                 document.getElementById('addrCountry').value = v.mailingCountry || 'United States';
 
-                // Reference + dates
+                // Dates
                 var now = new Date();
-                var refId = now.toISOString().replace(/[-T:]/g,'').substring(0,8) + '-' + dealData.dealId;
-                document.getElementById('refLine').textContent = 'Reference: ' + refId;
                 document.getElementById('createdDate').textContent = 'Quote created: ' + formatDateLong(now);
                 document.getElementById('expiresDate').textContent = 'Quote expires: ' + formatDateLong(new Date(dealData.expirationDate));
 
                 // Comments
-                var commentsBy = v.commentsBy || 'Erica Fenn';
-                document.getElementById('commentsLabel').textContent = 'Comments from ' + commentsBy;
                 document.getElementById('quoteNotes').value = dealData.poFields.notes || '';
 
-                // Finalize note
+                // Send-to email (default to primary contact, customer can change)
                 if (dealData.primaryContact && dealData.primaryContact.email) {
-                    document.getElementById('finalizeNote').textContent =
-                        'The finalized quote will be sent to ' + dealData.primaryContact.email;
+                    document.getElementById('sendToEmail').value = dealData.primaryContact.email;
                 }
 
                 // Line items
@@ -350,9 +350,6 @@
                 var total = dealData.total || 0;
                 document.getElementById('subtotalAmount').textContent = '$' + formatNum(total);
                 document.getElementById('grandTotal').textContent = '$' + formatNum(total);
-
-                // Purchase terms
-                document.getElementById('purchaseTerms').value = v.purchaseTerms || '';
 
                 // PO Number
                 document.getElementById('poNumber').value = v.poNumber || '';
@@ -388,6 +385,7 @@
             btn.textContent = 'Finalizing...';
 
             // Collect all presentation fields
+            var sendToEmail = document.getElementById('sendToEmail').value;
             var payload = {
                 dealId: dealId,
                 token: token,
@@ -403,12 +401,10 @@
                     mailingState: document.getElementById('addrState').value,
                     mailingZip: document.getElementById('addrZip').value,
                     mailingCountry: document.getElementById('addrCountry').value,
-                    purchaseTerms: document.getElementById('purchaseTerms').value,
-                    commentsBy: (dealData.verbiage || {}).commentsBy || 'Erica Fenn',
                     poNumber: document.getElementById('poNumber').value
                 },
-                // Contact (read-only, from deal)
-                contactEmail: dealData.primaryContact ? dealData.primaryContact.email : null,
+                // Contact — uses editable email, falls back to primary contact
+                contactEmail: sendToEmail || (dealData.primaryContact ? dealData.primaryContact.email : null),
                 contactName: dealData.primaryContact ? dealData.primaryContact.name : null,
                 contactId: dealData.primaryContact ? dealData.primaryContact.id : null
             };
@@ -432,8 +428,8 @@
                     }
 
                     var msg = 'Your formal quote has been created';
-                    if (dealData.primaryContact && dealData.primaryContact.email) {
-                        msg += ' and sent to ' + dealData.primaryContact.email;
+                    if (sendToEmail) {
+                        msg += ' and sent to ' + sendToEmail;
                     }
                     msg += '.';
                     document.getElementById('successMessage').textContent = msg;

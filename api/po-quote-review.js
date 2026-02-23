@@ -122,9 +122,9 @@ export default async function handler(req, res) {
 
     const total = lineItems.reduce((sum, item) => sum + (item.amount || item.price * item.quantity), 0);
 
-    // Calculate expiration (30 days from now)
+    // Calculate expiration (120 days from now)
     const expDate = new Date();
-    expDate.setDate(expDate.getDate() + 30);
+    expDate.setDate(expDate.getDate() + 120);
 
     // Parse verbiage JSON
     let verbiage = {};
