@@ -6,216 +6,263 @@
     <title>PO Quote | Show Off Inc.</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         *{box-sizing:border-box;margin:0;padding:0}
-        body{font-family:'Inter',-apple-system,sans-serif;background:#faf9f7;min-height:100vh;padding:20px;color:#2a2220;font-size:13px;line-height:1.5}
+        body{font-family:'Montserrat',sans-serif;background:#f5f8fa;min-height:100vh;padding:0;color:#33475b;font-size:14px;line-height:1.5}
 
-        .quote-doc{max-width:680px;margin:0 auto;background:rgba(255,255,255,0.82);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.3);box-shadow:0 8px 32px rgba(0,0,0,0.08);border-radius:2px;padding:48px 40px 36px}
+        .page-wrap{max-width:800px;margin:0 auto;padding:40px 20px}
 
-        /* Logo + Header */
-        .doc-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:32px;padding-bottom:20px;border-bottom:1.5px solid rgba(42,34,32,0.1)}
-        .brand{display:flex;flex-direction:column}
-        .brand-name{font-family:'Cormorant Garamond',Georgia,serif;font-size:22px;font-weight:600;letter-spacing:0.06em;color:#2a2220}
-        .brand-sub{font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:#999;margin-top:2px}
-        .doc-type{text-align:right}
-        .doc-type h1{font-family:'Cormorant Garamond',Georgia,serif;font-size:26px;font-weight:500;letter-spacing:0.04em;color:#2a2220}
-        .doc-type .deal-num{font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#999;margin-top:4px}
+        .quote-card{background:#fff;border:1px solid #cbd6e2;border-radius:4px;overflow:hidden}
+
+        /* Header banner */
+        .quote-header{padding:32px 40px;border-bottom:1px solid #cbd6e2}
+        .header-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px}
+        .company-name{font-size:20px;font-weight:700;color:#33475b}
+        .company-sub{font-size:12px;color:#7c98b6;margin-top:2px}
+        .quote-title-area{text-align:right}
+        .quote-title-area h1{font-size:24px;font-weight:700;color:#33475b;margin:0}
+        .deal-badge{display:inline-block;margin-top:6px;font-size:12px;color:#7c98b6}
 
         /* Status badge */
-        .quote-badge{display:inline-block;padding:3px 10px;border-radius:12px;font-size:10px;font-weight:500;letter-spacing:0.05em}
-        .quote-badge.draft{background:rgba(200,170,100,0.15);color:#8b7355}
-        .quote-badge.published{background:rgba(76,175,80,0.12);color:#2e7d32}
-        .quote-badge.new{background:rgba(33,150,243,0.12);color:#1565c0}
+        .status-badge{display:inline-block;padding:3px 10px;border-radius:3px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.03em}
+        .status-badge.draft{background:#fef3cd;color:#856404}
+        .status-badge.published{background:#d4edda;color:#155724}
+        .status-badge.new{background:#d1ecf1;color:#0c5460}
 
-        /* Meta row */
-        .meta-row{display:flex;justify-content:space-between;margin-bottom:28px;padding:14px 18px;background:linear-gradient(145deg,rgba(255,252,248,0.9),rgba(248,245,240,0.7));border:1px solid rgba(200,180,170,0.15);border-radius:2px}
-        .meta-item{display:flex;flex-direction:column}
-        .meta-label{font-size:8px;letter-spacing:0.25em;text-transform:uppercase;color:#999;margin-bottom:3px}
-        .meta-value{font-size:12px;color:#2a2220}
+        /* Meta info */
+        .meta-section{display:flex;gap:40px;padding:20px 40px;background:#f5f8fa;border-bottom:1px solid #cbd6e2}
+        .meta-block{display:flex;flex-direction:column}
+        .meta-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#7c98b6;margin-bottom:4px}
+        .meta-value{font-size:14px;color:#33475b}
 
-        /* Line items — editable grid */
-        .section-label{font-size:8px;letter-spacing:0.25em;text-transform:uppercase;color:#999;margin-bottom:10px;margin-top:0}
-        .column-headers{display:grid;grid-template-columns:1fr 70px 100px 100px 50px;gap:8px;padding:0 14px 8px;font-size:8px;color:#999;letter-spacing:0.2em;text-transform:uppercase}
-        .line-items{display:flex;flex-direction:column;gap:8px}
-        .line-item{display:grid;grid-template-columns:1fr 70px 100px 100px 50px;gap:8px;align-items:center;padding:12px 14px;background:linear-gradient(145deg,rgba(255,255,255,0.92),rgba(255,252,250,0.88));border-radius:2px;border:1px solid rgba(200,180,170,0.15)}
-        .line-item.new{background:linear-gradient(145deg,rgba(255,252,250,0.6),rgba(248,245,242,0.5))}
-        .line-item.deleted{opacity:0.35}
-        .line-total{text-align:right;font-size:13px;font-weight:500;color:#2a2220}
+        /* Line items table */
+        .items-section{padding:0}
+        .section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#7c98b6;padding:24px 40px 12px}
 
-        input[type=text],input[type=number],input[type=url],textarea{width:100%;padding:10px 12px;font-size:13px;font-family:'Inter',sans-serif;border:1px solid rgba(200,180,170,0.25);border-radius:2px;background:rgba(255,255,255,0.6);color:#2a2220;transition:border-color 0.2s}
-        input:focus,textarea:focus{outline:none;border-color:rgba(200,170,155,0.6);box-shadow:0 0 0 3px rgba(200,170,155,0.1);background:rgba(255,255,255,0.95)}
-        textarea{resize:vertical;min-height:80px}
-        .qty-field input{text-align:center;padding:10px 6px}
-        .price-field{position:relative;display:flex;align-items:center}
-        .price-field .dollar{position:absolute;left:10px;color:#888;font-size:13px}
-        .price-field input{padding-left:22px}
+        .items-table{width:100%;border-collapse:collapse}
+        .items-table thead th{background:#f5f8fa;padding:10px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#7c98b6;text-align:left;border-top:1px solid #cbd6e2;border-bottom:1px solid #cbd6e2}
+        .items-table thead th:first-child{padding-left:40px}
+        .items-table thead th:last-child{padding-right:40px}
+        .items-table thead th.num{text-align:center;width:80px}
+        .items-table thead th.price{text-align:right;width:120px}
+        .items-table thead th.total{text-align:right;width:120px}
+        .items-table thead th.actions{text-align:center;width:70px}
 
-        .delete-btn{padding:8px 10px;background:transparent;color:#aaa;border:1px solid rgba(200,180,170,0.15);border-radius:2px;cursor:pointer;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;font-family:'Inter',sans-serif;transition:all 0.2s}
-        .delete-btn:hover{color:#c62828;border-color:#c62828}
-        .add-btn{width:100%;padding:12px;background:transparent;color:#2a2220;border:1.5px dashed rgba(200,180,170,0.35);border-radius:2px;cursor:pointer;font-size:12px;font-family:'Cormorant Garamond',Georgia,serif;letter-spacing:0.04em;margin-top:8px}
-        .add-btn:hover{border-color:#2a2220}
+        .items-table tbody td{padding:12px 16px;border-bottom:1px solid #eaf0f6;vertical-align:middle}
+        .items-table tbody td:first-child{padding-left:40px}
+        .items-table tbody td:last-child{padding-right:40px}
+        .items-table tbody tr.deleted{opacity:0.35}
+        .items-table tbody tr.new td{background:#f0f9ff}
+
+        .items-table input[type=text],
+        .items-table input[type=number]{
+            width:100%;padding:8px 10px;font-size:13px;font-family:'Montserrat',sans-serif;
+            border:1px solid #cbd6e2;border-radius:3px;background:#fff;color:#33475b;transition:border-color 0.2s
+        }
+        .items-table input:focus{outline:none;border-color:#4C76B8;box-shadow:0 0 0 2px rgba(76,118,184,0.15)}
+        .items-table input:disabled{background:#f5f8fa;color:#99acc2}
+
+        .qty-input{text-align:center;max-width:60px;margin:0 auto;display:block}
+        .price-wrap{position:relative;display:flex;align-items:center}
+        .price-wrap .dollar{position:absolute;left:10px;color:#7c98b6;font-size:13px;pointer-events:none}
+        .price-wrap input{padding-left:22px;text-align:right}
+        .line-total{text-align:right;font-weight:600;color:#33475b;font-size:14px;white-space:nowrap}
+
+        .delete-btn{padding:6px 10px;background:transparent;color:#7c98b6;border:1px solid #cbd6e2;border-radius:3px;cursor:pointer;font-size:11px;font-weight:500;font-family:'Montserrat',sans-serif;transition:all 0.15s}
+        .delete-btn:hover{color:#d9534f;border-color:#d9534f}
+
+        .add-row-btn{display:block;width:calc(100% - 80px);margin:0 40px;padding:10px;background:transparent;color:#4C76B8;border:1.5px dashed #cbd6e2;border-radius:3px;cursor:pointer;font-size:13px;font-weight:500;font-family:'Montserrat',sans-serif;transition:all 0.15s;margin-top:0;margin-bottom:24px}
+        .add-row-btn:hover{border-color:#4C76B8;background:rgba(76,118,184,0.04)}
 
         /* Totals */
-        .totals-section{margin-top:16px;padding:16px 18px;background:linear-gradient(145deg,rgba(255,255,255,0.92),rgba(255,252,250,0.88));border:1.5px solid rgba(42,34,32,0.2);border-radius:2px}
-        .total-row{display:flex;justify-content:space-between;padding:4px 0}
-        .total-row .label{font-size:11px;color:#888}
-        .total-row .amount{font-size:14px;color:#2a2220}
-        .total-row.grand{padding-top:10px;margin-top:8px;border-top:1px solid rgba(200,180,170,0.2)}
-        .total-row.grand .label{font-size:13px;font-weight:500;color:#2a2220}
-        .total-row.grand .amount{font-family:'Cormorant Garamond',Georgia,serif;font-size:22px;font-weight:600}
+        .totals-section{display:flex;justify-content:flex-end;padding:16px 40px 24px;border-top:1px solid #cbd6e2}
+        .totals-box{min-width:260px}
+        .totals-row{display:flex;justify-content:space-between;padding:6px 0;font-size:14px}
+        .totals-row .t-label{color:#7c98b6}
+        .totals-row .t-amount{font-weight:600;color:#33475b}
+        .totals-row.grand{padding-top:12px;margin-top:8px;border-top:2px solid #33475b}
+        .totals-row.grand .t-label{font-size:16px;font-weight:700;color:#33475b}
+        .totals-row.grand .t-amount{font-size:20px;font-weight:700;color:#33475b}
 
-        /* Quote details section */
-        .details-section{margin-top:28px;padding:24px 20px;background:linear-gradient(145deg,rgba(255,248,230,0.45),rgba(255,252,240,0.35));border:1.5px solid rgba(200,170,100,0.25);border-radius:2px}
-        .details-section h3{font-family:'Cormorant Garamond',Georgia,serif;font-size:16px;font-weight:500;margin-bottom:4px}
-        .details-section p{font-size:11px;color:#8b7355;margin-bottom:16px}
-        .field-group{margin-top:16px}
-        .field-group:first-of-type{margin-top:0}
-        .field-label{display:block;font-family:'Cormorant Garamond',Georgia,serif;font-size:14px;font-weight:500;color:#2a2220;margin-bottom:6px}
-        .field-hint{font-size:10px;color:#aaa;margin-top:4px;font-style:italic}
+        /* Details section */
+        .details-section{padding:24px 40px;border-top:1px solid #cbd6e2}
+        .details-section h3{font-size:14px;font-weight:700;color:#33475b;margin-bottom:4px}
+        .details-section .sub{font-size:12px;color:#7c98b6;margin-bottom:20px}
+        .field-group{margin-bottom:16px}
+        .field-label{display:block;font-size:12px;font-weight:600;color:#33475b;margin-bottom:6px}
+        .field-hint{font-size:11px;color:#99acc2;margin-top:4px}
+        .field-input{width:100%;padding:10px 12px;font-size:14px;font-family:'Montserrat',sans-serif;border:1px solid #cbd6e2;border-radius:3px;background:#fff;color:#33475b;transition:border-color 0.2s}
+        .field-input:focus{outline:none;border-color:#4C76B8;box-shadow:0 0 0 2px rgba(76,118,184,0.15)}
+        textarea.field-input{resize:vertical;min-height:80px}
 
-        /* Contact info */
-        .contact-notice{margin-top:20px;padding:12px 16px;background:rgba(42,34,32,0.03);border:1px solid rgba(42,34,32,0.06);border-radius:2px;font-size:12px;color:#666;text-align:center}
-        .contact-notice strong{color:#2a2220}
+        /* Contact notice */
+        .contact-notice{margin:0 40px 0;padding:12px 16px;background:#f0f9ff;border:1px solid #d1ecf1;border-radius:3px;font-size:13px;color:#33475b;text-align:center}
+        .contact-notice strong{color:#33475b}
 
-        /* Dual action buttons */
-        .btn-row{display:flex;gap:12px;margin-top:24px}
-        .action-btn{flex:1;padding:18px 16px;font-size:15px;font-weight:500;font-family:'Cormorant Garamond',Georgia,serif;letter-spacing:0.04em;border:2px solid #2a2220;border-radius:2px;cursor:pointer;transition:all 0.2s}
+        /* Action buttons */
+        .btn-row{display:flex;gap:12px;padding:24px 40px 32px}
+        .action-btn{flex:1;padding:14px 20px;font-size:14px;font-weight:600;font-family:'Montserrat',sans-serif;border-radius:3px;cursor:pointer;transition:all 0.15s;border:none}
         .action-btn:disabled{opacity:0.5;cursor:not-allowed}
-        .btn-draft{background:transparent;color:#2a2220}
-        .btn-draft:hover:not(:disabled){background:rgba(42,34,32,0.06)}
-        .btn-send{background:#2a2220;color:#fff}
-        .btn-send:hover:not(:disabled){background:#1a1510}
+        .btn-draft{background:#fff;color:#33475b;border:1px solid #cbd6e2}
+        .btn-draft:hover:not(:disabled){background:#f5f8fa;border-color:#33475b}
+        .btn-send{background:#4C76B8;color:#fff}
+        .btn-send:hover:not(:disabled){background:#3d6098}
 
         /* States */
-        .loading{display:none;text-align:center;padding:60px 20px}
+        .loading{display:none;text-align:center;padding:80px 20px}
         .loading.active{display:block}
-        .spinner{width:32px;height:32px;border:2px solid rgba(42,34,32,0.1);border-top-color:#2a2220;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px}
+        .spinner{width:36px;height:36px;border:3px solid #eaf0f6;border-top-color:#4C76B8;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px}
         @keyframes spin{to{transform:rotate(360deg)}}
-        .success-view{display:none;text-align:center;padding:60px 20px}
+        .loading p{color:#7c98b6;font-size:14px}
+
+        .success-view{display:none;text-align:center;padding:80px 40px}
         .success-view.active{display:block}
-        .success-icon{width:64px;height:64px;margin:0 auto 20px;color:#2e7d32}
-        .success-title{font-family:'Cormorant Garamond',Georgia,serif;font-size:22px;margin-bottom:12px}
-        .success-message{font-size:13px;color:#666;line-height:1.6}
+        .success-icon{width:56px;height:56px;margin:0 auto 20px;background:#d4edda;border-radius:50%;display:flex;align-items:center;justify-content:center}
+        .success-icon svg{width:28px;height:28px;color:#155724}
+        .success-title{font-size:20px;font-weight:700;color:#33475b;margin-bottom:10px}
+        .success-message{font-size:14px;color:#7c98b6;line-height:1.6;max-width:400px;margin:0 auto}
 
-        .footer{text-align:center;padding-top:24px;font-size:10px;color:#aaa;letter-spacing:0.08em}
+        .footer{text-align:center;padding:20px;font-size:11px;color:#99acc2}
 
-        @media(max-width:600px){
-            .quote-doc{padding:28px 20px 24px}
-            .doc-header{flex-direction:column;gap:12px}
-            .doc-type{text-align:left}
-            .meta-row{flex-direction:column;gap:10px}
-            .column-headers,.line-item{grid-template-columns:1fr 55px 80px 80px 40px}
-            .btn-row{flex-direction:column;gap:8px}
+        @media(max-width:640px){
+            .page-wrap{padding:16px 8px}
+            .quote-header,.details-section{padding-left:20px;padding-right:20px}
+            .meta-section{flex-direction:column;gap:12px;padding:16px 20px}
+            .section-title{padding-left:20px;padding-right:20px}
+            .items-table thead th:first-child,.items-table tbody td:first-child{padding-left:20px}
+            .items-table thead th:last-child,.items-table tbody td:last-child{padding-right:20px}
+            .add-row-btn{margin:0 20px 20px}
+            .totals-section{padding:16px 20px}
+            .contact-notice{margin:0 20px}
+            .btn-row{flex-direction:column;padding:20px}
+            .header-top{flex-direction:column;gap:12px}
+            .quote-title-area{text-align:left}
         }
     </style>
 </head>
 <body>
-    <div class="quote-doc">
-        <!-- Loading -->
-        <div class="loading" id="loadingView">
-            <div class="spinner"></div>
-            <p>Loading deal data...</p>
+    <div class="page-wrap">
+        <div class="quote-card">
+            <!-- Loading -->
+            <div class="loading" id="loadingView">
+                <div class="spinner"></div>
+                <p>Loading deal data...</p>
+            </div>
+
+            <!-- Main content -->
+            <div id="mainView" style="display:none">
+                <!-- Header -->
+                <div class="quote-header">
+                    <div class="header-top">
+                        <div>
+                            <div class="company-name">Show Off Inc.</div>
+                            <div class="company-sub">Custom Performance Wear</div>
+                        </div>
+                        <div class="quote-title-area">
+                            <h1>Quote</h1>
+                            <div class="deal-badge" id="dealNum"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Meta -->
+                <div class="meta-section">
+                    <div class="meta-block">
+                        <span class="meta-label">Contact</span>
+                        <span class="meta-value" id="metaContact">&mdash;</span>
+                    </div>
+                    <div class="meta-block">
+                        <span class="meta-label">Status</span>
+                        <span class="meta-value"><span class="status-badge" id="quoteBadge"></span></span>
+                    </div>
+                    <div class="meta-block">
+                        <span class="meta-label">Date</span>
+                        <span class="meta-value" id="metaDate"></span>
+                    </div>
+                </div>
+
+                <!-- Line Items -->
+                <div class="section-title">Line Items</div>
+                <table class="items-table">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th class="num">Qty</th>
+                            <th class="price">Unit Price</th>
+                            <th class="total">Total</th>
+                            <th class="actions"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="lineItems"></tbody>
+                </table>
+                <button type="button" class="add-row-btn" onclick="addItem()">+ Add Line Item</button>
+
+                <!-- Totals -->
+                <div class="totals-section">
+                    <div class="totals-box">
+                        <div class="totals-row"><span class="t-label">Subtotal</span><span class="t-amount" id="subtotal">$0.00</span></div>
+                        <div class="totals-row grand"><span class="t-label">Total</span><span class="t-amount" id="totalAmount">$0.00</span></div>
+                    </div>
+                </div>
+
+                <!-- Quote Details -->
+                <div class="details-section">
+                    <h3>Quote Details</h3>
+                    <p class="sub">Custom text for the school's finance department</p>
+                    <div class="field-group">
+                        <label class="field-label" for="quoteTitle">Quote Title</label>
+                        <input type="text" class="field-input" id="quoteTitle" placeholder="e.g. Jefferson County ISD — Twirling Team">
+                        <div class="field-hint">Defaults to deal name if left blank</div>
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label" for="addressee">Attention</label>
+                        <input type="text" class="field-input" id="addressee" placeholder="e.g. Jane Smith, Procurement Dept">
+                        <div class="field-hint">Who this quote is addressed to</div>
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label" for="quoteNotes">Special Notes</label>
+                        <textarea class="field-input" id="quoteNotes" placeholder="Any special verbiage the finance department requested..."></textarea>
+                        <div class="field-hint">Appears on the formal quote document</div>
+                    </div>
+                </div>
+
+                <!-- Contact Preview -->
+                <div class="contact-notice" id="contactInfo" style="display:none">
+                    Review link will be sent to <strong id="contactName"></strong> at <strong id="contactEmail"></strong>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="btn-row">
+                    <button class="action-btn btn-draft" id="draftBtn" onclick="handleSubmit('save')">Save Draft</button>
+                    <button class="action-btn btn-send" id="sendBtn" onclick="handleSubmit('send-review')">Send to Customer</button>
+                </div>
+            </div>
+
+            <!-- Success -->
+            <div class="success-view" id="successView">
+                <div class="success-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 13l4 4L19 7"/>
+                    </svg>
+                </div>
+                <h2 class="success-title" id="successTitle">Done</h2>
+                <p class="success-message" id="successMessage"></p>
+            </div>
+
+            <div class="footer">Show Off Inc.</div>
         </div>
-
-        <!-- Main content -->
-        <div id="mainView" style="display:none">
-            <!-- Header -->
-            <div class="doc-header">
-                <div class="brand">
-                    <div class="brand-name">Show Off Inc.</div>
-                    <div class="brand-sub">Custom Performance Wear</div>
-                </div>
-                <div class="doc-type">
-                    <h1>Quote</h1>
-                    <div class="deal-num" id="dealNum"></div>
-                </div>
-            </div>
-
-            <!-- Meta -->
-            <div class="meta-row">
-                <div class="meta-item">
-                    <span class="meta-label">Contact</span>
-                    <span class="meta-value" id="metaContact">—</span>
-                </div>
-                <div class="meta-item">
-                    <span class="meta-label">Status</span>
-                    <span class="meta-value"><span class="quote-badge" id="quoteBadge"></span></span>
-                </div>
-                <div class="meta-item">
-                    <span class="meta-label">Date</span>
-                    <span class="meta-value" id="metaDate"></span>
-                </div>
-            </div>
-
-            <!-- Line Items (editable) -->
-            <div class="section-label">Line Items</div>
-            <div class="column-headers"><span>Item</span><span>Qty</span><span>Price</span><span>Total</span><span></span></div>
-            <div class="line-items" id="lineItems"></div>
-            <button type="button" class="add-btn" onclick="addItem()">+ Add Line Item</button>
-
-            <!-- Totals -->
-            <div class="totals-section">
-                <div class="total-row"><span class="label">Subtotal</span><span class="amount" id="subtotal">$0.00</span></div>
-                <div class="total-row grand"><span class="label">Total</span><span class="amount" id="totalAmount">$0.00</span></div>
-            </div>
-
-            <!-- Quote Details -->
-            <div class="details-section">
-                <h3>Quote Details</h3>
-                <p>Custom text for the school's finance department</p>
-                <div class="field-group">
-                    <label class="field-label" for="quoteTitle">Quote Title</label>
-                    <input type="text" id="quoteTitle" placeholder="e.g. Jefferson County ISD — Twirling Team">
-                    <div class="field-hint">Defaults to deal name if left blank</div>
-                </div>
-                <div class="field-group">
-                    <label class="field-label" for="addressee">Attention</label>
-                    <input type="text" id="addressee" placeholder="e.g. Jane Smith, Procurement Dept">
-                    <div class="field-hint">Who this quote is addressed to</div>
-                </div>
-                <div class="field-group">
-                    <label class="field-label" for="quoteNotes">Special Notes</label>
-                    <textarea id="quoteNotes" placeholder="Any special verbiage the finance department requested..."></textarea>
-                    <div class="field-hint">Appears on the quote as a note</div>
-                </div>
-            </div>
-
-            <!-- Contact Preview -->
-            <div class="contact-notice" id="contactInfo" style="display:none">
-                Review link will be sent to <strong id="contactName"></strong> at <strong id="contactEmail"></strong>
-            </div>
-
-            <!-- Dual Buttons -->
-            <div class="btn-row">
-                <button class="action-btn btn-draft" id="draftBtn" onclick="handleSubmit('save')">Save Draft</button>
-                <button class="action-btn btn-send" id="sendBtn" onclick="handleSubmit('send-review')">Send to Customer</button>
-            </div>
-        </div>
-
-        <!-- Success -->
-        <div class="success-view" id="successView">
-            <div class="success-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="64" height="64">
-                    <path d="M5 13l4 4L19 7"/>
-                </svg>
-            </div>
-            <h2 class="success-title" id="successTitle">Done</h2>
-            <p class="success-message" id="successMessage"></p>
-        </div>
-
-        <div class="footer">Show Off Inc.</div>
     </div>
 
     <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        const dealId = urlParams.get('dealId');
-        let dealData = null;
-        let itemIndex = 0;
-        let deletedIds = [];
+        var urlParams = new URLSearchParams(window.location.search);
+        var dealId = urlParams.get('dealId');
+        var dealData = null;
+        var itemIndex = 0;
+        var deletedIds = [];
 
         if (!dealId) {
-            document.getElementById('loadingView').innerHTML = '<p style="color:#c62828">Error: No dealId provided in URL</p>';
+            document.getElementById('loadingView').innerHTML = '<p style="color:#d9534f;padding:80px 20px;">Error: No dealId provided in URL</p>';
             document.getElementById('loadingView').classList.add('active');
         } else {
             document.getElementById('loadingView').classList.add('active');
@@ -224,13 +271,13 @@
 
         async function loadData() {
             try {
-                const res = await fetch(`/api/po-quote?dealId=${dealId}`);
+                var res = await fetch('/api/po-quote?dealId=' + dealId);
                 if (!res.ok) throw new Error('Failed to fetch');
                 dealData = await res.json();
 
                 // Header
-                const dealNum = dealData.dealName.split(' ')[0];
-                document.getElementById('dealNum').textContent = `Order #${dealNum}`;
+                var dealNum = dealData.dealName.split(' ')[0];
+                document.getElementById('dealNum').textContent = 'Order #' + dealNum;
 
                 // Meta
                 if (dealData.primaryContact) {
@@ -240,17 +287,17 @@
                 document.getElementById('metaDate').textContent = formatDate(new Date());
 
                 // Status badge
-                const badge = document.getElementById('quoteBadge');
+                var badge = document.getElementById('quoteBadge');
                 if (dealData.existingQuote) {
                     badge.textContent = dealData.existingQuote.status === 'DRAFT' ? 'Draft' : 'Published';
-                    badge.className = 'quote-badge ' + (dealData.existingQuote.status === 'DRAFT' ? 'draft' : 'published');
+                    badge.className = 'status-badge ' + (dealData.existingQuote.status === 'DRAFT' ? 'draft' : 'published');
                 } else {
                     badge.textContent = 'New';
-                    badge.className = 'quote-badge new';
+                    badge.className = 'status-badge new';
                 }
 
                 // Line items
-                const container = document.getElementById('lineItems');
+                var container = document.getElementById('lineItems');
                 dealData.lineItems.forEach(function(item, i) {
                     container.innerHTML += lineItemHtml(i, item.id, item.name, item.quantity, item.price);
                     itemIndex = i + 1;
@@ -273,7 +320,7 @@
                 document.getElementById('mainView').style.display = 'block';
             } catch (err) {
                 document.getElementById('loadingView').innerHTML =
-                    '<p style="color:#c62828">Error loading deal: ' + esc(err.message) + '</p>';
+                    '<p style="color:#d9534f;padding:80px 20px;">Error loading deal: ' + esc(err.message) + '</p>';
             }
         }
 
@@ -286,12 +333,13 @@
 
         function lineItemHtml(idx, id, name, qty, price) {
             var lineTotal = (parseFloat(qty)||1) * (parseFloat(price)||0);
-            return '<div class="line-item' + (id === 'new' ? ' new' : '') + '" data-id="' + id + '">' +
-                '<input type="text" data-field="name" value="' + esc(name) + '" placeholder="Item name">' +
-                '<div class="qty-field"><input type="number" data-field="qty" value="' + (qty||1) + '" min="1" step="1" onchange="updateTotal()" oninput="updateTotal()"></div>' +
-                '<div class="price-field"><span class="dollar">$</span><input type="number" data-field="price" value="' + (price||'') + '" min="0" step="0.01" onchange="updateTotal()" oninput="updateTotal()"></div>' +
-                '<div class="line-total" data-field="line-total">$' + lineTotal.toFixed(2) + '</div>' +
-                '<button type="button" class="delete-btn" onclick="deleteItem(this)">Delete</button></div>';
+            var isNew = id === 'new';
+            return '<tr class="' + (isNew ? 'new' : '') + '" data-id="' + id + '">' +
+                '<td><input type="text" data-field="name" value="' + esc(name) + '" placeholder="Item name"></td>' +
+                '<td><input type="number" class="qty-input" data-field="qty" value="' + (qty||1) + '" min="1" step="1" onchange="updateTotal()" oninput="updateTotal()"></td>' +
+                '<td><div class="price-wrap"><span class="dollar">$</span><input type="number" data-field="price" value="' + (price||'') + '" min="0" step="0.01" onchange="updateTotal()" oninput="updateTotal()"></div></td>' +
+                '<td class="line-total" data-field="line-total">$' + lineTotal.toFixed(2) + '</td>' +
+                '<td style="text-align:center"><button type="button" class="delete-btn" onclick="deleteItem(this)">Delete</button></td></tr>';
         }
 
         function addItem() {
@@ -303,25 +351,25 @@
         }
 
         function deleteItem(btn) {
-            var item = btn.closest('.line-item');
-            var id = item.dataset.id;
+            var row = btn.closest('tr');
+            var id = row.dataset.id;
             if (id && id !== 'new') {
                 deletedIds.push(id);
-                item.classList.add('deleted');
-                item.querySelectorAll('input').forEach(function(i){i.disabled=true});
+                row.classList.add('deleted');
+                row.querySelectorAll('input').forEach(function(i){i.disabled=true});
                 btn.textContent = 'Undo';
                 btn.onclick = function(){ undoDelete(btn, id); };
             } else {
-                item.remove();
+                row.remove();
             }
             updateTotal();
         }
 
         function undoDelete(btn, id) {
-            var item = btn.closest('.line-item');
+            var row = btn.closest('tr');
             deletedIds = deletedIds.filter(function(i){return i !== id});
-            item.classList.remove('deleted');
-            item.querySelectorAll('input').forEach(function(i){i.disabled=false});
+            row.classList.remove('deleted');
+            row.querySelectorAll('input').forEach(function(i){i.disabled=false});
             btn.textContent = 'Delete';
             btn.onclick = function(){ deleteItem(btn); };
             updateTotal();
@@ -329,12 +377,12 @@
 
         function updateTotal() {
             var total = 0;
-            document.querySelectorAll('.line-item:not(.deleted)').forEach(function(item) {
-                var qty = parseFloat(item.querySelector('[data-field="qty"]').value) || 1;
-                var price = parseFloat(item.querySelector('[data-field="price"]').value) || 0;
+            document.querySelectorAll('#lineItems tr:not(.deleted)').forEach(function(row) {
+                var qty = parseFloat(row.querySelector('[data-field="qty"]').value) || 1;
+                var price = parseFloat(row.querySelector('[data-field="price"]').value) || 0;
                 var lineTotal = qty * price;
                 total += lineTotal;
-                item.querySelector('[data-field="line-total"]').textContent = '$' + lineTotal.toFixed(2);
+                row.querySelector('[data-field="line-total"]').textContent = '$' + lineTotal.toFixed(2);
             });
             document.getElementById('subtotal').textContent = '$' + total.toFixed(2);
             document.getElementById('totalAmount').textContent = '$' + total.toFixed(2);
@@ -353,12 +401,12 @@
             }
 
             var items = [];
-            document.querySelectorAll('.line-item:not(.deleted)').forEach(function(item) {
+            document.querySelectorAll('#lineItems tr:not(.deleted)').forEach(function(row) {
                 items.push({
-                    id: item.dataset.id,
-                    name: item.querySelector('[data-field="name"]').value,
-                    quantity: item.querySelector('[data-field="qty"]').value,
-                    price: item.querySelector('[data-field="price"]').value
+                    id: row.dataset.id,
+                    name: row.querySelector('[data-field="name"]').value,
+                    quantity: row.querySelector('[data-field="qty"]').value,
+                    price: row.querySelector('[data-field="price"]').value
                 });
             });
 
