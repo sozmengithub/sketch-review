@@ -6,103 +6,105 @@
     <title>PO Quote | Show Off Inc.</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         *{box-sizing:border-box;margin:0;padding:0}
-        body{font-family:'Montserrat',sans-serif;background:#f5f8fa;min-height:100vh;padding:0;color:#33475b;font-size:14px;line-height:1.5}
+        body{font-family:'Inter',-apple-system,'Helvetica Neue',sans-serif;background:#eaf0f6;min-height:100vh;padding:0;color:#33475b;font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
 
-        .page-wrap{max-width:800px;margin:0 auto;padding:40px 20px}
+        .page-wrap{max-width:780px;margin:0 auto;padding:24px 16px 60px}
+        .quote-card{background:#fff;border-radius:6px;box-shadow:0 1px 4px rgba(0,0,0,0.1);overflow:hidden}
 
-        .quote-card{background:#fff;border:1px solid #cbd6e2;border-radius:4px;overflow:hidden}
+        /* Admin badge */
+        .admin-bar{background:#f0f9ff;border-bottom:1px solid #d1ecf1;padding:8px 36px;font-size:12px;color:#0c5460;display:flex;align-items:center;gap:8px}
+        .admin-dot{width:8px;height:8px;background:#17a2b8;border-radius:50%}
 
-        /* Header banner */
-        .quote-header{padding:32px 40px;border-bottom:1px solid #cbd6e2}
-        .header-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px}
-        .company-name{font-size:20px;font-weight:700;color:#33475b}
-        .company-sub{font-size:12px;color:#7c98b6;margin-top:2px}
-        .quote-title-area{text-align:right}
-        .quote-title-area h1{font-size:24px;font-weight:700;color:#33475b;margin:0}
-        .deal-badge{display:inline-block;margin-top:6px;font-size:12px;color:#7c98b6}
+        /* ── Dark header banner ── */
+        .header-banner{background:#2d3e50;color:#fff;padding:28px 36px 24px}
+        .brand-text{font-size:20px;font-weight:700;color:#fff;margin-bottom:16px}
 
-        /* Status badge */
-        .status-badge{display:inline-block;padding:3px 10px;border-radius:3px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.03em}
-        .status-badge.draft{background:#fef3cd;color:#856404}
-        .status-badge.published{background:#d4edda;color:#155724}
-        .status-badge.new{background:#d1ecf1;color:#0c5460}
+        .quote-title-wrap{margin-bottom:20px}
+        .quote-title-input{width:100%;font-size:22px;font-weight:700;color:#fff;background:transparent;border:1.5px dashed rgba(255,255,255,0.3);border-radius:4px;padding:8px 12px;font-family:inherit;transition:all 0.15s}
+        .quote-title-input:hover{border-color:rgba(255,255,255,0.5);background:rgba(255,255,255,0.06)}
+        .quote-title-input:focus{outline:none;border-color:rgba(255,255,255,0.7);background:rgba(255,255,255,0.1);border-style:solid}
+        .quote-title-input::placeholder{color:rgba(255,255,255,0.4)}
 
-        /* Meta info */
-        .meta-section{display:flex;gap:40px;padding:20px 40px;background:#f5f8fa;border-bottom:1px solid #cbd6e2}
-        .meta-block{display:flex;flex-direction:column}
-        .meta-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#7c98b6;margin-bottom:4px}
-        .meta-value{font-size:14px;color:#33475b}
+        .banner-info{display:flex;justify-content:space-between;gap:24px}
+        .banner-left{flex:1}
+        .banner-right{flex:0 0 auto;text-align:right}
 
-        /* Line items table */
-        .items-section{padding:0}
-        .section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#7c98b6;padding:24px 40px 12px}
+        .dark-editable{width:100%;font-size:13px;color:#fff;background:transparent;border:1.5px dashed rgba(255,255,255,0.25);border-radius:3px;padding:5px 10px;font-family:inherit;transition:all 0.15s}
+        .dark-editable:hover{border-color:rgba(255,255,255,0.45);background:rgba(255,255,255,0.06)}
+        .dark-editable:focus{outline:none;border-color:rgba(255,255,255,0.7);background:rgba(255,255,255,0.1);border-style:solid}
+        .dark-editable::placeholder{color:rgba(255,255,255,0.35)}
+        textarea.dark-editable{resize:vertical;min-height:44px}
 
-        .items-table{width:100%;border-collapse:collapse}
-        .items-table thead th{background:#f5f8fa;padding:10px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#7c98b6;text-align:left;border-top:1px solid #cbd6e2;border-bottom:1px solid #cbd6e2}
-        .items-table thead th:first-child{padding-left:40px}
-        .items-table thead th:last-child{padding-right:40px}
-        .items-table thead th.num{text-align:center;width:80px}
-        .items-table thead th.price{text-align:right;width:120px}
-        .items-table thead th.total{text-align:right;width:120px}
-        .items-table thead th.actions{text-align:center;width:70px}
+        .dark-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.5);margin-bottom:3px;margin-top:10px}
+        .dark-label:first-child{margin-top:0}
 
-        .items-table tbody td{padding:12px 16px;border-bottom:1px solid #eaf0f6;vertical-align:middle}
-        .items-table tbody td:first-child{padding-left:40px}
-        .items-table tbody td:last-child{padding-right:40px}
-        .items-table tbody tr.deleted{opacity:0.35}
-        .items-table tbody tr.new td{background:#f0f9ff}
+        .banner-static{font-size:13px;color:rgba(255,255,255,0.85);line-height:1.5}
+        .banner-static strong{color:#fff;font-weight:600}
 
-        .items-table input[type=text],
-        .items-table input[type=number]{
-            width:100%;padding:8px 10px;font-size:13px;font-family:'Montserrat',sans-serif;
-            border:1px solid #cbd6e2;border-radius:3px;background:#fff;color:#33475b;transition:border-color 0.2s
-        }
-        .items-table input:focus{outline:none;border-color:#4C76B8;box-shadow:0 0 0 2px rgba(76,118,184,0.15)}
-        .items-table input:disabled{background:#f5f8fa;color:#99acc2}
+        .address-row{display:flex;gap:8px;margin-top:2px}
+        .dark-editable-sm{width:auto;font-size:13px;color:#fff;background:transparent;border:1.5px dashed rgba(255,255,255,0.25);border-radius:3px;padding:4px 8px;font-family:inherit;transition:all 0.15s}
+        .dark-editable-sm:hover{border-color:rgba(255,255,255,0.45);background:rgba(255,255,255,0.06)}
+        .dark-editable-sm:focus{outline:none;border-color:rgba(255,255,255,0.7);background:rgba(255,255,255,0.1);border-style:solid}
+        .dark-editable-sm::placeholder{color:rgba(255,255,255,0.35)}
+        .addr-city{flex:1;max-width:180px}
+        .addr-state{flex:0 0 60px}
+        .addr-zip{flex:0 0 80px}
 
-        .qty-input{text-align:center;max-width:60px;margin:0 auto;display:block}
-        .price-wrap{position:relative;display:flex;align-items:center}
-        .price-wrap .dollar{position:absolute;left:10px;color:#7c98b6;font-size:13px;pointer-events:none}
-        .price-wrap input{padding-left:22px;text-align:right}
-        .line-total{text-align:right;font-weight:600;color:#33475b;font-size:14px;white-space:nowrap}
+        /* ── White content area ── */
+        .content-area{padding:0 36px 32px}
 
-        .delete-btn{padding:6px 10px;background:transparent;color:#7c98b6;border:1px solid #cbd6e2;border-radius:3px;cursor:pointer;font-size:11px;font-weight:500;font-family:'Montserrat',sans-serif;transition:all 0.15s}
-        .delete-btn:hover{color:#d9534f;border-color:#d9534f}
+        /* Comments section */
+        .comments-section{padding:20px 0;border-bottom:1px solid #eaf0f6}
+        .comments-label{font-size:13px;font-weight:700;color:#33475b;margin-bottom:8px}
+        .light-editable{width:100%;font-size:14px;font-family:inherit;color:#33475b;line-height:1.6;padding:10px 12px;border:1.5px dashed #b8d4f0;border-radius:4px;background:#f7faff;resize:vertical;min-height:60px;transition:all 0.15s}
+        .light-editable:hover{border-color:#7fb3e0}
+        .light-editable:focus{outline:none;border-color:#4C76B8;background:#fff;border-style:solid;box-shadow:0 0 0 2px rgba(76,118,184,0.12)}
+        .light-editable::placeholder{color:#b0c4de}
 
-        .add-row-btn{display:block;width:calc(100% - 80px);margin:0 40px;padding:10px;background:transparent;color:#4C76B8;border:1.5px dashed #cbd6e2;border-radius:3px;cursor:pointer;font-size:13px;font-weight:500;font-family:'Montserrat',sans-serif;transition:all 0.15s;margin-top:0;margin-bottom:24px}
+        /* Products table — EDITABLE */
+        .products-heading{font-size:14px;font-weight:700;color:#33475b;padding:20px 0 12px}
+        .products-table{width:100%;border-collapse:collapse}
+        .products-table thead th{font-size:12px;font-weight:700;color:#33475b;padding:8px 4px;text-align:left;border-bottom:2px solid #33475b}
+        .products-table thead th.qty{text-align:center;width:70px}
+        .products-table thead th.price{text-align:right;width:100px}
+        .products-table thead th.total{text-align:right;width:100px}
+        .products-table thead th.actions{text-align:center;width:60px}
+        .products-table tbody td{padding:8px 4px;border-bottom:1px solid #eaf0f6;vertical-align:middle}
+        .products-table tbody tr.deleted{opacity:0.3}
+        .products-table tbody tr.new td{background:#f0f9ff}
+        .products-table input[type=text],.products-table input[type=number]{width:100%;padding:7px 8px;font-size:13px;font-family:inherit;border:1px solid #cbd6e2;border-radius:3px;background:#fff;color:#33475b}
+        .products-table input:focus{outline:none;border-color:#4C76B8;box-shadow:0 0 0 2px rgba(76,118,184,0.12)}
+        .products-table input:disabled{background:#f5f8fa;color:#99acc2}
+        .qty-input{text-align:center;max-width:55px;margin:0 auto;display:block}
+        .price-wrap{position:relative}
+        .price-wrap .dollar{position:absolute;left:8px;top:50%;transform:translateY(-50%);color:#7c98b6;font-size:13px;pointer-events:none}
+        .price-wrap input{padding-left:20px;text-align:right}
+        .line-total{text-align:right;font-weight:600;font-size:14px;white-space:nowrap}
+        .del-btn{padding:4px 8px;background:transparent;color:#7c98b6;border:1px solid #cbd6e2;border-radius:3px;cursor:pointer;font-size:10px;font-weight:600;font-family:inherit}
+        .del-btn:hover{color:#d9534f;border-color:#d9534f}
+        .add-row-btn{display:block;width:100%;padding:10px;background:transparent;color:#4C76B8;border:1.5px dashed #cbd6e2;border-radius:3px;cursor:pointer;font-size:13px;font-weight:500;font-family:inherit;margin-top:8px}
         .add-row-btn:hover{border-color:#4C76B8;background:rgba(76,118,184,0.04)}
 
-        /* Totals */
-        .totals-section{display:flex;justify-content:flex-end;padding:16px 40px 24px;border-top:1px solid #cbd6e2}
-        .totals-box{min-width:260px}
-        .totals-row{display:flex;justify-content:space-between;padding:6px 0;font-size:14px}
-        .totals-row .t-label{color:#7c98b6}
-        .totals-row .t-amount{font-weight:600;color:#33475b}
-        .totals-row.grand{padding-top:12px;margin-top:8px;border-top:2px solid #33475b}
-        .totals-row.grand .t-label{font-size:16px;font-weight:700;color:#33475b}
-        .totals-row.grand .t-amount{font-size:20px;font-weight:700;color:#33475b}
+        /* Subtotal + Total */
+        .subtotal-row{display:flex;justify-content:flex-end;padding:10px 0;font-size:14px;color:#516f90}
+        .subtotal-row span:last-child{min-width:100px;text-align:right}
+        .total-row{display:flex;justify-content:flex-end;padding:10px 0;font-size:16px;font-weight:700;color:#33475b}
+        .total-row span:last-child{min-width:100px;text-align:right}
 
-        /* Details section */
-        .details-section{padding:24px 40px;border-top:1px solid #cbd6e2}
-        .details-section h3{font-size:14px;font-weight:700;color:#33475b;margin-bottom:4px}
-        .details-section .sub{font-size:12px;color:#7c98b6;margin-bottom:20px}
-        .field-group{margin-bottom:16px}
-        .field-label{display:block;font-size:12px;font-weight:600;color:#33475b;margin-bottom:6px}
-        .field-hint{font-size:11px;color:#99acc2;margin-top:4px}
-        .field-input{width:100%;padding:10px 12px;font-size:14px;font-family:'Montserrat',sans-serif;border:1px solid #cbd6e2;border-radius:3px;background:#fff;color:#33475b;transition:border-color 0.2s}
-        .field-input:focus{outline:none;border-color:#4C76B8;box-shadow:0 0 0 2px rgba(76,118,184,0.15)}
-        textarea.field-input{resize:vertical;min-height:80px}
+        /* Purchase terms */
+        .terms-section{padding:20px 0;border-top:1px solid #eaf0f6}
+        .terms-label{font-size:14px;font-weight:700;color:#33475b;margin-bottom:8px}
 
         /* Contact notice */
-        .contact-notice{margin:0 40px 0;padding:12px 16px;background:#f0f9ff;border:1px solid #d1ecf1;border-radius:3px;font-size:13px;color:#33475b;text-align:center}
+        .contact-notice{padding:12px 0;border-top:1px solid #eaf0f6;font-size:13px;color:#516f90;text-align:center}
         .contact-notice strong{color:#33475b}
 
-        /* Action buttons */
-        .btn-row{display:flex;gap:12px;padding:24px 40px 32px}
-        .action-btn{flex:1;padding:14px 20px;font-size:14px;font-weight:600;font-family:'Montserrat',sans-serif;border-radius:3px;cursor:pointer;transition:all 0.15s;border:none}
+        /* Dual buttons */
+        .btn-row{display:flex;gap:12px;padding:20px 0 0;border-top:1px solid #eaf0f6}
+        .action-btn{flex:1;padding:12px 16px;font-size:14px;font-weight:600;font-family:inherit;border-radius:4px;cursor:pointer;transition:all 0.15s;border:none}
         .action-btn:disabled{opacity:0.5;cursor:not-allowed}
         .btn-draft{background:#fff;color:#33475b;border:1px solid #cbd6e2}
         .btn-draft:hover:not(:disabled){background:#f5f8fa;border-color:#33475b}
@@ -110,34 +112,25 @@
         .btn-send:hover:not(:disabled){background:#3d6098}
 
         /* States */
-        .loading{display:none;text-align:center;padding:80px 20px}
-        .loading.active{display:block}
-        .spinner{width:36px;height:36px;border:3px solid #eaf0f6;border-top-color:#4C76B8;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px}
+        .loading-view{text-align:center;padding:100px 20px}
+        .spinner{width:32px;height:32px;border:3px solid #eaf0f6;border-top-color:#4C76B8;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px}
         @keyframes spin{to{transform:rotate(360deg)}}
-        .loading p{color:#7c98b6;font-size:14px}
+        .loading-view p{color:#7c98b6}
 
-        .success-view{display:none;text-align:center;padding:80px 40px}
-        .success-view.active{display:block}
+        .success-view{text-align:center;padding:80px 36px;display:none}
         .success-icon{width:56px;height:56px;margin:0 auto 20px;background:#d4edda;border-radius:50%;display:flex;align-items:center;justify-content:center}
         .success-icon svg{width:28px;height:28px;color:#155724}
-        .success-title{font-size:20px;font-weight:700;color:#33475b;margin-bottom:10px}
-        .success-message{font-size:14px;color:#7c98b6;line-height:1.6;max-width:400px;margin:0 auto}
+        .success-view h2{font-size:18px;font-weight:700;color:#33475b;margin-bottom:8px}
+        .success-view p{font-size:14px;color:#7c98b6;line-height:1.6}
 
-        .footer{text-align:center;padding:20px;font-size:11px;color:#99acc2}
-
-        @media(max-width:640px){
-            .page-wrap{padding:16px 8px}
-            .quote-header,.details-section{padding-left:20px;padding-right:20px}
-            .meta-section{flex-direction:column;gap:12px;padding:16px 20px}
-            .section-title{padding-left:20px;padding-right:20px}
-            .items-table thead th:first-child,.items-table tbody td:first-child{padding-left:20px}
-            .items-table thead th:last-child,.items-table tbody td:last-child{padding-right:20px}
-            .add-row-btn{margin:0 20px 20px}
-            .totals-section{padding:16px 20px}
-            .contact-notice{margin:0 20px}
-            .btn-row{flex-direction:column;padding:20px}
-            .header-top{flex-direction:column;gap:12px}
-            .quote-title-area{text-align:left}
+        @media(max-width:600px){
+            .page-wrap{padding:8px 4px 40px}
+            .header-banner,.admin-bar{padding-left:20px;padding-right:20px}
+            .content-area{padding:0 20px 24px}
+            .banner-info{flex-direction:column;gap:16px}
+            .banner-right{text-align:left}
+            .address-row{flex-wrap:wrap}
+            .btn-row{flex-direction:column}
         }
     </style>
 </head>
@@ -145,112 +138,109 @@
     <div class="page-wrap">
         <div class="quote-card">
             <!-- Loading -->
-            <div class="loading" id="loadingView">
+            <div class="loading-view" id="loadingView">
                 <div class="spinner"></div>
                 <p>Loading deal data...</p>
             </div>
 
-            <!-- Main content -->
+            <!-- ═══ MAIN QUOTE DOCUMENT ═══ -->
             <div id="mainView" style="display:none">
-                <!-- Header -->
-                <div class="quote-header">
-                    <div class="header-top">
-                        <div>
-                            <div class="company-name">Show Off Inc.</div>
-                            <div class="company-sub">Custom Performance Wear</div>
+
+                <!-- Admin indicator -->
+                <div class="admin-bar">
+                    <span class="admin-dot"></span>
+                    Internal view — edit line items and pre-fill quote details before sending to customer
+                </div>
+
+                <!-- ── Dark header banner ── -->
+                <div class="header-banner">
+                    <div class="brand-text">Show-Off</div>
+
+                    <div class="quote-title-wrap">
+                        <input type="text" class="quote-title-input" id="quoteTitle" placeholder="Quote title...">
+                    </div>
+
+                    <div class="banner-info">
+                        <div class="banner-left">
+                            <div class="dark-label">Company / School</div>
+                            <input type="text" class="dark-editable" id="schoolName" placeholder="e.g. UGA Majorettes" style="max-width:320px">
+
+                            <div class="dark-label">Attention</div>
+                            <textarea class="dark-editable" id="attentionLine" rows="2" placeholder="e.g. Att: Ashley Clark, 2025-2026 Uniforms, 250 River Road"></textarea>
+
+                            <div class="dark-label">Mailing Address</div>
+                            <div class="address-row">
+                                <input type="text" class="dark-editable-sm addr-city" id="addrCity" placeholder="City">
+                                <input type="text" class="dark-editable-sm addr-state" id="addrState" placeholder="State">
+                                <input type="text" class="dark-editable-sm addr-zip" id="addrZip" placeholder="ZIP">
+                            </div>
+                            <input type="text" class="dark-editable-sm" id="addrCountry" placeholder="Country" style="margin-top:4px;width:180px" value="United States">
                         </div>
-                        <div class="quote-title-area">
-                            <h1>Quote</h1>
-                            <div class="deal-badge" id="dealNum"></div>
+
+                        <div class="banner-right">
+                            <div class="banner-static" id="contactLine"></div>
+                            <div class="banner-static" id="contactEmailLine"></div>
+                            <div class="banner-static" style="margin-top:8px"><span class="status-badge" id="quoteBadge"></span></div>
+                            <div class="banner-static" id="metaDate" style="margin-top:8px"></div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Meta -->
-                <div class="meta-section">
-                    <div class="meta-block">
-                        <span class="meta-label">Contact</span>
-                        <span class="meta-value" id="metaContact">&mdash;</span>
-                    </div>
-                    <div class="meta-block">
-                        <span class="meta-label">Status</span>
-                        <span class="meta-value"><span class="status-badge" id="quoteBadge"></span></span>
-                    </div>
-                    <div class="meta-block">
-                        <span class="meta-label">Date</span>
-                        <span class="meta-value" id="metaDate"></span>
-                    </div>
-                </div>
+                <!-- ── White content area ── -->
+                <div class="content-area">
 
-                <!-- Line Items -->
-                <div class="section-title">Line Items</div>
-                <table class="items-table">
-                    <thead>
-                        <tr>
-                            <th>Item</th>
-                            <th class="num">Qty</th>
-                            <th class="price">Unit Price</th>
-                            <th class="total">Total</th>
-                            <th class="actions"></th>
-                        </tr>
-                    </thead>
-                    <tbody id="lineItems"></tbody>
-                </table>
-                <button type="button" class="add-row-btn" onclick="addItem()">+ Add Line Item</button>
-
-                <!-- Totals -->
-                <div class="totals-section">
-                    <div class="totals-box">
-                        <div class="totals-row"><span class="t-label">Subtotal</span><span class="t-amount" id="subtotal">$0.00</span></div>
-                        <div class="totals-row grand"><span class="t-label">Total</span><span class="t-amount" id="totalAmount">$0.00</span></div>
+                    <!-- Comments from rep -->
+                    <div class="comments-section">
+                        <div class="comments-label">Comments from Erica Fenn</div>
+                        <textarea class="light-editable" id="quoteNotes" placeholder="Comments for the customer's finance department..."></textarea>
                     </div>
-                </div>
 
-                <!-- Quote Details -->
-                <div class="details-section">
-                    <h3>Quote Details</h3>
-                    <p class="sub">Custom text for the school's finance department</p>
-                    <div class="field-group">
-                        <label class="field-label" for="quoteTitle">Quote Title</label>
-                        <input type="text" class="field-input" id="quoteTitle" placeholder="e.g. Jefferson County ISD — Twirling Team">
-                        <div class="field-hint">Defaults to deal name if left blank</div>
-                    </div>
-                    <div class="field-group">
-                        <label class="field-label" for="addressee">Attention</label>
-                        <input type="text" class="field-input" id="addressee" placeholder="e.g. Jane Smith, Procurement Dept">
-                        <div class="field-hint">Who this quote is addressed to</div>
-                    </div>
-                    <div class="field-group">
-                        <label class="field-label" for="quoteNotes">Special Notes</label>
-                        <textarea class="field-input" id="quoteNotes" placeholder="Any special verbiage the finance department requested..."></textarea>
-                        <div class="field-hint">Appears on the formal quote document</div>
-                    </div>
-                </div>
+                    <!-- Products & Services (EDITABLE) -->
+                    <div class="products-heading">Products &amp; Services</div>
+                    <table class="products-table">
+                        <thead>
+                            <tr>
+                                <th>Item &amp; Description</th>
+                                <th class="qty">Qty</th>
+                                <th class="price">Unit Price</th>
+                                <th class="total">Total</th>
+                                <th class="actions"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="lineItems"></tbody>
+                    </table>
+                    <button type="button" class="add-row-btn" onclick="addItem()">+ Add Line Item</button>
 
-                <!-- Contact Preview -->
-                <div class="contact-notice" id="contactInfo" style="display:none">
-                    Review link will be sent to <strong id="contactName"></strong> at <strong id="contactEmail"></strong>
-                </div>
+                    <div class="subtotal-row"><span>One-time subtotal</span><span id="subtotal">$0.00</span></div>
+                    <div class="total-row"><span>Total</span><span id="totalAmount">$0.00</span></div>
 
-                <!-- Action Buttons -->
-                <div class="btn-row">
-                    <button class="action-btn btn-draft" id="draftBtn" onclick="handleSubmit('save')">Save Draft</button>
-                    <button class="action-btn btn-send" id="sendBtn" onclick="handleSubmit('send-review')">Send to Customer</button>
+                    <!-- Purchase terms -->
+                    <div class="terms-section">
+                        <div class="terms-label">Purchase terms</div>
+                        <textarea class="light-editable" id="purchaseTerms" placeholder="Payment terms, conditions, etc..."></textarea>
+                    </div>
+
+                    <!-- Contact notice -->
+                    <div class="contact-notice" id="contactInfo" style="display:none">
+                        Review link will be sent to <strong id="contactName"></strong> at <strong id="contactEmail"></strong>
+                    </div>
+
+                    <!-- Action buttons -->
+                    <div class="btn-row">
+                        <button class="action-btn btn-draft" id="draftBtn" onclick="handleSubmit('save')">Save Draft</button>
+                        <button class="action-btn btn-send" id="sendBtn" onclick="handleSubmit('send-review')">Send to Customer</button>
+                    </div>
                 </div>
             </div>
 
             <!-- Success -->
             <div class="success-view" id="successView">
                 <div class="success-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M5 13l4 4L19 7"/>
-                    </svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>
                 </div>
-                <h2 class="success-title" id="successTitle">Done</h2>
-                <p class="success-message" id="successMessage"></p>
+                <h2 id="successTitle">Done</h2>
+                <p id="successMessage"></p>
             </div>
-
-            <div class="footer">Show Off Inc.</div>
         </div>
     </div>
 
@@ -262,10 +252,8 @@
         var deletedIds = [];
 
         if (!dealId) {
-            document.getElementById('loadingView').innerHTML = '<p style="color:#d9534f;padding:80px 20px;">Error: No dealId provided in URL</p>';
-            document.getElementById('loadingView').classList.add('active');
+            document.getElementById('loadingView').innerHTML = '<p style="color:#d9534f;padding:100px 20px;">Error: No dealId provided in URL</p>';
         } else {
-            document.getElementById('loadingView').classList.add('active');
             loadData();
         }
 
@@ -274,27 +262,37 @@
                 var res = await fetch('/api/po-quote?dealId=' + dealId);
                 if (!res.ok) throw new Error('Failed to fetch');
                 dealData = await res.json();
+                var v = dealData.verbiage || {};
 
-                // Header
-                var dealNum = dealData.dealName.split(' ')[0];
-                document.getElementById('dealNum').textContent = 'Order #' + dealNum;
+                // Header fields
+                document.getElementById('quoteTitle').value = dealData.poFields.title || dealData.dealName || '';
+                document.getElementById('schoolName').value = v.schoolName || '';
+                document.getElementById('attentionLine').value = dealData.poFields.addressee || '';
+                document.getElementById('addrCity').value = v.mailingCity || '';
+                document.getElementById('addrState').value = v.mailingState || '';
+                document.getElementById('addrZip').value = v.mailingZip || '';
+                document.getElementById('addrCountry').value = v.mailingCountry || 'United States';
 
-                // Meta
+                // Right side
                 if (dealData.primaryContact) {
-                    document.getElementById('metaContact').textContent =
-                        dealData.primaryContact.name + ' (' + dealData.primaryContact.email + ')';
+                    document.getElementById('contactLine').innerHTML = '<strong>' + esc(dealData.primaryContact.name) + '</strong>';
+                    document.getElementById('contactEmailLine').textContent = dealData.primaryContact.email;
                 }
-                document.getElementById('metaDate').textContent = formatDate(new Date());
 
-                // Status badge
                 var badge = document.getElementById('quoteBadge');
                 if (dealData.existingQuote) {
-                    badge.textContent = dealData.existingQuote.status === 'DRAFT' ? 'Draft' : 'Published';
-                    badge.className = 'status-badge ' + (dealData.existingQuote.status === 'DRAFT' ? 'draft' : 'published');
+                    badge.textContent = dealData.existingQuote.status === 'DRAFT' ? 'DRAFT' : 'PUBLISHED';
+                    badge.style.cssText = 'display:inline-block;padding:3px 8px;border-radius:3px;font-size:10px;font-weight:700;letter-spacing:0.05em;' +
+                        (dealData.existingQuote.status === 'DRAFT' ? 'background:rgba(255,193,7,0.2);color:#ffc107' : 'background:rgba(40,167,69,0.2);color:#28a745');
                 } else {
-                    badge.textContent = 'New';
-                    badge.className = 'status-badge new';
+                    badge.textContent = 'NEW';
+                    badge.style.cssText = 'display:inline-block;padding:3px 8px;border-radius:3px;font-size:10px;font-weight:700;letter-spacing:0.05em;background:rgba(23,162,184,0.2);color:#17a2b8';
                 }
+
+                document.getElementById('metaDate').textContent = formatDate(new Date());
+
+                // Comments
+                document.getElementById('quoteNotes').value = dealData.poFields.notes || '';
 
                 // Line items
                 var container = document.getElementById('lineItems');
@@ -303,12 +301,10 @@
                     itemIndex = i + 1;
                 });
 
-                // Verbiage
-                document.getElementById('addressee').value = dealData.poFields.addressee || '';
-                document.getElementById('quoteTitle').value = dealData.poFields.title || '';
-                document.getElementById('quoteNotes').value = dealData.poFields.notes || '';
+                // Purchase terms
+                document.getElementById('purchaseTerms').value = v.purchaseTerms || '';
 
-                // Contact
+                // Contact notice
                 if (dealData.primaryContact) {
                     document.getElementById('contactName').textContent = dealData.primaryContact.name;
                     document.getElementById('contactEmail').textContent = dealData.primaryContact.email;
@@ -316,19 +312,21 @@
                 }
 
                 updateTotal();
-                document.getElementById('loadingView').classList.remove('active');
+                document.getElementById('loadingView').style.display = 'none';
                 document.getElementById('mainView').style.display = 'block';
             } catch (err) {
                 document.getElementById('loadingView').innerHTML =
-                    '<p style="color:#d9534f;padding:80px 20px;">Error loading deal: ' + esc(err.message) + '</p>';
+                    '<p style="color:#d9534f;padding:100px 20px;">Error loading deal: ' + esc(err.message) + '</p>';
             }
         }
 
         function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-
         function formatDate(d) {
             var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
             return months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+        }
+        function formatNum(n) {
+            return Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
 
         function lineItemHtml(idx, id, name, qty, price) {
@@ -338,8 +336,8 @@
                 '<td><input type="text" data-field="name" value="' + esc(name) + '" placeholder="Item name"></td>' +
                 '<td><input type="number" class="qty-input" data-field="qty" value="' + (qty||1) + '" min="1" step="1" onchange="updateTotal()" oninput="updateTotal()"></td>' +
                 '<td><div class="price-wrap"><span class="dollar">$</span><input type="number" data-field="price" value="' + (price||'') + '" min="0" step="0.01" onchange="updateTotal()" oninput="updateTotal()"></div></td>' +
-                '<td class="line-total" data-field="line-total">$' + lineTotal.toFixed(2) + '</td>' +
-                '<td style="text-align:center"><button type="button" class="delete-btn" onclick="deleteItem(this)">Delete</button></td></tr>';
+                '<td class="line-total" data-field="line-total">$' + formatNum(lineTotal) + '</td>' +
+                '<td style="text-align:center"><button type="button" class="del-btn" onclick="deleteItem(this)">Del</button></td></tr>';
         }
 
         function addItem() {
@@ -370,7 +368,7 @@
             deletedIds = deletedIds.filter(function(i){return i !== id});
             row.classList.remove('deleted');
             row.querySelectorAll('input').forEach(function(i){i.disabled=false});
-            btn.textContent = 'Delete';
+            btn.textContent = 'Del';
             btn.onclick = function(){ deleteItem(btn); };
             updateTotal();
         }
@@ -382,10 +380,10 @@
                 var price = parseFloat(row.querySelector('[data-field="price"]').value) || 0;
                 var lineTotal = qty * price;
                 total += lineTotal;
-                row.querySelector('[data-field="line-total"]').textContent = '$' + lineTotal.toFixed(2);
+                row.querySelector('[data-field="line-total"]').textContent = '$' + formatNum(lineTotal);
             });
-            document.getElementById('subtotal').textContent = '$' + total.toFixed(2);
-            document.getElementById('totalAmount').textContent = '$' + total.toFixed(2);
+            document.getElementById('subtotal').textContent = '$' + formatNum(total);
+            document.getElementById('totalAmount').textContent = '$' + formatNum(total);
         }
 
         async function handleSubmit(action) {
@@ -393,12 +391,8 @@
             var sendBtn = document.getElementById('sendBtn');
             draftBtn.disabled = true;
             sendBtn.disabled = true;
-
-            if (action === 'save') {
-                draftBtn.textContent = 'Saving...';
-            } else {
-                sendBtn.textContent = 'Sending...';
-            }
+            if (action === 'save') draftBtn.textContent = 'Saving...';
+            else sendBtn.textContent = 'Sending...';
 
             var items = [];
             document.querySelectorAll('#lineItems tr:not(.deleted)').forEach(function(row) {
@@ -417,9 +411,21 @@
                 items: items,
                 deletedItems: deletedIds,
                 existingQuoteId: dealData.existingQuote ? dealData.existingQuote.id : null,
-                addressee: document.getElementById('addressee').value,
+                // Existing PO fields
+                addressee: document.getElementById('attentionLine').value,
                 quoteTitle: document.getElementById('quoteTitle').value || dealData.dealName,
                 quoteNotes: document.getElementById('quoteNotes').value,
+                // Verbiage JSON (presentation-only)
+                verbiage: {
+                    schoolName: document.getElementById('schoolName').value,
+                    mailingCity: document.getElementById('addrCity').value,
+                    mailingState: document.getElementById('addrState').value,
+                    mailingZip: document.getElementById('addrZip').value,
+                    mailingCountry: document.getElementById('addrCountry').value,
+                    purchaseTerms: document.getElementById('purchaseTerms').value,
+                    commentsBy: 'Erica Fenn'
+                },
+                // Contact
                 contactEmail: dealData.primaryContact ? dealData.primaryContact.email : null,
                 contactName: dealData.primaryContact ? dealData.primaryContact.name : null,
                 contactId: dealData.primaryContact ? dealData.primaryContact.id : null
@@ -434,21 +440,18 @@
 
                 if (res.ok) {
                     document.getElementById('mainView').style.display = 'none';
-
                     if (action === 'save') {
                         document.getElementById('successTitle').textContent = 'Draft Saved';
                         document.getElementById('successMessage').textContent =
-                            'Line items and quote details saved to the deal. No emails sent.';
+                            'Line items, quote details, and presentation fields saved to the deal. No emails sent.';
                     } else {
                         document.getElementById('successTitle').textContent = 'Review Link Sent';
                         var msg = 'A secure review link has been sent';
-                        if (dealData.primaryContact) {
-                            msg += ' to ' + dealData.primaryContact.name + ' at ' + dealData.primaryContact.email;
-                        }
-                        msg += '. The customer can review line items and finalize the quote.';
+                        if (dealData.primaryContact) msg += ' to ' + dealData.primaryContact.name + ' at ' + dealData.primaryContact.email;
+                        msg += '. The customer can review and finalize the quote.';
                         document.getElementById('successMessage').textContent = msg;
                     }
-                    document.getElementById('successView').classList.add('active');
+                    document.getElementById('successView').style.display = 'block';
                 } else {
                     throw new Error('Server error');
                 }
