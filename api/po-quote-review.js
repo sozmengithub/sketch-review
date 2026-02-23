@@ -93,17 +93,40 @@ export default async function handler(req, res) {
       }
     }
 
-    // Get primary contact email (for "sent to" display)
+    // Get contacts — find payer (preferred) and primary contact
     let primaryContact = null;
+    let payerContact = null;
     const contactRes = await fetch(
       `https://api.hubapi.com/crm/v4/objects/deals/${dealId}/associations/contacts`,
       { headers }
     );
     if (contactRes.ok) {
       const contactData = await contactRes.json();
-      const primaryAssoc = (contactData.results || []).find(r =>
+      const allAssocs = contactData.results || [];
+      const payerAssoc = allAssocs.find(r =>
+        (r.associationTypes || []).some(a => a.label === 'Payer')
+      );
+      const primaryAssoc = allAssocs.find(r =>
         (r.associationTypes || []).some(a => a.label === 'Primary Contact')
-      ) || (contactData.results || [])[0];
+      ) || allAssocs[0];
+
+      // Fetch payer if exists
+      if (payerAssoc) {
+        const pRes = await fetch(
+          `https://api.hubapi.com/crm/v3/objects/contacts/${payerAssoc.toObjectId}?properties=firstname,lastname,email`,
+          { headers }
+        );
+        if (pRes.ok) {
+          const p = await pRes.json();
+          payerContact = {
+            id: p.id,
+            name: [p.properties.firstname, p.properties.lastname].filter(Boolean).join(' '),
+            email: p.properties.email
+          };
+        }
+      }
+
+      // Fetch primary contact
       if (primaryAssoc) {
         const cRes = await fetch(
           `https://api.hubapi.com/crm/v3/objects/contacts/${primaryAssoc.toObjectId}?properties=firstname,lastname,email`,
@@ -138,6 +161,7 @@ export default async function handler(req, res) {
       total,
       lineItems,
       primaryContact,
+      payerContact,
       expirationDate: expDate.toISOString().split('T')[0],
       poFields: {
         addressee: deal.properties.po_quote_addressee || '',

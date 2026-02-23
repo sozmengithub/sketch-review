@@ -248,11 +248,16 @@
                         <input type="text" class="light-input" id="poNumber" placeholder="Enter your PO number">
                     </div>
 
-                    <!-- Send quote to (editable email) -->
+                    <!-- Send quote to (editable email + CC) -->
                     <div class="po-section">
                         <div class="po-label">Send finalized quote to</div>
                         <input type="email" class="light-input" id="sendToEmail" placeholder="email@example.com" style="width:320px">
-                        <div style="font-size:11px;color:#99acc2;margin-top:4px">Change this if you need the quote sent to a different email (e.g. AP department)</div>
+                        <div style="font-size:11px;color:#99acc2;margin-top:4px">Primary recipient for the finalized quote</div>
+                        <div style="margin-top:12px">
+                            <div class="po-label">CC (optional)</div>
+                            <input type="text" class="light-input" id="ccEmails" placeholder="email1@example.com, email2@example.com" style="width:100%">
+                            <div style="font-size:11px;color:#99acc2;margin-top:4px">Additional recipients — separate multiple emails with commas (e.g. AP department, budget approver)</div>
+                        </div>
                     </div>
 
                     <!-- Questions? Contact me -->
@@ -328,10 +333,14 @@
                 // Comments
                 document.getElementById('quoteNotes').value = dealData.poFields.notes || '';
 
-                // Send-to email (default to primary contact, customer can change)
-                if (dealData.primaryContact && dealData.primaryContact.email) {
-                    document.getElementById('sendToEmail').value = dealData.primaryContact.email;
+                // Send-to email — payer first (if exists), then primary contact
+                var defaultEmail = '';
+                if (dealData.payerContact && dealData.payerContact.email) {
+                    defaultEmail = dealData.payerContact.email;
+                } else if (dealData.primaryContact && dealData.primaryContact.email) {
+                    defaultEmail = dealData.primaryContact.email;
                 }
+                document.getElementById('sendToEmail').value = defaultEmail;
 
                 // Line items
                 var tbody = document.getElementById('itemsBody');
@@ -403,10 +412,12 @@
                     mailingCountry: document.getElementById('addrCountry').value,
                     poNumber: document.getElementById('poNumber').value
                 },
-                // Contact — uses editable email, falls back to primary contact
-                contactEmail: sendToEmail || (dealData.primaryContact ? dealData.primaryContact.email : null),
-                contactName: dealData.primaryContact ? dealData.primaryContact.name : null,
-                contactId: dealData.primaryContact ? dealData.primaryContact.id : null
+                // Contact — uses editable email, falls back to payer then primary
+                contactEmail: sendToEmail || (dealData.payerContact ? dealData.payerContact.email : (dealData.primaryContact ? dealData.primaryContact.email : null)),
+                contactName: (dealData.payerContact ? dealData.payerContact.name : null) || (dealData.primaryContact ? dealData.primaryContact.name : null),
+                contactId: (dealData.payerContact ? dealData.payerContact.id : null) || (dealData.primaryContact ? dealData.primaryContact.id : null),
+                // CC recipients
+                ccEmails: document.getElementById('ccEmails').value
             };
 
             try {
@@ -430,6 +441,10 @@
                     var msg = 'Your formal quote has been created';
                     if (sendToEmail) {
                         msg += ' and sent to ' + sendToEmail;
+                    }
+                    var cc = document.getElementById('ccEmails').value.trim();
+                    if (cc) {
+                        msg += ' (CC: ' + cc + ')';
                     }
                     msg += '.';
                     document.getElementById('successMessage').textContent = msg;
