@@ -75,9 +75,11 @@ export default async function handler(req, res) {
     dealName = deal.properties.dealname || dealId;
     const quoteTitle = deal.properties.po_quote_title || dealName;
 
-    // Get primary contact for confirmation email
+    // Get payer + primary contacts for confirmation emails (both should receive)
     let contactEmail = '';
     let contactName = '';
+    let ccEmail = '';
+    let ccName = '';
     try {
       const assocRes = await fetch(
         `https://api.hubapi.com/crm/v4/objects/deals/${dealId}/associations/contacts`,
@@ -85,16 +87,49 @@ export default async function handler(req, res) {
       );
       if (assocRes.ok) {
         const assocData = await assocRes.json();
-        const contactIds = (assocData.results || []).map(r => r.toObjectId);
-        if (contactIds.length > 0) {
-          const contactRes = await fetch(
-            `https://api.hubapi.com/crm/v3/objects/contacts/${contactIds[0]}?properties=email,firstname,lastname`,
+        const allAssocs = assocData.results || [];
+
+        // Find payer and primary by association label
+        const payerAssoc = allAssocs.find(r =>
+          (r.associationTypes || []).some(a => a.label === 'Payer')
+        );
+        const primaryAssoc = allAssocs.find(r =>
+          (r.associationTypes || []).some(a => a.label === 'Primary Contact')
+        ) || allAssocs[0];
+
+        // Fetch payer contact details
+        if (payerAssoc) {
+          const pRes = await fetch(
+            `https://api.hubapi.com/crm/v3/objects/contacts/${payerAssoc.toObjectId}?properties=email,firstname,lastname`,
             { headers: hsHeaders }
           );
-          if (contactRes.ok) {
-            const contact = await contactRes.json();
-            contactEmail = contact.properties.email || '';
-            contactName = `${contact.properties.firstname || ''} ${contact.properties.lastname || ''}`.trim();
+          if (pRes.ok) {
+            const p = await pRes.json();
+            contactEmail = p.properties.email || '';
+            contactName = `${p.properties.firstname || ''} ${p.properties.lastname || ''}`.trim();
+          }
+        }
+
+        // Fetch primary contact details
+        if (primaryAssoc) {
+          const cRes = await fetch(
+            `https://api.hubapi.com/crm/v3/objects/contacts/${primaryAssoc.toObjectId}?properties=email,firstname,lastname`,
+            { headers: hsHeaders }
+          );
+          if (cRes.ok) {
+            const c = await cRes.json();
+            const primaryEmail = c.properties.email || '';
+            const primaryName = `${c.properties.firstname || ''} ${c.properties.lastname || ''}`.trim();
+
+            if (!contactEmail) {
+              // No payer — primary is the main recipient
+              contactEmail = primaryEmail;
+              contactName = primaryName;
+            } else if (primaryEmail && primaryEmail !== contactEmail) {
+              // Payer exists and is different — CC primary
+              ccEmail = primaryEmail;
+              ccName = primaryName;
+            }
           }
         }
       }
@@ -172,7 +207,7 @@ export default async function handler(req, res) {
       await fetch('https://showoffinc.app.n8n.cloud/webhook/po-received-notification', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ dealId, dealName, fileName, dealUrl, fileUrl, contactEmail, contactName, quoteTitle })
+        body: JSON.stringify({ dealId, dealName, fileName, dealUrl, fileUrl, contactEmail, contactName, ccEmail, ccName, quoteTitle })
       });
     } catch (e) {
       console.error('PO notification webhook failed:', e.message);

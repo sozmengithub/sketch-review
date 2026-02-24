@@ -474,6 +474,13 @@
                 }
                 document.getElementById('sendToEmail').value = defaultEmail;
 
+                // If there's a separate payer, pre-fill CC with primary contact
+                if (dealData.payerContact && dealData.payerContact.email &&
+                    dealData.primaryContact && dealData.primaryContact.email &&
+                    dealData.payerContact.email !== dealData.primaryContact.email) {
+                    document.getElementById('ccEmails').value = dealData.primaryContact.email;
+                }
+
                 // Line items
                 var tbody = document.getElementById('itemsBody');
                 if (!dealData.lineItems || dealData.lineItems.length === 0) {
