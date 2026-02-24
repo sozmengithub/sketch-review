@@ -274,6 +274,7 @@
         var urlParams = new URLSearchParams(window.location.search);
         var dealId = urlParams.get('dealId');
         var dealNumber = urlParams.get('dealNumber');
+        var adminKey = urlParams.get('adminKey');
         var dealData = null;
         var itemIndex = 0;
         var deletedIds = [];
@@ -286,7 +287,7 @@
 
         async function loadData() {
             try {
-                var apiUrl = dealId ? '/api/po-quote?dealId=' + dealId : '/api/po-quote?dealNumber=' + dealNumber;
+                var apiUrl = (dealId ? '/api/po-quote?dealId=' + dealId : '/api/po-quote?dealNumber=' + dealNumber) + '&adminKey=' + encodeURIComponent(adminKey || '');
                 var res = await fetch(apiUrl);
                 if (!res.ok) throw new Error('Failed to fetch');
                 dealData = await res.json();

@@ -19,6 +19,13 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
+  // Admin authentication
+  const { adminKey } = req.query;
+  const ADMIN_KEY = process.env.PO_ADMIN_KEY;
+  if (!ADMIN_KEY || adminKey !== ADMIN_KEY) {
+    return res.status(403).json({ error: 'Access denied' });
+  }
+
   let { dealId, dealNumber } = req.query;
   if (!dealId && !dealNumber) return res.status(400).json({ error: 'dealId or dealNumber is required' });
 

@@ -147,6 +147,25 @@
         .po-received-badge{display:inline-flex;align-items:center;gap:8px;padding:10px 16px;background:#d4edda;color:#155724;border-radius:4px;font-size:14px;font-weight:600}
         .po-received-badge svg{width:18px;height:18px;flex-shrink:0}
 
+        /* ── Print stylesheet ── */
+        @media print{
+            body{background:#fff;padding:0;font-size:13px}
+            .page-wrap{padding:0;max-width:none}
+            .quote-card{box-shadow:none;border:none}
+            .header-banner{padding:20px 24px 16px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+            .content-area{padding:0 24px 16px}
+            /* Make editable fields look like plain text */
+            .quote-title-input,.dark-editable,.dark-editable-sm,.light-editable,.light-input{border:none!important;background:transparent!important;padding:2px 0!important;box-shadow:none!important}
+            textarea.dark-editable,textarea.light-editable{min-height:auto!important;resize:none!important}
+            /* Hide interactive elements */
+            .edit-legend,.finalize-section,.po-section:has(#sendToEmail),.po-section:has(#ccEmails),.contact-footer,.po-upload-section,#requestChangesSection{display:none!important}
+            .success-view .view-quote-link,.success-view button,.upload-btn,.upload-dropzone{display:none!important}
+            /* Clean up spacing */
+            .products-table{page-break-inside:avoid}
+            .terms-section{border-top:1px solid #ccc}
+            .po-section{border-top:1px solid #ccc}
+        }
+
         @media(max-width:600px){
             .page-wrap{padding:8px 4px 40px}
             .header-banner{padding:20px 20px 18px}
@@ -178,7 +197,10 @@
 
                 <!-- ── Dark header banner ── -->
                 <div class="header-banner">
-                    <div class="brand-text">Trimsuits by Show Off Inc.</div>
+                    <div style="display:flex;justify-content:space-between;align-items:baseline">
+                        <div class="brand-text">Trimsuits by Show Off Inc.</div>
+                        <div id="quoteRef" style="font-size:12px;font-weight:600;color:rgba(255,255,255,0.6);letter-spacing:0.05em"></div>
+                    </div>
 
                     <!-- Quote title (editable) -->
                     <div class="quote-title-wrap">
@@ -283,9 +305,25 @@
                         <div>Email us at <a href="mailto:support@showoffinc.com" style="color:#4C76B8;text-decoration:none">support@showoffinc.com</a></div>
                     </div>
 
+                    <!-- Request Changes -->
+                    <div id="requestChangesSection" class="po-section" style="border-top:1px solid #eaf0f6">
+                        <button id="requestChangesBtn" onclick="toggleChangeRequest()" style="padding:10px 24px;background:#fff;color:#33475b;border:1px solid #cbd6e2;border-radius:4px;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;transition:all 0.15s">Request Changes</button>
+                        <div id="changeRequestForm" style="display:none;margin-top:12px">
+                            <div class="po-label">What needs to change?</div>
+                            <textarea class="light-editable" id="changeRequestText" placeholder="Describe what you'd like changed — items, pricing, quantities, etc." style="min-height:80px"></textarea>
+                            <div style="margin-top:10px;display:flex;gap:10px;align-items:center">
+                                <button id="sendChangeBtn" onclick="sendChangeRequest()" style="padding:8px 20px;background:#4C76B8;color:#fff;border:none;border-radius:4px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer">Send Request</button>
+                                <button onclick="toggleChangeRequest()" style="padding:8px 16px;background:transparent;color:#7c98b6;border:none;font-size:13px;font-family:inherit;cursor:pointer">Cancel</button>
+                            </div>
+                            <div id="changeRequestSuccess" style="display:none;margin-top:12px;padding:10px 14px;background:#d4edda;color:#155724;border-radius:4px;font-size:13px;font-weight:500">Your change request has been sent. We'll follow up shortly.</div>
+                        </div>
+                    </div>
+
                     <!-- Finalize -->
-                    <div class="finalize-section">
-                        <button class="finalize-btn" id="finalizeBtn" onclick="handleFinalize()">Finalize Quote</button>
+                    <div class="finalize-section" style="flex-direction:column;align-items:flex-start;gap:8px">
+                        <button class="finalize-btn" id="finalizeBtn" onclick="handleFinalize()">Finalize Quote Template</button>
+                        <div class="finalize-note">A formal quote document will be created and emailed to you.</div>
+                        <div id="poRequiredMsg" style="display:none;font-size:12px;color:#d9534f;font-weight:500">Please enter your PO Number above before finalizing.</div>
                     </div>
                 </div>
             </div>
@@ -388,6 +426,12 @@
 
                 var v = dealData.verbiage || {};
 
+                // Quote/order reference number
+                var dealNum = (dealData.dealName || '').split(/\s/)[0].trim();
+                if (dealNum) {
+                    document.getElementById('quoteRef').textContent = 'Ref #' + dealNum;
+                }
+
                 // Quote title
                 document.getElementById('quoteTitle').value = dealData.poFields.title || dealData.dealName || '';
 
@@ -476,7 +520,18 @@
         }
 
         async function handleFinalize() {
-            if (!confirm('This will create and email your formal quote. This cannot be undone.\n\nAre you sure you want to finalize?')) return;
+            // Require PO Number
+            var poNum = document.getElementById('poNumber').value.trim();
+            if (!poNum) {
+                document.getElementById('poRequiredMsg').style.display = 'block';
+                document.getElementById('poNumber').focus();
+                document.getElementById('poNumber').style.borderColor = '#d9534f';
+                return;
+            }
+            document.getElementById('poRequiredMsg').style.display = 'none';
+            document.getElementById('poNumber').style.borderColor = '';
+
+            if (!confirm('This will create a formal quote document and email it to you. This cannot be undone.\n\nContinue?')) return;
 
             var btn = document.getElementById('finalizeBtn');
             btn.disabled = true;
@@ -553,6 +608,49 @@
                 btn.textContent = 'Finalize Quote';
             }
         }
+        // ── Request Changes Functions ──
+
+        function toggleChangeRequest() {
+            var form = document.getElementById('changeRequestForm');
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        }
+
+        async function sendChangeRequest() {
+            var msg = document.getElementById('changeRequestText').value.trim();
+            if (!msg) { alert('Please describe what you\'d like changed.'); return; }
+
+            var btn = document.getElementById('sendChangeBtn');
+            btn.disabled = true;
+            btn.textContent = 'Sending...';
+
+            var dealNum = (dealData.dealName || '').split(/\s/)[0].trim();
+            var contactName = '';
+            if (dealData.payerContact) contactName = dealData.payerContact.name;
+            else if (dealData.primaryContact) contactName = dealData.primaryContact.name;
+
+            try {
+                await fetch('https://showoffinc.app.n8n.cloud/webhook/po-quote-change-request', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        dealId: dealId,
+                        dealNumber: dealNum,
+                        customerName: contactName,
+                        message: msg
+                    })
+                });
+                document.getElementById('changeRequestForm').style.display = 'none';
+                document.getElementById('requestChangesBtn').style.display = 'none';
+                document.getElementById('changeRequestSuccess').style.display = 'block';
+                document.getElementById('changeRequestSection').appendChild(document.getElementById('changeRequestSuccess'));
+                document.getElementById('changeRequestSuccess').style.display = 'block';
+            } catch (err) {
+                alert('Error sending request. Please email support@showoffinc.com directly.');
+                btn.disabled = false;
+                btn.textContent = 'Send Request';
+            }
+        }
+
         // ── PO Upload Functions ──
 
         var poFile = null;
