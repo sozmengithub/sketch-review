@@ -145,16 +145,16 @@ export default async function handler(req, res) {
 
     const total = lineItems.reduce((sum, item) => sum + (item.amount || item.price * item.quantity), 0);
 
-    // Calculate expiration (120 days from sent date, or from now if no sent date)
-    const sentDate = verbiage.sentDate || new Date().toISOString().split('T')[0];
-    const expDate = new Date(sentDate + 'T12:00:00');
-    expDate.setDate(expDate.getDate() + 120);
-
     // Parse verbiage JSON
     let verbiage = {};
     try {
       verbiage = JSON.parse(deal.properties.po_quote_verbiage || '{}');
     } catch (e) { /* default empty */ }
+
+    // Calculate expiration (120 days from sent date, or from now if no sent date)
+    const sentDate = verbiage.sentDate || new Date().toISOString().split('T')[0];
+    const expDate = new Date(sentDate + 'T12:00:00');
+    expDate.setDate(expDate.getDate() + 120);
 
     return res.status(200).json({
       dealId: deal.id,
