@@ -261,21 +261,24 @@
     <script>
         var urlParams = new URLSearchParams(window.location.search);
         var dealId = urlParams.get('dealId');
+        var dealNumber = urlParams.get('dealNumber');
         var dealData = null;
         var itemIndex = 0;
         var deletedIds = [];
 
-        if (!dealId) {
-            document.getElementById('loadingView').innerHTML = '<p style="color:#d9534f;padding:100px 20px;">Error: No dealId provided in URL</p>';
+        if (!dealId && !dealNumber) {
+            document.getElementById('loadingView').innerHTML = '<p style="color:#d9534f;padding:100px 20px;">Error: No deal ID or number provided in URL</p>';
         } else {
             loadData();
         }
 
         async function loadData() {
             try {
-                var res = await fetch('/api/po-quote?dealId=' + dealId);
+                var apiUrl = dealId ? '/api/po-quote?dealId=' + dealId : '/api/po-quote?dealNumber=' + dealNumber;
+                var res = await fetch(apiUrl);
                 if (!res.ok) throw new Error('Failed to fetch');
                 dealData = await res.json();
+                dealId = dealData.dealId; // resolve to real HubSpot ID
                 var v = dealData.verbiage || {};
 
                 // Header fields

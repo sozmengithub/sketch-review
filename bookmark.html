@@ -53,7 +53,7 @@
 
             <div class="bookmark-box">
                 <p>Drag this button to your bookmarks bar:</p>
-                <a class="bookmark-link" href="javascript:void(window.open('https://sketch-review.vercel.app/po-quote.html?dealId='+window.location.pathname.split('/').pop()))">📋 PO Quote</a>
+                <a class="bookmark-link" href="javascript:void(function(){var n=prompt('Enter deal number (e.g. 10722):');if(n&&n.trim())window.open('https://sketch-review.vercel.app/po-quote.html?dealNumber='+n.trim())}())">📋 PO Quote</a>
             </div>
 
             <div class="step">
@@ -66,8 +66,8 @@
             <div class="guidelines">
                 <h2>How to Use It</h2>
                 <ol>
-                    <li><strong>Open the deal in HubSpot</strong> — go to the deal page for the PO customer (e.g. deal 10722)</li>
-                    <li><strong>Click "📋 PO Quote" in your bookmarks bar</strong> — a new tab opens with the PO Quote form, pre-loaded with the deal's line items and any previously saved details</li>
+                    <li><strong>Click "📋 PO Quote" in your bookmarks bar</strong> — a popup asks for the deal number</li>
+                    <li><strong>Type the deal number</strong> (e.g. 10722) — the form opens in a new tab, pre-loaded with the deal's line items and any previously saved details</li>
                     <li><strong>Edit line items</strong> — add, remove, or change items, quantities, and prices. These will be saved to the HubSpot deal.</li>
                     <li><strong>Fill in quote details</strong> — school/company name, attention line, mailing address, comments for the PO issuer. These are presentation fields for the formal quote.</li>
                     <li><strong>Choose an action:</strong>
@@ -88,7 +88,7 @@
                 </ul>
 
                 <div class="note">
-                    <strong>Important:</strong> You must be on a HubSpot deal page when you click the bookmark. It reads the deal ID from the URL. If you click it from any other page, it won't know which deal to load.
+                    <strong>Important:</strong> You can click this bookmark from any page — it will ask you for the deal number. Use the number from the deal name in HubSpot (e.g. 10722, 10760).
                 </div>
             </div>
         </div>

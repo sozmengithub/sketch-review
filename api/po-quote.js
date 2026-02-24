@@ -19,8 +19,8 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  const { dealId } = req.query;
-  if (!dealId) return res.status(400).json({ error: 'dealId is required' });
+  let { dealId, dealNumber } = req.query;
+  if (!dealId && !dealNumber) return res.status(400).json({ error: 'dealId or dealNumber is required' });
 
   const HUBSPOT_TOKEN = process.env.HUBSPOT_TOKEN;
   if (!HUBSPOT_TOKEN) return res.status(500).json({ error: 'HubSpot token not configured' });
@@ -31,6 +31,34 @@ export default async function handler(req, res) {
   };
 
   try {
+    // If dealNumber provided, search HubSpot by deal name to find the real ID
+    if (!dealId && dealNumber) {
+      const searchRes = await fetch(
+        'https://api.hubapi.com/crm/v3/objects/deals/search',
+        {
+          method: 'POST', headers,
+          body: JSON.stringify({
+            filterGroups: [{
+              filters: [{
+                propertyName: 'dealname',
+                operator: 'CONTAINS_TOKEN',
+                value: String(dealNumber)
+              }]
+            }],
+            properties: ['dealname'],
+            limit: 5
+          })
+        }
+      );
+      if (!searchRes.ok) return res.status(500).json({ error: 'Failed to search deals' });
+      const searchData = await searchRes.json();
+      const match = (searchData.results || []).find(d =>
+        (d.properties.dealname || '').startsWith(String(dealNumber))
+      );
+      if (!match) return res.status(404).json({ error: 'No deal found with number ' + dealNumber });
+      dealId = match.id;
+    }
+
     // Fetch deal with PO properties
     const dealRes = await fetch(
       `https://api.hubapi.com/crm/v3/objects/deals/${dealId}?properties=dealname,amount,is_po_customer,po_quote_addressee,po_quote_title,po_quote_notes,po_quote_verbiage,po_quote_status,po_quote_link,po_team_size,sketch_public_url`,
