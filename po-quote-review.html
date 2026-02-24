@@ -191,8 +191,8 @@
                         <div class="banner-right">
                             <div class="banner-static" id="createdDate"></div>
                             <div class="banner-static" id="expiresDate"></div>
-                            <div class="banner-static" style="margin-top:4px">Quote created by: <strong>Erica Fenn</strong></div>
-                            <div class="banner-static" style="margin-top:12px">erica@showoffinc.com</div>
+                            <div class="banner-static" style="margin-top:4px">Quote created by: <strong>Support Team</strong></div>
+                            <div class="banner-static" style="margin-top:12px">support@showoffinc.com</div>
                         </div>
                     </div>
                 </div>
@@ -260,11 +260,10 @@
                         </div>
                     </div>
 
-                    <!-- Questions? Contact me -->
+                    <!-- Questions? Contact us -->
                     <div class="contact-footer">
-                        <strong>Questions? Contact me</strong>
-                        <div>Erica Fenn</div>
-                        <div>erica@showoffinc.com</div>
+                        <strong>Have questions?</strong>
+                        <div>Email us at <a href="mailto:support@showoffinc.com" style="color:#4C76B8;text-decoration:none">support@showoffinc.com</a></div>
                     </div>
 
                     <!-- Finalize -->
@@ -307,6 +306,17 @@
                 }
                 if (!res.ok) throw new Error('Failed to load quote');
                 dealData = await res.json();
+
+                // Already finalized? Show success view with existing quote link
+                if (dealData.poQuoteStatus === 'Finalized' && dealData.poQuoteLink) {
+                    document.getElementById('loadingView').style.display = 'none';
+                    document.getElementById('successMessage').textContent = 'This quote has already been finalized. Your formal quote is ready.';
+                    var linkBtn = document.getElementById('quoteLinkBtn');
+                    linkBtn.href = dealData.poQuoteLink;
+                    linkBtn.style.display = 'inline-block';
+                    document.getElementById('successView').style.display = 'block';
+                    return;
+                }
 
                 var v = dealData.verbiage || {};
 
@@ -438,15 +448,20 @@
                         linkBtn.style.display = 'inline-block';
                     }
 
-                    var msg = 'Your formal quote has been created';
-                    if (sendToEmail) {
-                        msg += ' and sent to ' + sendToEmail;
+                    var msg;
+                    if (data.alreadyFinalized) {
+                        msg = 'This quote was already finalized. Your formal quote is ready.';
+                    } else {
+                        msg = 'Your formal quote has been created';
+                        if (sendToEmail) {
+                            msg += ' and sent to ' + sendToEmail;
+                        }
+                        var cc = document.getElementById('ccEmails').value.trim();
+                        if (cc) {
+                            msg += ' (CC: ' + cc + ')';
+                        }
+                        msg += '.';
                     }
-                    var cc = document.getElementById('ccEmails').value.trim();
-                    if (cc) {
-                        msg += ' (CC: ' + cc + ')';
-                    }
-                    msg += '.';
                     document.getElementById('successMessage').textContent = msg;
                     document.getElementById('successView').style.display = 'block';
                 } else {
