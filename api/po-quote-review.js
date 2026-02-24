@@ -54,7 +54,7 @@ export default async function handler(req, res) {
   try {
     // Fetch deal with PO properties
     const dealRes = await fetch(
-      `https://api.hubapi.com/crm/v3/objects/deals/${dealId}?properties=dealname,amount,po_quote_addressee,po_quote_title,po_quote_notes,po_quote_verbiage,po_quote_status,po_quote_link,po_document_url,po_received_date`,
+      `https://api.hubapi.com/crm/v3/objects/deals/${dealId}?properties=dealname,amount,po_quote_addressee,po_quote_title,po_quote_notes,po_quote_verbiage,po_quote_status,po_quote_link,po_document_url,po_received_date,createdate`,
       { headers }
     );
     if (!dealRes.ok) return res.status(404).json({ error: 'Deal not found' });
@@ -145,8 +145,9 @@ export default async function handler(req, res) {
 
     const total = lineItems.reduce((sum, item) => sum + (item.amount || item.price * item.quantity), 0);
 
-    // Calculate expiration (120 days from now)
-    const expDate = new Date();
+    // Calculate expiration (120 days from sent date, or from now if no sent date)
+    const sentDate = verbiage.sentDate || new Date().toISOString().split('T')[0];
+    const expDate = new Date(sentDate + 'T12:00:00');
     expDate.setDate(expDate.getDate() + 120);
 
     // Parse verbiage JSON
@@ -162,6 +163,7 @@ export default async function handler(req, res) {
       lineItems,
       primaryContact,
       payerContact,
+      sentDate,
       expirationDate: expDate.toISOString().split('T')[0],
       poFields: {
         addressee: deal.properties.po_quote_addressee || '',

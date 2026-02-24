@@ -120,7 +120,7 @@ export default async function handler(req, res) {
 
     // Update deal properties
     const today = new Date().toISOString().split('T')[0];
-    await fetch(`https://api.hubapi.com/crm/v3/objects/deals/${dealId}`, {
+    const patchRes = await fetch(`https://api.hubapi.com/crm/v3/objects/deals/${dealId}`, {
       method: 'PATCH',
       headers: hsHeaders,
       body: JSON.stringify({
@@ -131,6 +131,11 @@ export default async function handler(req, res) {
         }
       })
     });
+    if (!patchRes.ok) {
+      const patchErr = await patchRes.text();
+      console.error('Deal property update failed:', patchErr.substring(0, 300));
+      // File is uploaded and Note is created — don't fail the whole request
+    }
 
     // Fire n8n notification (fire-and-forget)
     const dealUrl = `https://app.hubspot.com/contacts/46092307/record/0-3/${dealId}`;

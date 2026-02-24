@@ -161,6 +161,7 @@
                 <div class="admin-bar">
                     <span class="admin-dot"></span>
                     Internal view — edit line items and pre-fill quote details before sending to customer
+                    <a id="hubspotLink" href="#" target="_blank" style="margin-left:auto;color:#0c5460;text-decoration:none;font-weight:600;font-size:11px">Open in HubSpot &rarr;</a>
                 </div>
 
                 <!-- Status banner (populated by JS) -->
@@ -254,6 +255,17 @@
                 </div>
                 <h2 id="successTitle">Done</h2>
                 <p id="successMessage"></p>
+                <div id="reviewUrlBox" style="display:none;margin-top:20px;padding:12px 16px;background:#f0f9ff;border:1px solid #d1ecf1;border-radius:4px;text-align:left">
+                    <div style="font-size:11px;font-weight:600;color:#0c5460;margin-bottom:6px">CUSTOMER REVIEW LINK</div>
+                    <div style="display:flex;align-items:center;gap:8px">
+                        <input type="text" id="reviewUrlText" readonly style="flex:1;font-size:12px;padding:6px 8px;border:1px solid #cbd6e2;border-radius:3px;background:#fff;color:#33475b;font-family:monospace">
+                        <button onclick="copyReviewUrl()" style="padding:6px 14px;font-size:12px;font-weight:600;background:#4C76B8;color:#fff;border:none;border-radius:3px;cursor:pointer;font-family:inherit;white-space:nowrap" id="copyUrlBtn">Copy</button>
+                    </div>
+                </div>
+                <div style="margin-top:20px;display:flex;gap:12px;justify-content:center">
+                    <button onclick="location.reload()" style="padding:10px 20px;font-size:13px;font-weight:600;background:#fff;color:#33475b;border:1px solid #cbd6e2;border-radius:4px;cursor:pointer;font-family:inherit">Back to Quote</button>
+                    <a id="successHubspotLink" href="#" target="_blank" style="padding:10px 20px;font-size:13px;font-weight:600;background:#2d3e50;color:#fff;border-radius:4px;text-decoration:none;display:inline-block">Open in HubSpot</a>
+                </div>
             </div>
         </div>
     </div>
@@ -353,6 +365,11 @@
                     statusBar.style.display = 'flex';
                 }
 
+                // Set HubSpot links
+                var hubspotUrl = 'https://app.hubspot.com/contacts/46092307/record/0-3/' + dealId;
+                document.getElementById('hubspotLink').href = hubspotUrl;
+                document.getElementById('successHubspotLink').href = hubspotUrl;
+
                 document.getElementById('loadingView').style.display = 'none';
                 document.getElementById('mainView').style.display = 'block';
             } catch (err) {
@@ -427,7 +444,20 @@
             document.getElementById('totalAmount').textContent = '$' + formatNum(total);
         }
 
+        function copyReviewUrl() {
+            var input = document.getElementById('reviewUrlText');
+            input.select();
+            document.execCommand('copy');
+            document.getElementById('copyUrlBtn').textContent = 'Copied!';
+            setTimeout(function() { document.getElementById('copyUrlBtn').textContent = 'Copy'; }, 2000);
+        }
+
         async function handleSubmit(action) {
+            if (action === 'send-review') {
+                var contactInfo = dealData.primaryContact ? dealData.primaryContact.name + ' (' + dealData.primaryContact.email + ')' : 'the customer';
+                if (!confirm('This will email a review link to ' + contactInfo + '.\n\nSend now?')) return;
+            }
+
             var draftBtn = document.getElementById('draftBtn');
             var sendBtn = document.getElementById('sendBtn');
             draftBtn.disabled = true;
@@ -480,6 +510,7 @@
                 });
 
                 if (res.ok) {
+                    var resData = await res.json();
                     document.getElementById('mainView').style.display = 'none';
                     if (action === 'save') {
                         document.getElementById('successTitle').textContent = 'Draft Saved';
@@ -491,6 +522,11 @@
                         if (dealData.primaryContact) msg += ' to ' + dealData.primaryContact.name + ' at ' + dealData.primaryContact.email;
                         msg += '. The customer can review and finalize the quote.';
                         document.getElementById('successMessage').textContent = msg;
+                        // Show review URL for manual copy
+                        if (resData.reviewUrl) {
+                            document.getElementById('reviewUrlText').value = resData.reviewUrl;
+                            document.getElementById('reviewUrlBox').style.display = 'block';
+                        }
                     }
                     document.getElementById('successView').style.display = 'block';
                 } else {
