@@ -18,6 +18,17 @@
         .admin-bar{background:#f0f9ff;border-bottom:1px solid #d1ecf1;padding:8px 36px;font-size:12px;color:#0c5460;display:flex;align-items:center;gap:8px}
         .admin-dot{width:8px;height:8px;background:#17a2b8;border-radius:50%}
 
+        /* Status banner */
+        .status-bar{padding:12px 36px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:10px}
+        .status-bar a{color:inherit;text-decoration:underline}
+        .status-draft{background:#fff3cd;color:#856404;border-bottom:1px solid #ffc107}
+        .status-sent{background:#cce5ff;color:#004085;border-bottom:1px solid #4C76B8}
+        .status-finalized{background:#d4edda;color:#155724;border-bottom:1px solid #28a745}
+
+        /* Locked state */
+        .locked input,.locked textarea,.locked select{pointer-events:none!important;opacity:0.7!important;border-style:solid!important;border-color:rgba(0,0,0,0.1)!important;background:rgba(0,0,0,0.03)!important}
+        .locked .add-row-btn,.locked .del-btn,.locked .btn-row{display:none!important}
+
         /* ── Dark header banner ── */
         .header-banner{background:#2d3e50;color:#fff;padding:28px 36px 24px}
         .brand-text{font-size:20px;font-weight:700;color:#fff;margin-bottom:16px}
@@ -151,6 +162,9 @@
                     <span class="admin-dot"></span>
                     Internal view — edit line items and pre-fill quote details before sending to customer
                 </div>
+
+                <!-- Status banner (populated by JS) -->
+                <div class="status-bar" id="statusBar" style="display:none"></div>
 
                 <!-- ── Dark header banner ── -->
                 <div class="header-banner">
@@ -312,6 +326,25 @@
                 }
 
                 updateTotal();
+
+                // Status banner + form lock
+                var statusBar = document.getElementById('statusBar');
+                var status = dealData.poQuoteStatus;
+                if (status === 'Finalized' && dealData.poQuoteLink) {
+                    statusBar.className = 'status-bar status-finalized';
+                    statusBar.innerHTML = '&#10003; Quote Finalized — <a href="' + esc(dealData.poQuoteLink) + '" target="_blank">View Formal Quote</a>';
+                    statusBar.style.display = 'flex';
+                    document.getElementById('mainView').classList.add('locked');
+                } else if (status === 'Sent to Customer') {
+                    statusBar.className = 'status-bar status-sent';
+                    statusBar.innerHTML = '&#9993; Review link sent to customer — waiting for them to finalize';
+                    statusBar.style.display = 'flex';
+                } else if (status === 'Draft') {
+                    statusBar.className = 'status-bar status-draft';
+                    statusBar.innerHTML = '&#9998; Draft — not yet sent to customer';
+                    statusBar.style.display = 'flex';
+                }
+
                 document.getElementById('loadingView').style.display = 'none';
                 document.getElementById('mainView').style.display = 'block';
             } catch (err) {

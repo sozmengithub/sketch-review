@@ -33,7 +33,7 @@ export default async function handler(req, res) {
   try {
     // Fetch deal with PO properties
     const dealRes = await fetch(
-      `https://api.hubapi.com/crm/v3/objects/deals/${dealId}?properties=dealname,amount,is_po_customer,po_quote_addressee,po_quote_title,po_quote_notes,po_quote_verbiage,po_team_size,sketch_public_url`,
+      `https://api.hubapi.com/crm/v3/objects/deals/${dealId}?properties=dealname,amount,is_po_customer,po_quote_addressee,po_quote_title,po_quote_notes,po_quote_verbiage,po_quote_status,po_quote_link,po_team_size,sketch_public_url`,
       { headers }
     );
     if (!dealRes.ok) return res.status(404).json({ error: 'Deal not found' });
@@ -150,7 +150,9 @@ export default async function handler(req, res) {
         notes: deal.properties.po_quote_notes || '',
         teamSize: parseInt(deal.properties.po_team_size) || null
       },
-      verbiage
+      verbiage,
+      poQuoteStatus: deal.properties.po_quote_status || null,
+      poQuoteLink: deal.properties.po_quote_link || null
     });
 
   } catch (error) {

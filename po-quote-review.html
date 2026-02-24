@@ -354,16 +354,22 @@
 
                 // Line items
                 var tbody = document.getElementById('itemsBody');
-                dealData.lineItems.forEach(function(item) {
-                    var lineTotal = item.quantity * item.price;
+                if (!dealData.lineItems || dealData.lineItems.length === 0) {
                     var tr = document.createElement('tr');
-                    tr.innerHTML =
-                        '<td>' + esc(item.name) + '</td>' +
-                        '<td class="qty">' + item.quantity + '</td>' +
-                        '<td class="price">$' + formatNum(item.price) + '</td>' +
-                        '<td class="total">$' + formatNum(lineTotal) + '</td>';
+                    tr.innerHTML = '<td colspan="4" style="text-align:center;color:#7c98b6;padding:24px 0;font-style:italic">No items have been added to this quote yet. Please contact us at <a href="mailto:support@showoffinc.com" style="color:#4C76B8">support@showoffinc.com</a>.</td>';
                     tbody.appendChild(tr);
-                });
+                } else {
+                    dealData.lineItems.forEach(function(item) {
+                        var lineTotal = item.quantity * item.price;
+                        var tr = document.createElement('tr');
+                        tr.innerHTML =
+                            '<td>' + esc(item.name) + '</td>' +
+                            '<td class="qty">' + item.quantity + '</td>' +
+                            '<td class="price">$' + formatNum(item.price) + '</td>' +
+                            '<td class="total">$' + formatNum(lineTotal) + '</td>';
+                        tbody.appendChild(tr);
+                    });
+                }
 
                 // Totals
                 var total = dealData.total || 0;
@@ -399,6 +405,8 @@
         }
 
         async function handleFinalize() {
+            if (!confirm('This will create and email your formal quote. This cannot be undone.\n\nAre you sure you want to finalize?')) return;
+
             var btn = document.getElementById('finalizeBtn');
             btn.disabled = true;
             btn.textContent = 'Finalizing...';
