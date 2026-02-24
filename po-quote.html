@@ -333,9 +333,14 @@
                 // Status banner + form lock
                 var statusBar = document.getElementById('statusBar');
                 var status = dealData.poQuoteStatus;
-                if (status === 'Finalized' && dealData.poQuoteLink) {
+                if (status === 'PO Received' && dealData.poDocumentUrl) {
                     statusBar.className = 'status-bar status-finalized';
-                    statusBar.innerHTML = '&#10003; Quote Finalized — <a href="' + esc(dealData.poQuoteLink) + '" target="_blank">View Formal Quote</a>';
+                    statusBar.innerHTML = '&#128206; PO Received — <a href="' + esc(dealData.poDocumentUrl) + '" target="_blank">View PO Document</a>' + (dealData.poQuoteLink ? ' &nbsp;|&nbsp; <a href="' + esc(dealData.poQuoteLink) + '" target="_blank">View Formal Quote</a>' : '');
+                    statusBar.style.display = 'flex';
+                    document.getElementById('mainView').classList.add('locked');
+                } else if (status === 'Finalized' && dealData.poQuoteLink) {
+                    statusBar.className = 'status-bar status-finalized';
+                    statusBar.innerHTML = '&#10003; Quote Finalized — <a href="' + esc(dealData.poQuoteLink) + '" target="_blank">View Formal Quote</a> &nbsp;(Awaiting PO from customer)';
                     statusBar.style.display = 'flex';
                     document.getElementById('mainView').classList.add('locked');
                 } else if (status === 'Sent to Customer') {

@@ -130,6 +130,23 @@
         .view-quote-link{display:inline-block;margin-top:20px;padding:12px 32px;background:#4C76B8;color:#fff;text-decoration:none;border-radius:4px;font-size:14px;font-weight:600;transition:background 0.15s}
         .view-quote-link:hover{background:#3d6098}
 
+        /* ── PO Upload section ── */
+        .po-upload-section{text-align:left;margin-top:32px;border-top:1px solid #eaf0f6;padding-top:28px}
+        .upload-dropzone{border:2px dashed #cbd6e2;border-radius:8px;padding:32px 20px;text-align:center;cursor:pointer;transition:all 0.15s;color:#7c98b6;font-size:14px}
+        .upload-dropzone:hover{border-color:#4C76B8;background:#f7faff}
+        .upload-dropzone.dragover{border-color:#4C76B8;background:#eef4ff}
+        .upload-dropzone svg{width:36px;height:36px;color:#7c98b6;margin-bottom:8px}
+        .po-file-display{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#f7faff;border:1px solid #eaf0f6;border-radius:4px;margin-top:12px;font-size:13px;color:#33475b}
+        .po-file-remove{color:#d9534f;cursor:pointer;font-size:12px;font-weight:600}
+        .po-file-remove:hover{text-decoration:underline}
+        .upload-btn{display:inline-block;margin-top:16px;padding:10px 28px;background:#4C76B8;color:#fff;border:none;border-radius:4px;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;transition:background 0.15s}
+        .upload-btn:hover:not(:disabled){background:#3d6098}
+        .upload-btn:disabled{opacity:0.5;cursor:not-allowed}
+        .upload-progress{height:4px;background:#eaf0f6;border-radius:2px;overflow:hidden;margin-top:12px}
+        .upload-progress-bar{height:100%;background:#4C76B8;border-radius:2px;width:0;transition:width 0.3s}
+        .po-received-badge{display:inline-flex;align-items:center;gap:8px;padding:10px 16px;background:#d4edda;color:#155724;border-radius:4px;font-size:14px;font-weight:600}
+        .po-received-badge svg{width:18px;height:18px;flex-shrink:0}
+
         @media(max-width:600px){
             .page-wrap{padding:8px 4px 40px}
             .header-banner{padding:20px 20px 18px}
@@ -281,6 +298,57 @@
                 <h2>Quote Finalized</h2>
                 <p id="successMessage">Your formal quote has been created and sent to your email.</p>
                 <a class="view-quote-link" id="quoteLinkBtn" href="#" target="_blank" style="display:none">View Your Formal Quote</a>
+
+                <!-- PO Upload Section -->
+                <div class="po-upload-section" id="poUploadSection" style="display:none">
+                    <h3 style="font-size:16px;font-weight:700;color:#33475b;margin-bottom:6px">Submit Your Purchase Order</h3>
+                    <p style="font-size:13px;color:#7c98b6;margin-bottom:16px">Upload your signed PO document to get production started.</p>
+
+                    <!-- Already uploaded state -->
+                    <div id="poAlreadyUploaded" style="display:none">
+                        <div class="po-received-badge">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>
+                            PO received on <span id="poReceivedDateText"></span>
+                        </div>
+                        <p style="font-size:12px;color:#7c98b6;margin-top:10px">
+                            Need to submit an updated PO? <a href="#" id="reuploadLink" style="color:#4C76B8;text-decoration:none;font-weight:500">Upload a new version</a>
+                        </p>
+                    </div>
+
+                    <!-- Upload area -->
+                    <div id="poUploadArea">
+                        <div class="upload-dropzone" id="poDropzone">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="display:block;margin:0 auto 8px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                            <div>Drag &amp; drop your PO here, or <span style="color:#4C76B8;text-decoration:underline">browse</span></div>
+                            <div style="font-size:11px;color:#99acc2;margin-top:4px">PDF, PNG, or JPG (max 3MB)</div>
+                        </div>
+                        <input type="file" id="poFileInput" accept=".pdf,.png,.jpg,.jpeg" style="display:none">
+
+                        <!-- Selected file display -->
+                        <div class="po-file-display" id="poFileDisplay" style="display:none">
+                            <span id="poFileName"></span>
+                            <span class="po-file-remove" id="poFileRemove">Remove</span>
+                        </div>
+
+                        <!-- Progress bar -->
+                        <div id="poProgress" style="display:none">
+                            <div class="upload-progress"><div class="upload-progress-bar" id="poProgressBar"></div></div>
+                            <div id="poProgressText" style="font-size:12px;color:#7c98b6;margin-top:6px;text-align:center">Uploading...</div>
+                        </div>
+
+                        <!-- Upload button -->
+                        <button class="upload-btn" id="poUploadBtn" style="display:none" disabled>Upload PO</button>
+                    </div>
+
+                    <!-- Upload success -->
+                    <div id="poUploadSuccess" style="display:none">
+                        <div class="po-received-badge">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>
+                            Your PO has been received!
+                        </div>
+                        <p style="font-size:13px;color:#7c98b6;margin-top:10px">We'll begin production shortly. You'll receive a confirmation email.</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -307,14 +375,15 @@
                 if (!res.ok) throw new Error('Failed to load quote');
                 dealData = await res.json();
 
-                // Already finalized? Show success view with existing quote link
-                if (dealData.poQuoteStatus === 'Finalized' && dealData.poQuoteLink) {
+                // Already finalized? Show success view with existing quote link + PO upload
+                if ((dealData.poQuoteStatus === 'Finalized' || dealData.poQuoteStatus === 'PO Received') && dealData.poQuoteLink) {
                     document.getElementById('loadingView').style.display = 'none';
                     document.getElementById('successMessage').textContent = 'This quote has already been finalized. Your formal quote is ready.';
                     var linkBtn = document.getElementById('quoteLinkBtn');
                     linkBtn.href = dealData.poQuoteLink;
                     linkBtn.style.display = 'inline-block';
                     document.getElementById('successView').style.display = 'block';
+                    showPoSection(dealData);
                     return;
                 }
 
@@ -472,6 +541,7 @@
                     }
                     document.getElementById('successMessage').textContent = msg;
                     document.getElementById('successView').style.display = 'block';
+                    if (!data.alreadyFinalized) showPoSection(dealData);
                 } else {
                     throw new Error(data.error || 'Server error');
                 }
@@ -481,6 +551,146 @@
                 btn.textContent = 'Finalize Quote';
             }
         }
+        // ── PO Upload Functions ──
+
+        var poFile = null;
+
+        function showPoSection(data) {
+            var section = document.getElementById('poUploadSection');
+            section.style.display = 'block';
+
+            if (data.poDocumentUrl && data.poReceivedDate) {
+                // Already uploaded — show received badge
+                document.getElementById('poAlreadyUploaded').style.display = 'block';
+                document.getElementById('poUploadArea').style.display = 'none';
+                try {
+                    document.getElementById('poReceivedDateText').textContent = formatDateLong(new Date(data.poReceivedDate + 'T12:00:00'));
+                } catch(e) {
+                    document.getElementById('poReceivedDateText').textContent = data.poReceivedDate;
+                }
+            } else {
+                // Show upload area
+                document.getElementById('poAlreadyUploaded').style.display = 'none';
+                document.getElementById('poUploadArea').style.display = 'block';
+            }
+        }
+
+        function fileToBase64(file) {
+            return new Promise(function(resolve, reject) {
+                var reader = new FileReader();
+                reader.onload = function() { resolve(reader.result); };
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function handlePoFile(files) {
+            if (!files || !files.length) return;
+            var file = files[0];
+            var maxSize = 3 * 1024 * 1024;
+            var allowedTypes = ['application/pdf', 'image/png', 'image/jpeg'];
+
+            if (!allowedTypes.includes(file.type)) {
+                alert('Please upload a PDF, PNG, or JPG file.');
+                return;
+            }
+            if (file.size > maxSize) {
+                alert('File is too large (max 3MB). If your PO is larger, please email it to support@showoffinc.com.');
+                return;
+            }
+
+            poFile = file;
+            document.getElementById('poFileName').textContent = file.name + ' (' + (file.size / 1024 / 1024).toFixed(1) + ' MB)';
+            document.getElementById('poFileDisplay').style.display = 'flex';
+            document.getElementById('poUploadBtn').style.display = 'inline-block';
+            document.getElementById('poUploadBtn').disabled = false;
+        }
+
+        function clearPoFile() {
+            poFile = null;
+            document.getElementById('poFileInput').value = '';
+            document.getElementById('poFileDisplay').style.display = 'none';
+            document.getElementById('poUploadBtn').style.display = 'none';
+        }
+
+        async function handlePoUpload() {
+            if (!poFile) return;
+
+            var btn = document.getElementById('poUploadBtn');
+            btn.disabled = true;
+            btn.textContent = 'Uploading...';
+            document.getElementById('poProgress').style.display = 'block';
+            document.getElementById('poProgressBar').style.width = '30%';
+
+            try {
+                var base64 = await fileToBase64(poFile);
+                document.getElementById('poProgressBar').style.width = '60%';
+
+                var res = await fetch('/api/upload-po', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        dealId: dealId,
+                        token: token,
+                        fileName: poFile.name,
+                        fileType: poFile.type,
+                        fileData: base64
+                    })
+                });
+
+                document.getElementById('poProgressBar').style.width = '90%';
+                var data = await res.json();
+
+                if (res.ok && data.success) {
+                    document.getElementById('poProgressBar').style.width = '100%';
+                    setTimeout(function() {
+                        document.getElementById('poUploadArea').style.display = 'none';
+                        document.getElementById('poUploadSuccess').style.display = 'block';
+                    }, 300);
+                } else {
+                    throw new Error(data.error || 'Upload failed');
+                }
+            } catch (err) {
+                alert('Error uploading PO: ' + err.message);
+                btn.disabled = false;
+                btn.textContent = 'Upload PO';
+                document.getElementById('poProgress').style.display = 'none';
+                document.getElementById('poProgressBar').style.width = '0';
+            }
+        }
+
+        // Wire up event listeners
+        (function() {
+            var dropzone = document.getElementById('poDropzone');
+            var fileInput = document.getElementById('poFileInput');
+            var uploadBtn = document.getElementById('poUploadBtn');
+            var removeBtn = document.getElementById('poFileRemove');
+            var reuploadLink = document.getElementById('reuploadLink');
+
+            dropzone.addEventListener('click', function() { fileInput.click(); });
+            fileInput.addEventListener('change', function() { handlePoFile(this.files); });
+            uploadBtn.addEventListener('click', handlePoUpload);
+            removeBtn.addEventListener('click', clearPoFile);
+            reuploadLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.getElementById('poAlreadyUploaded').style.display = 'none';
+                document.getElementById('poUploadArea').style.display = 'block';
+                document.getElementById('poUploadSuccess').style.display = 'none';
+            });
+
+            dropzone.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                dropzone.classList.add('dragover');
+            });
+            dropzone.addEventListener('dragleave', function() {
+                dropzone.classList.remove('dragover');
+            });
+            dropzone.addEventListener('drop', function(e) {
+                e.preventDefault();
+                dropzone.classList.remove('dragover');
+                handlePoFile(e.dataTransfer.files);
+            });
+        })();
     </script>
 </body>
 </html>
