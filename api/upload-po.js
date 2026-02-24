@@ -64,14 +64,40 @@ export default async function handler(req, res) {
   };
 
   try {
-    // Get deal name for file naming
+    // Get deal name + quote title for file naming and notifications
     const dealRes = await fetch(
-      `https://api.hubapi.com/crm/v3/objects/deals/${dealId}?properties=dealname`,
+      `https://api.hubapi.com/crm/v3/objects/deals/${dealId}?properties=dealname,po_quote_title`,
       { headers: hsHeaders }
     );
     if (!dealRes.ok) return res.status(404).json({ error: 'Deal not found' });
     const deal = await dealRes.json();
     const dealName = deal.properties.dealname || dealId;
+    const quoteTitle = deal.properties.po_quote_title || dealName;
+
+    // Get primary contact for confirmation email
+    let contactEmail = '';
+    let contactName = '';
+    try {
+      const assocRes = await fetch(
+        `https://api.hubapi.com/crm/v4/objects/deals/${dealId}/associations/contacts`,
+        { headers: hsHeaders }
+      );
+      if (assocRes.ok) {
+        const assocData = await assocRes.json();
+        const contactIds = (assocData.results || []).map(r => r.toObjectId);
+        if (contactIds.length > 0) {
+          const contactRes = await fetch(
+            `https://api.hubapi.com/crm/v3/objects/contacts/${contactIds[0]}?properties=email,firstname,lastname`,
+            { headers: hsHeaders }
+          );
+          if (contactRes.ok) {
+            const contact = await contactRes.json();
+            contactEmail = contact.properties.email || '';
+            contactName = `${contact.properties.firstname || ''} ${contact.properties.lastname || ''}`.trim();
+          }
+        }
+      }
+    } catch (e) { /* contact fetch is best-effort */ }
 
     // Upload file to HubSpot Files API
     const ext = fileName.split('.').pop() || 'pdf';
@@ -144,7 +170,7 @@ export default async function handler(req, res) {
     fetch('https://showoffinc.app.n8n.cloud/webhook/po-received-notification', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ dealId, dealName, fileName, dealUrl, fileUrl })
+      body: JSON.stringify({ dealId, dealName, fileName, dealUrl, fileUrl, contactEmail, contactName, quoteTitle })
     }).catch(() => {});
 
     return res.status(200).json({ success: true, fileUrl });
