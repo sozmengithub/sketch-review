@@ -118,7 +118,7 @@ export default async function handler(req, res) {
       // Continue — file is uploaded, note is nice-to-have
     }
 
-    // Update deal properties
+    // Update deal properties (including the native PO file property Erica uses)
     const today = new Date().toISOString().split('T')[0];
     const patchRes = await fetch(`https://api.hubapi.com/crm/v3/objects/deals/${dealId}`, {
       method: 'PATCH',
@@ -127,7 +127,9 @@ export default async function handler(req, res) {
         properties: {
           po_quote_status: 'PO Received',
           po_document_url: fileUrl,
-          po_received_date: today
+          po_received_date: today,
+          po: String(fileId),
+          po_status: 'received'
         }
       })
     });
