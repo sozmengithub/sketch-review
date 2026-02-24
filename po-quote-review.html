@@ -312,7 +312,7 @@
                             <div class="po-label">What needs to change?</div>
                             <textarea class="light-editable" id="changeRequestText" placeholder="Describe what you'd like changed — items, pricing, quantities, etc." style="min-height:80px"></textarea>
                             <div style="margin-top:10px;display:flex;gap:10px;align-items:center">
-                                <button id="sendChangeBtn" onclick="sendChangeRequest()" style="padding:8px 20px;background:#4C76B8;color:#fff;border:none;border-radius:4px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer">Send Request</button>
+                                <button id="sendChangeBtn" onclick="sendChangeRequest()" style="padding:8px 20px;background:#4C76B8;color:#fff;border:none;border-radius:4px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer">Send via Email</button>
                                 <button onclick="toggleChangeRequest()" style="padding:8px 16px;background:transparent;color:#7c98b6;border:none;font-size:13px;font-family:inherit;cursor:pointer">Cancel</button>
                             </div>
                             <div id="changeRequestSuccess" style="display:none;margin-top:12px;padding:10px 14px;background:#d4edda;color:#155724;border-radius:4px;font-size:13px;font-weight:500">Your change request has been sent. We'll follow up shortly.</div>
@@ -615,40 +615,14 @@
             form.style.display = form.style.display === 'none' ? 'block' : 'none';
         }
 
-        async function sendChangeRequest() {
+        function sendChangeRequest() {
             var msg = document.getElementById('changeRequestText').value.trim();
             if (!msg) { alert('Please describe what you\'d like changed.'); return; }
 
-            var btn = document.getElementById('sendChangeBtn');
-            btn.disabled = true;
-            btn.textContent = 'Sending...';
-
             var dealNum = (dealData.dealName || '').split(/\s/)[0].trim();
-            var contactName = '';
-            if (dealData.payerContact) contactName = dealData.payerContact.name;
-            else if (dealData.primaryContact) contactName = dealData.primaryContact.name;
-
-            try {
-                await fetch('https://showoffinc.app.n8n.cloud/webhook/po-quote-change-request', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        dealId: dealId,
-                        dealNumber: dealNum,
-                        customerName: contactName,
-                        message: msg
-                    })
-                });
-                document.getElementById('changeRequestForm').style.display = 'none';
-                document.getElementById('requestChangesBtn').style.display = 'none';
-                document.getElementById('changeRequestSuccess').style.display = 'block';
-                document.getElementById('changeRequestSection').appendChild(document.getElementById('changeRequestSuccess'));
-                document.getElementById('changeRequestSuccess').style.display = 'block';
-            } catch (err) {
-                alert('Error sending request. Please email support@showoffinc.com directly.');
-                btn.disabled = false;
-                btn.textContent = 'Send Request';
-            }
+            var subject = encodeURIComponent('Change Request — Quote #' + dealNum);
+            var body = encodeURIComponent('Re: Quote #' + dealNum + '\n\n' + msg + '\n');
+            window.location.href = 'mailto:support@showoffinc.com?subject=' + subject + '&body=' + body;
         }
 
         // ── PO Upload Functions ──
