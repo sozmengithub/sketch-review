@@ -1,4 +1,4 @@
-async function reportError(system, endpoint, error, dealId) {
+async function reportError(system, endpoint, error, dealId, dealName) {
   try {
     await fetch('https://showoffinc.app.n8n.cloud/webhook/error-alert', {
       method: 'POST',
@@ -6,7 +6,7 @@ async function reportError(system, endpoint, error, dealId) {
       body: JSON.stringify({
         system, endpoint,
         error: error.message || String(error),
-        dealId: dealId || 'unknown',
+        dealId: dealName ? `${dealName} (${dealId})` : (dealId || 'unknown'),
         timestamp: new Date().toISOString()
       })
     });
@@ -42,6 +42,7 @@ export default async function handler(req, res) {
     'Content-Type': 'application/json'
   };
 
+  let dealName = null;
   try {
     // First try to get deal directly by ID
     let deal = null;
@@ -89,6 +90,7 @@ export default async function handler(req, res) {
     if (!deal) {
       return res.status(404).json({ error: 'Deal not found', dealId });
     }
+    dealName = deal.properties.dealname;
 
     // Check for payer contact on the deal
     let hasPayer = false;
@@ -173,7 +175,7 @@ export default async function handler(req, res) {
 
   } catch (error) {
     console.error('Error fetching deal:', error.message);
-    await reportError('sketch-review', '/api/deal', error, dealId);
+    await reportError('sketch-review', '/api/deal', error, dealId, dealName);
     return res.status(500).json({ error: 'Failed to fetch deal data', details: error.message });
   }
 }

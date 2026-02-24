@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 
-async function reportError(system, endpoint, error, dealId) {
+async function reportError(system, endpoint, error, dealId, dealName) {
   try {
     await fetch('https://showoffinc.app.n8n.cloud/webhook/error-alert', {
       method: 'POST',
@@ -8,7 +8,7 @@ async function reportError(system, endpoint, error, dealId) {
       body: JSON.stringify({
         system, endpoint,
         error: error.message || String(error),
-        dealId: dealId || 'unknown',
+        dealId: dealName ? `${dealName} (${dealId})` : (dealId || 'unknown'),
         timestamp: new Date().toISOString()
       })
     });
@@ -51,6 +51,7 @@ export default async function handler(req, res) {
     'Content-Type': 'application/json'
   };
 
+  let dealName = null;
   try {
     // Fetch deal with PO properties
     const dealRes = await fetch(
@@ -59,6 +60,7 @@ export default async function handler(req, res) {
     );
     if (!dealRes.ok) return res.status(404).json({ error: 'Deal not found' });
     const deal = await dealRes.json();
+    dealName = deal.properties.dealname;
 
     // Fetch line items
     const assocRes = await fetch(
@@ -180,7 +182,7 @@ export default async function handler(req, res) {
 
   } catch (error) {
     console.error('Error fetching PO quote review data:', error.message);
-    await reportError('sketch-review', '/api/po-quote-review', error, dealId);
+    await reportError('sketch-review', '/api/po-quote-review', error, dealId, dealName);
     return res.status(500).json({ error: 'Failed to fetch data', details: error.message });
   }
 }
