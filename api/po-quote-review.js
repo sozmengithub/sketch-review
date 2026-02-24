@@ -152,7 +152,8 @@ export default async function handler(req, res) {
     } catch (e) { /* default empty */ }
 
     // Calculate expiration (120 days from sent date, or from now if no sent date)
-    const sentDate = verbiage.sentDate || new Date().toISOString().split('T')[0];
+    const rawSentDate = verbiage.sentDate || new Date().toISOString().split('T')[0];
+    const sentDate = rawSentDate.includes('T') ? rawSentDate.split('T')[0] : rawSentDate;
     const expDate = new Date(sentDate + 'T12:00:00');
     expDate.setDate(expDate.getDate() + 120);
 
