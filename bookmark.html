@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PO Quote Bookmark Setup</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:'Inter',-apple-system,sans-serif;background:#eaf0f6;min-height:100vh;padding:40px 20px;color:#33475b;line-height:1.7}
+        .card{max-width:640px;margin:0 auto;background:#fff;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.1);overflow:hidden}
+        .header{background:#2d3e50;color:#fff;padding:28px 36px}
+        .header h1{font-size:20px;font-weight:700;margin-bottom:4px}
+        .header p{font-size:13px;color:rgba(255,255,255,0.7)}
+        .body{padding:32px 36px}
+        h2{font-size:16px;font-weight:700;margin-bottom:12px;color:#2d3e50}
+        .step{display:flex;gap:14px;margin-bottom:24px}
+        .step-num{flex:0 0 32px;height:32px;background:#4C76B8;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;margin-top:2px}
+        .step-text{flex:1;font-size:14px}
+        .step-text strong{color:#2d3e50}
+        .bookmark-box{background:#f0f9ff;border:2px dashed #4C76B8;border-radius:8px;padding:24px;text-align:center;margin:24px 0}
+        .bookmark-box p{font-size:12px;color:#7c98b6;margin-bottom:12px}
+        .bookmark-link{display:inline-block;padding:12px 28px;background:#4C76B8;color:#fff;border-radius:4px;font-size:15px;font-weight:600;text-decoration:none;cursor:grab;transition:all 0.15s}
+        .bookmark-link:hover{background:#3d6098;transform:scale(1.02)}
+        .bookmark-link:active{cursor:grabbing}
+        .divider{border:none;border-top:1px solid #eaf0f6;margin:28px 0}
+        .guidelines h2{margin-top:0}
+        .guidelines ol{padding-left:20px;margin-bottom:16px}
+        .guidelines li{margin-bottom:10px;font-size:14px}
+        .guidelines li strong{color:#2d3e50}
+        .note{background:#fff3cd;border-left:3px solid #ffc107;padding:12px 16px;border-radius:0 4px 4px 0;font-size:13px;color:#856404;margin-top:16px}
+        .note strong{color:#664d03}
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="header">
+            <h1>PO Quote — Bookmark Setup</h1>
+            <p>Trimsuits by Show Off Inc.</p>
+        </div>
+        <div class="body">
+            <h2>Install the Bookmark</h2>
+
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-text">Make sure your <strong>bookmarks bar is visible</strong> in Chrome. If you don't see it, press <strong>Ctrl+Shift+B</strong> (Windows) or <strong>Cmd+Shift+B</strong> (Mac).</div>
+            </div>
+
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-text"><strong>Drag the blue button below</strong> up to your bookmarks bar and drop it there.</div>
+            </div>
+
+            <div class="bookmark-box">
+                <p>Drag this button to your bookmarks bar:</p>
+                <a class="bookmark-link" href="javascript:void(window.open('https://sketch-review.vercel.app/po-quote.html?dealId='+window.location.pathname.split('/').pop()))">📋 PO Quote</a>
+            </div>
+
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-text">That's it! You should now see <strong>"📋 PO Quote"</strong> in your bookmarks bar.</div>
+            </div>
+
+            <hr class="divider">
+
+            <div class="guidelines">
+                <h2>How to Use It</h2>
+                <ol>
+                    <li><strong>Open the deal in HubSpot</strong> — go to the deal page for the PO customer (e.g. deal 10722)</li>
+                    <li><strong>Click "📋 PO Quote" in your bookmarks bar</strong> — a new tab opens with the PO Quote form, pre-loaded with the deal's line items and any previously saved details</li>
+                    <li><strong>Edit line items</strong> — add, remove, or change items, quantities, and prices. These will be saved to the HubSpot deal.</li>
+                    <li><strong>Fill in quote details</strong> — school/company name, attention line, mailing address, comments for the PO issuer. These are presentation fields for the formal quote.</li>
+                    <li><strong>Choose an action:</strong>
+                        <ul style="margin-top:6px">
+                            <li><strong>"Save Draft"</strong> — saves everything to HubSpot. No email sent. You can come back and edit later.</li>
+                            <li><strong>"Send to Customer"</strong> — saves everything AND emails the customer a secure link to review and finalize the quote.</li>
+                        </ul>
+                    </li>
+                    <li><strong>Customer reviews and finalizes</strong> — they can edit the quote title, attention line, PO number, and comments. When they click Finalize, a formal HubSpot quote is created and emailed to them.</li>
+                    <li><strong>You get a notification email</strong> from support@showoffinc.com when the customer finalizes, with a link to the deal and the formal quote.</li>
+                </ol>
+
+                <h2>Status Colors on the Form</h2>
+                <ul style="list-style:none;padding:0">
+                    <li style="margin-bottom:8px;font-size:14px">🟡 <strong>Yellow — Draft</strong>: Saved but not sent to customer yet</li>
+                    <li style="margin-bottom:8px;font-size:14px">🔵 <strong>Blue — Sent to Customer</strong>: Waiting for them to review and finalize</li>
+                    <li style="margin-bottom:8px;font-size:14px">🟢 <strong>Green — Finalized</strong>: Formal quote created and sent. Form is locked (read-only). Click the link to view the quote.</li>
+                </ul>
+
+                <div class="note">
+                    <strong>Important:</strong> You must be on a HubSpot deal page when you click the bookmark. It reads the deal ID from the URL. If you click it from any other page, it won't know which deal to load.
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
