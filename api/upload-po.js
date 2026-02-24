@@ -166,13 +166,17 @@ export default async function handler(req, res) {
       // File is uploaded and Note is created — don't fail the whole request
     }
 
-    // Fire n8n notification (fire-and-forget)
+    // Fire n8n notification (must await — Vercel kills runtime after response)
     const dealUrl = `https://app.hubspot.com/contacts/46092307/record/0-3/${dealId}`;
-    fetch('https://showoffinc.app.n8n.cloud/webhook/po-received-notification', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ dealId, dealName, fileName, dealUrl, fileUrl, contactEmail, contactName, quoteTitle })
-    }).catch(() => {});
+    try {
+      await fetch('https://showoffinc.app.n8n.cloud/webhook/po-received-notification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dealId, dealName, fileName, dealUrl, fileUrl, contactEmail, contactName, quoteTitle })
+      });
+    } catch (e) {
+      console.error('PO notification webhook failed:', e.message);
+    }
 
     return res.status(200).json({ success: true, fileUrl });
 
