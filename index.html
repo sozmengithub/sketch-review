@@ -1105,6 +1105,33 @@
             </p>
         </div>
 
+        <!-- Already Approved (locked state) -->
+        <div class="success-view" id="alreadyApprovedView">
+            <div class="success-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M5 13l4 4L19 7"/>
+                </svg>
+            </div>
+            <h2 class="success-title">Design Approved</h2>
+            <p class="success-message">
+                This design has already been approved and your order is being processed. If you need to make changes, please contact us at <a href="mailto:support@showoffinc.com" style="color: #c9a84c;">support@showoffinc.com</a>.
+            </p>
+        </div>
+
+        <!-- Revision In Progress (locked state) -->
+        <div class="success-view" id="revisionInProgressView">
+            <div class="success-icon" style="border-color: #b08d3e;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#b08d3e" stroke-width="1.5">
+                    <path d="M12 6v6l4 2"/>
+                    <circle cx="12" cy="12" r="10"/>
+                </svg>
+            </div>
+            <h2 class="success-title">Revision In Progress</h2>
+            <p class="success-message">
+                Your revision request has been received. Our design team is working on your changes and you'll receive an email when the updated sketch is ready for review.
+            </p>
+        </div>
+
         <!-- Footer -->
         <div class="footer" id="footer">
             Show Off Inc.
@@ -1175,6 +1202,21 @@
                 // Redirect to options page if deal has multi-option sketch
                 if (data.sketchOptions && data.sketchOptions.length > 0) {
                     window.location.href = '/options.html' + window.location.search;
+                    return;
+                }
+
+                // Lock page if already actioned
+                var sketchStatus = data.sketchApproved;
+                if (sketchStatus === 'Approved' || sketchStatus === 'Yes') {
+                    document.getElementById('mainView').classList.add('hidden');
+                    document.getElementById('alreadyApprovedView').classList.add('active');
+                    document.getElementById('footer').style.display = 'none';
+                    return;
+                }
+                if (sketchStatus === 'Revision Requested') {
+                    document.getElementById('mainView').classList.add('hidden');
+                    document.getElementById('revisionInProgressView').classList.add('active');
+                    document.getElementById('footer').style.display = 'none';
                     return;
                 }
 
