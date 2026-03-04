@@ -1157,6 +1157,7 @@
         // Add-on pricing
         const ADDON_PRICES = { hairpiece: 30.00, braCups: 21.50 };
         let baseSubtotal = 0;
+        let costumeCount = 1;
         let hasPayer = false;
         let hasStoning = false;
         let isPoCustomer = false;
@@ -1225,9 +1226,10 @@
                     orderName = data.dealName;
                 }
 
-                // Track payer and PO status
+                // Track payer, PO status, and costume count
                 hasPayer = data.hasPayer || false;
                 isPoCustomer = data.isPoCustomer || false;
+                costumeCount = data.ofcostumes || 1;
 
                 // Display total
                 const total = data.total || data.amount || 0;
@@ -1278,11 +1280,11 @@
                         </div>
                         <div class="total-row" id="addonRow1" style="display:none">
                             <span>+ Hairpiece</span>
-                            <span>$30.00</span>
+                            <span id="addonPrice1">$${(ADDON_PRICES.hairpiece * costumeCount).toFixed(2)}</span>
                         </div>
                         <div class="total-row" id="addonRow2" style="display:none">
                             <span>+ Bra Cups</span>
-                            <span>$21.50</span>
+                            <span id="addonPrice2">$${(ADDON_PRICES.braCups * costumeCount).toFixed(2)}</span>
                         </div>
                         <div class="total-row grand-total">
                             <span>Total</span>
@@ -1351,8 +1353,14 @@
             if (row2) row2.style.display = braCups ? 'flex' : 'none';
 
             var total = baseSubtotal;
-            if (hairpiece) total += ADDON_PRICES.hairpiece;
-            if (braCups) total += ADDON_PRICES.braCups;
+            if (hairpiece) total += ADDON_PRICES.hairpiece * costumeCount;
+            if (braCups) total += ADDON_PRICES.braCups * costumeCount;
+
+            // Update displayed prices to reflect costume count
+            var p1 = document.getElementById('addonPrice1');
+            var p2 = document.getElementById('addonPrice2');
+            if (p1) p1.textContent = '$' + (ADDON_PRICES.hairpiece * costumeCount).toFixed(2);
+            if (p2) p2.textContent = '$' + (ADDON_PRICES.braCups * costumeCount).toFixed(2);
 
             document.getElementById('totalDisplay').textContent = '$' + total.toFixed(2);
             var gt = document.getElementById('grandTotalDisplay');
