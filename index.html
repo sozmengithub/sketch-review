@@ -1240,6 +1240,9 @@
                 if (data.designerNotes) {
                     document.getElementById('designerNotesText').textContent = '\u201C' + data.designerNotes + '\u201D';
                     document.getElementById('designerNotes').style.display = 'block';
+                    if (data.isAlteration) {
+                        document.querySelector('.designer-notes-label').textContent = 'Alteration Details';
+                    }
                 }
 
                 // Show video section if present
