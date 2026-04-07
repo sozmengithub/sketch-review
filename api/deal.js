@@ -49,7 +49,7 @@ export default async function handler(req, res) {
     let hubspotDealId = dealId;
 
     const directResponse = await fetch(
-      `https://api.hubapi.com/crm/v3/objects/deals/${dealId}?properties=dealname,amount,designer_notes,sketch_video_url,has_stoning,stoning_budget_low,stoning_budget_high,sketch_options,is_po_customer,sketch_approved,ofcostumes,is_alteration`,
+      `https://api.hubapi.com/crm/v3/objects/deals/${dealId}?properties=dealname,amount,designer_notes,sketch_video_url,has_stoning,stoning_budget_low,stoning_budget_high,sketch_options,is_po_customer,sketch_approved,ofcostumes,is_alteration,shipping_street_address__deal_,shipping_street_address_2__deal_,shipping_city,shipping_state,shipping_zip_code,shipping_address_confirmed_date`,
       { headers }
     );
 
@@ -72,7 +72,7 @@ export default async function handler(req, res) {
                 value: dealId
               }]
             }],
-            properties: ['dealname', 'amount', 'designer_notes', 'sketch_video_url', 'has_stoning', 'stoning_budget_low', 'stoning_budget_high', 'sketch_options', 'is_po_customer', 'sketch_approved', 'ofcostumes', 'is_alteration'],
+            properties: ['dealname', 'amount', 'designer_notes', 'sketch_video_url', 'has_stoning', 'stoning_budget_low', 'stoning_budget_high', 'sketch_options', 'is_po_customer', 'sketch_approved', 'ofcostumes', 'is_alteration', 'shipping_street_address__deal_', 'shipping_street_address_2__deal_', 'shipping_city', 'shipping_state', 'shipping_zip_code', 'shipping_address_confirmed_date'],
             limit: 1
           })
         }
@@ -166,6 +166,14 @@ export default async function handler(req, res) {
       isAlteration: deal.properties.is_alteration === 'true',
       sketchApproved: deal.properties.sketch_approved || null,
       ofcostumes: parseInt(deal.properties.ofcostumes) || 1,
+      shippingAddress: {
+        street: deal.properties.shipping_street_address__deal_ || '',
+        street2: deal.properties.shipping_street_address_2__deal_ || '',
+        city: deal.properties.shipping_city || '',
+        state: deal.properties.shipping_state || '',
+        zip: deal.properties.shipping_zip_code || ''
+      },
+      shippingConfirmed: !!deal.properties.shipping_address_confirmed_date,
       sketchOptions: (() => {
         try {
           const raw = deal.properties.sketch_options;

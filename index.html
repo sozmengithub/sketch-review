@@ -1097,16 +1097,79 @@
             <p class="loading-text" id="loadingText">Submitting...</p>
         </div>
 
-        <!-- Approve Success -->
+        <!-- Shipping Address Confirmation (shown after approval, before final success) -->
+        <div class="success-view" id="shippingConfirmView">
+            <div class="success-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M5 13l4 4L19 7"/>
+                </svg>
+            </div>
+            <h2 class="success-title">Design Approved!</h2>
+            <p style="font-size:13px; color:#555; line-height:1.6; max-width:380px; margin:0 auto 20px;">
+                Before we begin production, please confirm your shipping address. Your finished costumes will be shipped to:
+            </p>
+            <div style="background:#fdf2f2; border:2px solid #c94c4c; border-radius:8px; padding:16px 20px; margin:0 auto 16px; max-width:340px; text-align:left;">
+                <div style="font-size:11px; letter-spacing:1px; color:#8b2020; font-weight:600; margin-bottom:8px;">SHIPPING ADDRESS</div>
+                <div id="shippingAddrDisplay" style="font-size:15px; color:#2a2220; line-height:1.5; font-weight:500;"></div>
+            </div>
+            <p style="font-size:12px; color:#888; line-height:1.5; max-width:340px; margin:0 auto 24px;">
+                Changing the shipping address after this point is not guaranteed.
+            </p>
+            <div style="display:flex; gap:12px; max-width:380px; margin:0 auto;">
+                <button class="btn btn-primary" onclick="confirmShippingAddress()" id="confirmShipBtn" style="width:100%;">
+                    Confirm &amp; Continue
+                </button>
+            </div>
+            <div style="margin-top:12px;">
+                <a href="#" id="updateAddressLink" onclick="showUpdateAddressForm(); return false;" style="font-size:12px; color:#c94c4c; text-decoration:underline;">I need to update my shipping address</a>
+            </div>
+
+            <!-- Inline address edit (hidden by default) -->
+            <div id="updateAddressForm" style="display:none; max-width:380px; margin:20px auto 0; text-align:left;">
+                <div style="border-top:1px solid #e0e0e0; padding-top:20px;">
+                    <div style="font-size:11px; letter-spacing:1px; color:#8b2020; font-weight:600; margin-bottom:12px;">UPDATE SHIPPING ADDRESS</div>
+                    <div style="margin-bottom:10px;">
+                        <label style="font-size:11px; color:#666; display:block; margin-bottom:4px;">Street Address *</label>
+                        <input type="text" id="newShipStreet" style="width:100%; padding:10px; border:1px solid #ccc; border-radius:4px; font-size:14px; box-sizing:border-box;">
+                    </div>
+                    <div style="margin-bottom:10px;">
+                        <label style="font-size:11px; color:#666; display:block; margin-bottom:4px;">Address Line 2</label>
+                        <input type="text" id="newShipStreet2" style="width:100%; padding:10px; border:1px solid #ccc; border-radius:4px; font-size:14px; box-sizing:border-box;">
+                    </div>
+                    <div style="display:flex; gap:8px; margin-bottom:16px;">
+                        <div style="flex:2;">
+                            <label style="font-size:11px; color:#666; display:block; margin-bottom:4px;">City *</label>
+                            <input type="text" id="newShipCity" style="width:100%; padding:10px; border:1px solid #ccc; border-radius:4px; font-size:14px; box-sizing:border-box;">
+                        </div>
+                        <div style="flex:1;">
+                            <label style="font-size:11px; color:#666; display:block; margin-bottom:4px;">State *</label>
+                            <input type="text" id="newShipState" style="width:100%; padding:10px; border:1px solid #ccc; border-radius:4px; font-size:14px; box-sizing:border-box;" maxlength="2" placeholder="IL">
+                        </div>
+                        <div style="flex:1;">
+                            <label style="font-size:11px; color:#666; display:block; margin-bottom:4px;">Zip *</label>
+                            <input type="text" id="newShipZip" style="width:100%; padding:10px; border:1px solid #ccc; border-radius:4px; font-size:14px; box-sizing:border-box;" maxlength="10">
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="saveAndConfirmAddress()" id="saveAddrBtn" style="width:100%;">
+                        Save &amp; Confirm
+                    </button>
+                    <div style="margin-top:8px; text-align:center;">
+                        <a href="#" onclick="hideUpdateAddressForm(); return false;" style="font-size:12px; color:#666;">Cancel</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Approve Success (final, after shipping confirmed) -->
         <div class="success-view" id="approveSuccess">
             <div class="success-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                     <path d="M5 13l4 4L19 7"/>
                 </svg>
             </div>
-            <h2 class="success-title">Design Approved</h2>
+            <h2 class="success-title">You're All Set!</h2>
             <p class="success-message" id="approveSuccessMessage">
-                Thank you! Your design has been approved and an invoice is on its way. Once payment and measurements are complete, your order moves into production.
+                Your design is approved and your shipping address is confirmed. An invoice is on its way — once payment and measurements are complete, your order moves into production.
             </p>
         </div>
 
@@ -1248,6 +1311,11 @@
                 hasPayer = data.hasPayer || false;
                 isPoCustomer = data.isPoCustomer || false;
                 costumeCount = data.ofcostumes || 1;
+
+                // Store shipping address for post-approval confirmation
+                window._shippingAddress = data.shippingAddress || {};
+                window._shippingConfirmed = data.shippingConfirmed || false;
+                window._hubspotDealId = data.dealId;
 
                 // Display total
                 const total = data.total || data.amount || 0;
@@ -1508,16 +1576,16 @@
                 if (response.ok) {
                     document.getElementById('loadingView').classList.remove('active');
 
-                    // Update success message
+                    // Build final success message for later
                     var msg;
                     if (isPoCustomer) {
-                        msg = 'Thank you! Your design has been approved';
+                        msg = 'Your design is approved and your shipping address is confirmed.';
                         if (addOns.length > 0) {
-                            msg += ' \u2014 including ' + addOns.map(function(a) { return a.name.toLowerCase(); }).join(' and ');
+                            msg += ' Add-ons included: ' + addOns.map(function(a) { return a.name.toLowerCase(); }).join(' and ') + '.';
                         }
-                        msg += '. A formal quote with your order details will follow shortly.';
+                        msg += ' A formal quote with your order details will follow shortly.';
                     } else {
-                        msg = 'Thank you! Your design has been approved and an invoice is on its way';
+                        msg = 'Your design is approved and your shipping address is confirmed. An invoice is on its way';
                         if (addOns.length > 0) {
                             msg += ' \u2014 including ' + addOns.map(function(a) { return a.name.toLowerCase(); }).join(' and ');
                         }
@@ -1529,9 +1597,32 @@
                             msg += '\n\nIf there is a different payer on this order, please follow up with them to ensure payment or PO issuance is submitted to Show Off to begin production.';
                         }
                     }
-                    document.getElementById('approveSuccessMessage').innerText = msg;
+                    window._finalSuccessMsg = msg;
 
-                    document.getElementById('approveSuccess').classList.add('active');
+                    // Show shipping address confirmation step
+                    var addr = window._shippingAddress || {};
+                    var addrLines = [addr.street, addr.street2, [addr.city, addr.state, addr.zip].filter(Boolean).join(', ')].filter(Boolean);
+                    var addrEl = document.getElementById('shippingAddrDisplay');
+                    addrEl.textContent = '';
+                    addrLines.forEach(function(line, i) {
+                        addrEl.appendChild(document.createTextNode(line));
+                        if (i < addrLines.length - 1) addrEl.appendChild(document.createElement('br'));
+                    });
+
+                    // Pre-fill the update form
+                    document.getElementById('newShipStreet').value = addr.street || '';
+                    document.getElementById('newShipStreet2').value = addr.street2 || '';
+                    document.getElementById('newShipCity').value = addr.city || '';
+                    document.getElementById('newShipState').value = addr.state || '';
+                    document.getElementById('newShipZip').value = addr.zip || '';
+
+                    // If already confirmed, skip to final
+                    if (window._shippingConfirmed) {
+                        document.getElementById('approveSuccessMessage').innerText = msg;
+                        document.getElementById('approveSuccess').classList.add('active');
+                    } else {
+                        document.getElementById('shippingConfirmView').classList.add('active');
+                    }
                     document.getElementById('footer').style.display = 'none';
                 } else {
                     throw new Error('Failed');
@@ -1619,6 +1710,78 @@
             uploadArea.style.borderColor = uploadedFiles.length > 0 ? '#1a1a1a' : '#aaa';
             handleFiles(e.dataTransfer.files);
         });
+        // ---- Shipping Address Confirmation ----
+        async function confirmShippingAddress() {
+            var btn = document.getElementById('confirmShipBtn');
+            btn.disabled = true;
+            btn.textContent = 'Confirming...';
+
+            try {
+                var resp = await fetch('/api/confirm-shipping', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ dealId: window._hubspotDealId })
+                });
+
+                if (!resp.ok) throw new Error('Failed');
+
+                document.getElementById('shippingConfirmView').classList.remove('active');
+                document.getElementById('approveSuccessMessage').innerText = window._finalSuccessMsg;
+                document.getElementById('approveSuccess').classList.add('active');
+            } catch (e) {
+                btn.disabled = false;
+                btn.textContent = 'Confirm & Continue';
+                alert('Something went wrong confirming your address. Please try again.');
+            }
+        }
+
+        function showUpdateAddressForm() {
+            document.getElementById('updateAddressForm').style.display = 'block';
+            document.getElementById('updateAddressLink').style.display = 'none';
+        }
+
+        function hideUpdateAddressForm() {
+            document.getElementById('updateAddressForm').style.display = 'none';
+            document.getElementById('updateAddressLink').style.display = '';
+        }
+
+        async function saveAndConfirmAddress() {
+            var street = document.getElementById('newShipStreet').value.trim();
+            var street2 = document.getElementById('newShipStreet2').value.trim();
+            var city = document.getElementById('newShipCity').value.trim();
+            var state = document.getElementById('newShipState').value.trim();
+            var zip = document.getElementById('newShipZip').value.trim();
+
+            if (!street || !city || !state || !zip) {
+                alert('Please fill in street, city, state, and zip.');
+                return;
+            }
+
+            var btn = document.getElementById('saveAddrBtn');
+            btn.disabled = true;
+            btn.textContent = 'Saving...';
+
+            try {
+                var resp = await fetch('/api/confirm-shipping', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        dealId: window._hubspotDealId,
+                        address: { street: street, street2: street2, city: city, state: state, zip: zip }
+                    })
+                });
+
+                if (!resp.ok) throw new Error('Failed');
+
+                document.getElementById('shippingConfirmView').classList.remove('active');
+                document.getElementById('approveSuccessMessage').innerText = window._finalSuccessMsg;
+                document.getElementById('approveSuccess').classList.add('active');
+            } catch (e) {
+                btn.disabled = false;
+                btn.textContent = 'Save & Confirm';
+                alert('Something went wrong. Please try again.');
+            }
+        }
     </script>
 </body>
 </html>
