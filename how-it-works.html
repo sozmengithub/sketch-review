@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>How Ordering Works — Show Off Inc</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --warm-bg: #faf8f5;
+      --card-bg: #ffffff;
+      --dark: #1a1614;
+      --text: #3d3530;
+      --text-muted: #8a7e76;
+      --accent-you: #7c6a4a;
+      --accent-you-light: #f5f0e8;
+      --accent-us: #4a7c6f;
+      --accent-us-light: #e8f2ef;
+      --accent-auto: #4a6a7c;
+      --accent-auto-light: #e8eff5;
+      --border: #ebe6e0;
+      --shadow: 0 4px 24px rgba(26,22,20,0.06);
+      --shadow-lg: 0 12px 48px rgba(26,22,20,0.10);
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--warm-bg);
+      color: var(--text);
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      background: var(--dark);
+      color: #fff;
+      padding: 80px 24px 72px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -60%;
+      left: -20%;
+      width: 140%;
+      height: 200%;
+      background: radial-gradient(ellipse at 30% 50%, rgba(74,124,111,0.08) 0%, transparent 60%),
+                  radial-gradient(ellipse at 70% 30%, rgba(124,106,74,0.06) 0%, transparent 50%);
+      pointer-events: none;
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 120px;
+      background: linear-gradient(to bottom, transparent, var(--warm-bg));
+      pointer-events: none;
+    }
+    .hero-logo {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 12px;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 24px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.8);
+      margin-bottom: 28px;
+    }
+    .hero h1 {
+      font-size: clamp(36px, 5vw, 56px);
+      font-weight: 800;
+      letter-spacing: -1.5px;
+      margin-bottom: 16px;
+      line-height: 1.08;
+      position: relative;
+    }
+    .hero p {
+      font-size: 18px;
+      color: rgba(255,255,255,0.5);
+      max-width: 520px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* ── Flow bar ── */
+    .flow-wrap {
+      max-width: 980px;
+      margin: -28px auto 0;
+      padding: 0 24px;
+      position: relative;
+      z-index: 2;
+    }
+    .flow-bar {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 20px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      box-shadow: var(--shadow-lg);
+      flex-wrap: wrap;
+      row-gap: 12px;
+    }
+    .flow-pip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+      padding: 7px 14px;
+      border-radius: 100px;
+    }
+    .flow-pip .num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      font-size: 11px;
+      font-weight: 700;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .flow-pip.you  { color: var(--accent-you); background: var(--accent-you-light); }
+    .flow-pip.you  .num { background: var(--accent-you); }
+    .flow-pip.us   { color: var(--accent-us); background: var(--accent-us-light); }
+    .flow-pip.us   .num { background: var(--accent-us); }
+    .flow-pip.auto { color: var(--accent-auto); background: var(--accent-auto-light); }
+    .flow-pip.auto .num { background: var(--accent-auto); }
+
+    .flow-arr {
+      color: #d4cec7;
+      font-size: 16px;
+      margin: 0 4px;
+      flex-shrink: 0;
+    }
+
+    .legend {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      margin-top: 14px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .legend span { display: flex; align-items: center; gap: 6px; }
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .dot.y  { background: var(--accent-you); }
+    .dot.g  { background: var(--accent-us); }
+    .dot.bl { background: var(--accent-auto); }
+
+    /* ── Intro ── */
+    .intro {
+      max-width: 640px;
+      margin: 56px auto 0;
+      padding: 0 24px;
+      text-align: center;
+    }
+    .intro p {
+      font-size: 17px;
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+
+    /* ── Sections wrapper ── */
+    .sections {
+      max-width: 780px;
+      margin: 48px auto 0;
+      padding: 0 24px 80px;
+    }
+
+    /* ── Steps ── */
+    .step {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .step.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .step-label {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .step-num {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .step.you  .step-num { background: var(--accent-you); }
+    .step.us   .step-num { background: var(--accent-us); }
+    .step.auto .step-num { background: var(--accent-auto); }
+
+    .step-meta { flex: 1; }
+    .step-who {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+    }
+    .step.you  .step-who { color: var(--accent-you); }
+    .step.us   .step-who { color: var(--accent-us); }
+    .step.auto .step-who { color: var(--accent-auto); }
+
+    .step-title {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: var(--dark);
+      margin-top: 2px;
+    }
+
+    .step-card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 32px 28px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+    .step-card p {
+      margin-bottom: 16px;
+      font-size: 15px;
+      line-height: 1.7;
+    }
+    .step-card p:last-child { margin-bottom: 0; }
+
+    /* ── Connector arrows ── */
+    .connector {
+      display: flex;
+      justify-content: center;
+      padding: 20px 0;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+    .connector.visible { opacity: 1; }
+    .connector svg { width: 24px; height: 32px; }
+
+    /* ── Behind-the-scenes connector ── */
+    .behind-scenes {
+      max-width: 540px;
+      margin: 0 auto;
+      padding: 12px 0;
+      text-align: center;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+    .behind-scenes.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .behind-scenes-inner {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--accent-us-light);
+      border: 1px solid #c8ddd7;
+      border-radius: 100px;
+      padding: 10px 20px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--accent-us);
+    }
+    .behind-scenes-inner .icon {
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    /* ── Callout boxes ── */
+    .callout {
+      display: flex;
+      gap: 12px;
+      padding: 16px 20px;
+      border-radius: 12px;
+      margin: 20px 0;
+      font-size: 14px;
+      line-height: 1.65;
+    }
+    .callout-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+    .callout.brown {
+      background: var(--accent-you-light);
+      border: 1px solid #e2d8c8;
+      color: #5c4d36;
+    }
+    .callout.green {
+      background: var(--accent-us-light);
+      border: 1px solid #c8ddd7;
+      color: #365c50;
+    }
+    .callout.blue {
+      background: var(--accent-auto-light);
+      border: 1px solid #c8d5dd;
+      color: #36505c;
+    }
+
+    /* ── Embed frames ── */
+    .embed-wrap {
+      margin: 24px 0;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    }
+    .embed-toolbar {
+      background: #f2eeea;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .embed-dots {
+      display: flex;
+      gap: 6px;
+    }
+    .embed-dots span {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #d8d2cb;
+    }
+    .embed-url {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      letter-spacing: -0.2px;
+    }
+    .embed-frame {
+      width: 100%;
+      height: 520px;
+      border: 0;
+      display: block;
+      background: #fff;
+    }
+    .embed-note {
+      background: #f7f5f2;
+      padding: 10px 16px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 12px;
+      line-height: 1.5;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── Email mockup ── */
+    .email-mock {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin: 20px 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
+    .email-mock-header {
+      background: #f7f5f2;
+      padding: 12px 20px;
+      font-size: 12px;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+    }
+    .email-mock-body {
+      padding: 24px 20px;
+      font-size: 14px;
+      line-height: 1.7;
+      color: var(--text);
+    }
+    .email-btn-mock {
+      display: inline-block;
+      background: var(--dark);
+      color: #fff;
+      padding: 12px 28px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: -0.2px;
+    }
+
+    /* ── Prepare list ── */
+    .prepare-list {
+      list-style: none;
+      padding: 0;
+      margin: 16px 0;
+    }
+    .prepare-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 8px 0;
+      font-size: 14px;
+      line-height: 1.5;
+      border-bottom: 1px solid #f0ece8;
+    }
+    .prepare-list li:last-child { border-bottom: 0; }
+    .prepare-list .check {
+      color: var(--accent-us);
+      font-weight: 700;
+      font-size: 15px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* ── Timeline ── */
+    .timeline {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      flex-wrap: wrap;
+      margin: 24px 0;
+      padding: 20px;
+      background: #f7f5f2;
+      border-radius: 12px;
+    }
+    .timeline-step {
+      text-align: center;
+      padding: 8px 16px;
+    }
+    .timeline-step .label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    .timeline-step .desc {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .timeline-arr {
+      color: #d4cec7;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    /* ── FAQ ── */
+    .faq-heading {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      text-align: center;
+      margin: 56px 0 24px;
+      color: var(--dark);
+    }
+    .faq {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 8px;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    .faq.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .faq summary {
+      padding: 18px 24px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--dark);
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .faq summary::-webkit-details-marker { display: none; }
+    .faq summary::after {
+      content: '+';
+      font-size: 20px;
+      font-weight: 400;
+      color: var(--text-muted);
+      transition: transform 0.2s;
+    }
+    .faq[open] summary::after {
+      transform: rotate(45deg);
+    }
+    .faq-body {
+      padding: 0 24px 20px;
+      color: var(--text-muted);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    /* ── CTA ── */
+    .cta-section {
+      text-align: center;
+      margin-top: 56px;
+      padding: 48px 28px;
+      background: var(--card-bg);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+    }
+    .cta-section h2 {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-bottom: 12px;
+      color: var(--dark);
+    }
+    .cta-section p {
+      font-size: 15px;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+      max-width: 420px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .cta-btn {
+      display: inline-block;
+      background: var(--dark);
+      color: #fff;
+      padding: 14px 36px;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      text-decoration: none;
+      letter-spacing: -0.2px;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .cta-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(26,22,20,0.15);
+    }
+
+    /* ── Footer ── */
+    .footer {
+      text-align: center;
+      padding: 48px 24px;
+      color: #c4bdb5;
+      font-size: 12px;
+      letter-spacing: 0.3px;
+    }
+    .footer a {
+      color: #a89e94;
+      text-decoration: none;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 680px) {
+      .flow-bar { padding: 16px; gap: 4px; }
+      .flow-arr { display: none; }
+      .flow-pip { font-size: 11px; padding: 6px 10px; }
+      .step-card { padding: 24px 20px; }
+      .embed-frame { height: 420px; }
+      .hero { padding: 60px 20px 56px; }
+      .step-title { font-size: 20px; }
+      .cta-section { padding: 36px 20px; }
+      .timeline { flex-direction: column; gap: 4px; }
+      .timeline-arr { transform: rotate(90deg); }
+      .legend { flex-wrap: wrap; gap: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-logo">S</div>
+    <h1>How Ordering Works</h1>
+    <p>From your first idea to costumes in hand &mdash; here's every step of the journey so you always know what's coming next.</p>
+  </div>
+
+  <!-- Flow overview -->
+  <div class="flow-wrap">
+    <div class="flow-bar">
+      <div class="flow-pip you"><span class="num">1</span> Place Order</div>
+      <span class="flow-arr">&rarr;</span>
+      <div class="flow-pip you"><span class="num">2</span> Measurements</div>
+      <span class="flow-arr">&rarr;</span>
+      <div class="flow-pip you"><span class="num">3</span> Approve Sketch</div>
+      <span class="flow-arr">&rarr;</span>
+      <div class="flow-pip you"><span class="num">4</span> Pay Invoice</div>
+      <span class="flow-arr">&rarr;</span>
+      <div class="flow-pip us"><span class="num">5</span> We Ship</div>
+    </div>
+    <div class="legend">
+      <span><span class="dot y"></span> You do this</span>
+      <span><span class="dot g"></span> We do this</span>
+    </div>
+  </div>
+
+  <!-- Intro -->
+  <div class="intro">
+    <p>Every custom costume order follows the same steps, whether you're ordering for a full team or a solo performer. Most of the work is on us &mdash; you'll share your vision, submit measurements, approve your design, and we take it from there.</p>
+  </div>
+
+  <!-- Steps -->
+  <div class="sections">
+
+    <!-- ═══ STEP 1 ═══ -->
+    <div class="step you">
+      <div class="step-label">
+        <div class="step-num">1</div>
+        <div class="step-meta">
+          <div class="step-who">You</div>
+          <div class="step-title">Place Your Order</div>
+        </div>
+      </div>
+      <div class="step-card">
+        <p>Start by filling out our order form. You'll tell us about yourself, your sport, how many costumes you need, and your design vision. Upload any reference images &mdash; inspiration photos, logos, photos of existing costumes, anything that helps us understand what you're looking for.</p>
+
+        <div class="callout brown">
+          <span class="callout-icon">&#128161;</span>
+          <span><strong>One order per costume design.</strong> If your team needs two different looks (say, a competition costume and a warm-up), place a separate order for each design. Multiple quantities of the same design go in one order.</span>
+        </div>
+
+        <!-- LIVE EMBED: Intake form -->
+        <div class="embed-wrap">
+          <div class="embed-toolbar">
+            <div class="embed-dots"><span></span><span></span><span></span></div>
+            <div class="embed-url">showoffinc.com/start-your-order</div>
+          </div>
+          <iframe class="embed-frame" src="https://intake-form-theta.vercel.app/" loading="lazy"></iframe>
+          <div class="embed-note">This is our real order form &mdash; scroll inside to preview each step</div>
+        </div>
+
+        <p>The form takes about 10 minutes. After you submit, you'll get a confirmation email, your measurement form link, and our design team gets started right away.</p>
+
+        <div class="callout green">
+          <span class="callout-icon">&#128247;</span>
+          <span><strong>The more detail you give, the faster your sketch is ready.</strong> Thorough intake submissions with clear reference images often mean your sketch can be finalized and approved without a design call. A few extra minutes here can save days later.</span>
+        </div>
+
+        <div class="callout brown">
+          <span class="callout-icon">&#128197;</span>
+          <span><strong>Want to talk through your vision?</strong> At the end of the form, you can book a Zoom call with our designer. It's completely optional &mdash; in many cases the designer may already come to the call with a sketch prepared to review together. But if you have a complex design or want to brainstorm ideas, it's a great option.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="connector">
+      <svg viewBox="0 0 24 32"><path d="M12 0 L12 28 M6 22 L12 28 L18 22" stroke="#d4cec7" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+    </div>
+
+    <!-- ═══ STEP 2 ═══ -->
+    <div class="step you">
+      <div class="step-label">
+        <div class="step-num">2</div>
+        <div class="step-meta">
+          <div class="step-who">You</div>
+          <div class="step-title">Submit Measurements</div>
+        </div>
+      </div>
+      <div class="step-card">
+        <p>Right after you place your order, you'll receive an email with a link to our measurement form. <strong>This is your most important next step</strong> &mdash; submit measurements as carefully and as soon as possible so every costume fits perfectly and production can start on time.</p>
+
+        <div class="email-mock">
+          <div class="email-mock-header">
+            <strong>From:</strong> support@showoffinc.com &nbsp;&middot;&nbsp; <strong>Subject:</strong> Time to submit measurements
+          </div>
+          <div class="email-mock-body">
+            Hi there,<br><br>
+            Thanks for placing your order! Your measurement form is ready. Click below to enter measurements.<br><br>
+            <span class="email-btn-mock">Open Measurement Form</span><br><br>
+            <em style="color:#aaa; font-size:12px;">You can save your progress and come back anytime.</em>
+          </div>
+        </div>
+
+        <div class="callout brown">
+          <span class="callout-icon">&#9888;</span>
+          <span><strong>Don't wait on this.</strong> Measurements are needed before we can start production. The sooner you submit, the sooner your costumes can be made. Take your time getting them right &mdash; but don't put it off.</span>
+        </div>
+
+        <p>You can fill it out yourself, or share the link with parents, a coach, or anyone helping. The form saves automatically as you go &mdash; no need to finish everything in one sitting.</p>
+
+        <div class="callout brown">
+          <span class="callout-icon">&#128207;</span>
+          <span><strong>What you'll need:</strong> A flexible measuring tape and a partner to help. The form will show you exactly which measurements are needed for your specific costume design &mdash; every design is different, so just follow what the form asks for.</span>
+        </div>
+
+        <div class="callout green">
+          <span class="callout-icon">&#128172;</span>
+          <span>If any measurements look unusual, we'll always double-check and reach out before moving forward. Additional measurements may be requested later depending on your design. Please be open to re-measuring if we ask &mdash; it's all about getting the best fit.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="connector">
+      <svg viewBox="0 0 24 32"><path d="M12 0 L12 28 M6 22 L12 28 L18 22" stroke="#d4cec7" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+    </div>
+
+    <!-- Behind the scenes -->
+    <div class="behind-scenes">
+      <div class="behind-scenes-inner">
+        <span class="icon">&#9998;</span>
+        Our designer creates a custom sketch based on your vision
+      </div>
+    </div>
+
+    <div class="connector">
+      <svg viewBox="0 0 24 32"><path d="M12 0 L12 28 M6 22 L12 28 L18 22" stroke="#d4cec7" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+    </div>
+
+    <!-- ═══ STEP 3 ═══ -->
+    <div class="step you">
+      <div class="step-label">
+        <div class="step-num">3</div>
+        <div class="step-meta">
+          <div class="step-who">You</div>
+          <div class="step-title">Review &amp; Approve Your Sketch</div>
+        </div>
+      </div>
+      <div class="step-card">
+        <p>When your sketch is ready, you'll get an email with a link to your sketch review page. Open it and you'll see exactly what your costume will look like.</p>
+
+        <div class="email-mock">
+          <div class="email-mock-header">
+            <strong>From:</strong> support@showoffinc.com &nbsp;&middot;&nbsp; <strong>Subject:</strong> Your sketch is ready for review
+          </div>
+          <div class="email-mock-body">
+            Hi there,<br><br>
+            Great news &mdash; your custom sketch is ready! Click below to review your design and let us know what you think.<br><br>
+            <span class="email-btn-mock">Review Your Sketch</span><br><br>
+            <em style="color:#aaa; font-size:12px;">Love it? Approve it and we'll move to the next step. Want changes? Request a revision and we'll adjust.</em>
+          </div>
+        </div>
+
+        <p>You have two options:</p>
+        <p><strong>Approve</strong> &mdash; Love it? Click approve and we move forward.<br>
+           <strong>Request a Revision</strong> &mdash; Want changes? Tell us what to adjust. We'll revise the sketch and send you a new link to review.</p>
+
+        <div class="callout green">
+          <span class="callout-icon">&#10003;</span>
+          <span><strong>Revisions are always free.</strong> We want you to love your design. Request as many adjustments as you need until it's exactly right. If you're looking for a complete redesign from scratch, there may be a small fee &mdash; but we'll always let you know before any charges.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="connector">
+      <svg viewBox="0 0 24 32"><path d="M12 0 L12 28 M6 22 L12 28 L18 22" stroke="#d4cec7" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+    </div>
+
+    <!-- ═══ STEP 4 ═══ -->
+    <div class="step you">
+      <div class="step-label">
+        <div class="step-num">4</div>
+        <div class="step-meta">
+          <div class="step-who">You</div>
+          <div class="step-title">Pay Your Invoice</div>
+        </div>
+      </div>
+      <div class="step-card">
+        <p>You'll receive an invoice by email with a secure payment link. Click the link to pay online with a credit card &mdash; it takes about a minute.</p>
+
+        <div class="email-mock">
+          <div class="email-mock-header">
+            <strong>From:</strong> support@showoffinc.com &nbsp;&middot;&nbsp; <strong>Subject:</strong> Invoice from Show Off Inc
+          </div>
+          <div class="email-mock-body">
+            Hi there,<br><br>
+            Your invoice is ready. Click below to view your invoice and make a secure payment online.<br><br>
+            <span class="email-btn-mock">View &amp; Pay Invoice</span><br><br>
+            <em style="color:#aaa; font-size:12px;">Payment is required before production begins.</em>
+          </div>
+        </div>
+
+        <div class="callout brown">
+          <span class="callout-icon">&#128176;</span>
+          <span><strong>When does the invoice arrive?</strong> Timing depends on your order type. For custom designs, the invoice comes after your sketch is approved. For catalog orders, it comes right after you place your order.</span>
+        </div>
+
+        <p>Once payment is received, your order moves into production automatically. No extra steps needed.</p>
+      </div>
+    </div>
+
+    <!-- Behind the scenes -->
+    <div class="connector">
+      <svg viewBox="0 0 24 32"><path d="M12 0 L12 28 M6 22 L12 28 L18 22" stroke="#d4cec7" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+    </div>
+
+    <div class="behind-scenes">
+      <div class="behind-scenes-inner">
+        <span class="icon">&#9881;</span>
+        We cut, sew, stone, quality-check, and package your costumes
+      </div>
+    </div>
+
+    <div class="connector">
+      <svg viewBox="0 0 24 32"><path d="M12 0 L12 28 M6 22 L12 28 L18 22" stroke="#d4cec7" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+    </div>
+
+    <!-- ═══ STEP 5 ═══ -->
+    <div class="step us">
+      <div class="step-label">
+        <div class="step-num">5</div>
+
+        <div class="step-meta">
+          <div class="step-who">We handle this</div>
+          <div class="step-title">Your Costumes Ship</div>
+        </div>
+      </div>
+      <div class="step-card">
+        <p>When your costumes are finished and quality-checked, we pack them up and ship them to you. You'll receive tracking information by email so you know exactly when to expect delivery.</p>
+
+        <div class="timeline">
+          <div class="timeline-step">
+            <div class="label">Sewing</div>
+            <div class="desc">Costumes built</div>
+          </div>
+          <span class="timeline-arr">&rarr;</span>
+          <div class="timeline-step">
+            <div class="label">Quality Check</div>
+            <div class="desc">Every detail inspected</div>
+          </div>
+          <span class="timeline-arr">&rarr;</span>
+          <div class="timeline-step">
+            <div class="label">Rhinestones</div>
+            <div class="desc">Sparkle applied*</div>
+          </div>
+          <span class="timeline-arr">&rarr;</span>
+          <div class="timeline-step">
+            <div class="label">Packaging</div>
+            <div class="desc">Carefully packed</div>
+          </div>
+          <span class="timeline-arr">&rarr;</span>
+          <div class="timeline-step">
+            <div class="label">Shipped</div>
+            <div class="desc">On the way!</div>
+          </div>
+        </div>
+
+        <p style="text-align:center; color:var(--text-muted); font-size:12px; margin-top:-8px;">*If your design includes rhinestones</p>
+
+        <div class="callout green">
+          <span class="callout-icon">&#128230;</span>
+          <span><strong>Need to update your shipping address?</strong> No problem. You'll receive a link to confirm or change your shipping address before we ship. You can update it anytime up until your order is packed.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ FAQ ═══ -->
+    <div class="faq-heading">Common Questions</div>
+
+    <details class="faq">
+      <summary>How long does the whole process take?</summary>
+      <div class="faq-body">It depends on the complexity of your design, how quickly measurements and payment come in, the time of year, and how much we currently have on our production schedule. Once we have your approved sketch, measurements, and payment, production typically takes a few weeks. We'll keep you updated at every stage.</div>
+    </details>
+
+    <details class="faq">
+      <summary>Can I make changes after I place my order?</summary>
+      <div class="faq-body">Yes &mdash; until your sketch is approved, design changes are always welcome. After approval, changes may affect your timeline, so reach out to us as early as possible. We'll always work with you to get it right.</div>
+    </details>
+
+    <details class="faq">
+      <summary>What if I need to change the number of costumes?</summary>
+      <div class="faq-body">Just email us at support@showoffinc.com. We can adjust the quantity on your order. If measurements have already been submitted, we'll update the form so you can add new performers.</div>
+    </details>
+
+    <details class="faq">
+      <summary>Can someone else fill out the measurement form?</summary>
+      <div class="faq-body">Absolutely. Share the link from the email with a coach, parents, or anyone helping with measurements. Multiple people can contribute &mdash; the form saves progress automatically.</div>
+    </details>
+
+    <details class="faq">
+      <summary>What if a measurement is wrong?</summary>
+      <div class="faq-body">Email us and we'll re-open your form so you can correct it. It's important to get measurements right &mdash; we'd rather take a few extra minutes to double-check than have a costume that doesn't fit.</div>
+    </details>
+
+    <details class="faq">
+      <summary>Do you make costumes for solo performers?</summary>
+      <div class="faq-body">Yes! Solos, duets, trios &mdash; we make custom costumes for any size group, even just one. The process is exactly the same.</div>
+    </details>
+
+    <details class="faq">
+      <summary>What if I already know what I want from the catalog?</summary>
+      <div class="faq-body">We have a catalog of ready-made designs you can order directly. The process is the same, but the sketch step is already done &mdash; you'll go straight to measurements and payment after placing your order.</div>
+    </details>
+
+    <details class="faq">
+      <summary>Do you offer 50/50 payment?</summary>
+      <div class="faq-body">Yes &mdash; for larger orders, we can split your payment into two installments. Just let us know when you're ready to pay and we'll set it up.</div>
+    </details>
+
+    <details class="faq">
+      <summary>Do I have to pay shipping separately for each design?</summary>
+      <div class="faq-body">If you're ordering multiple designs at the same time, each design is a separate order with its own shipping. This is because different designs may finish production at different times.</div>
+    </details>
+
+    <details class="faq">
+      <summary>Do you accept purchase orders (POs)?</summary>
+      <div class="faq-body">Yes! We work with schools and organizations that require PO-based purchasing. We'll set up a formal quote you can send to your procurement department, and they can submit their PO document directly through our system.</div>
+    </details>
+
+    <details class="faq">
+      <summary>Do you do alterations?</summary>
+      <div class="faq-body">Yes &mdash; we offer alteration services for costumes we've made. If something doesn't fit right or you need adjustments after receiving your order, email us at support@showoffinc.com and we'll walk you through the process.</div>
+    </details>
+
+    <details class="faq">
+      <summary>What if the costume doesn't fit?</summary>
+      <div class="faq-body">We take every measurement carefully and double-check anything that looks unusual. If something still doesn't fit after delivery, reach out to us &mdash; we'll work with you on alterations to make it right.</div>
+    </details>
+
+    <details class="faq">
+      <summary>How do I contact you if I have questions?</summary>
+      <div class="faq-body">Email us anytime at <strong>support@showoffinc.com</strong>. We're a small team and we respond personally &mdash; no chatbots, no ticket numbers.</div>
+    </details>
+
+    <!-- ═══ CTA ═══ -->
+    <div class="cta-section">
+      <h2>Ready to get started?</h2>
+      <p>Place your order and we'll take it from there. Our design team is ready to bring your vision to life.</p>
+      <a href="https://www.showoffinc.com/start-your-order" class="cta-btn">Start Your Order</a>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <a href="https://www.showoffinc.com">Show Off Inc</a> &mdash; Custom costumes, made to measure
+  </div>
+
+  <!-- Scroll reveal animation -->
+  <script>
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+
+    document.querySelectorAll('.step, .connector, .behind-scenes, .faq').forEach(el => observer.observe(el));
+  </script>
+
+</body>
+</html>

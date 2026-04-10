@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DEMO — Designer Sketch Submission | Show Off</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: #faf9f7;
+            color: #1a1a1a;
+            font-size: 13px;
+            font-weight: 400;
+            line-height: 1.5;
+            letter-spacing: 0.01em;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 540px;
+            margin: 0 auto;
+            padding: 32px 24px 60px;
+        }
+
+        /* Demo banner */
+        .demo-banner {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            padding: 10px 14px;
+            margin-bottom: 24px;
+            font-size: 11px;
+            color: #92400e;
+            text-align: center;
+            letter-spacing: 0.05em;
+        }
+        .demo-banner strong {
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+        }
+
+        /* Header */
+        .form-header {
+            text-align: center;
+            margin-bottom: 28px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .form-header h1 {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 22px;
+            font-weight: 500;
+            letter-spacing: 0.04em;
+            margin-bottom: 4px;
+        }
+
+        .form-header .deal-info {
+            font-size: 11px;
+            color: #666;
+            letter-spacing: 0.08em;
+        }
+
+        /* Step indicator */
+        .step-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+
+        .step-dot {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .step-dot.completed {
+            background: #1a1a1a;
+            color: #fff;
+        }
+
+        .step-dot.active {
+            background: #1a1a1a;
+            color: #fff;
+        }
+
+        .step-dot.upcoming {
+            background: #e5e5e5;
+            color: #999;
+        }
+
+        .step-line {
+            width: 40px;
+            height: 1px;
+            background: #ddd;
+        }
+
+        .step-line.done {
+            background: #1a1a1a;
+        }
+
+        .step-label {
+            font-size: 9px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: #888;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        /* Form sections */
+        .form-section {
+            margin-bottom: 24px;
+        }
+
+        .section-label {
+            font-size: 9px;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: #888;
+            margin-bottom: 10px;
+        }
+
+        /* Sketch preview */
+        .sketch-preview {
+            aspect-ratio: 5/4;
+            background: #fff;
+            border: 1px solid rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            margin-bottom: 6px;
+        }
+
+        .sketch-preview img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .sketch-filename {
+            font-size: 10px;
+            color: #888;
+            letter-spacing: 0.03em;
+        }
+
+        .sketch-filename svg {
+            vertical-align: middle;
+            margin-right: 4px;
+        }
+
+        /* Costume components */
+        .components-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .component-chip {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px;
+            background: #fff;
+            border: 1px solid rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.15s;
+            font-size: 12px;
+        }
+
+        .component-chip:hover {
+            border-color: rgba(0,0,0,0.25);
+        }
+
+        .component-chip.selected {
+            background: #1a1a1a;
+            color: #fff;
+            border-color: #1a1a1a;
+        }
+
+        .component-chip input {
+            display: none;
+        }
+
+        .chip-check {
+            width: 16px;
+            height: 16px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.15s;
+        }
+
+        .component-chip.selected .chip-check {
+            background: #fff;
+            border-color: #fff;
+        }
+
+        .chip-check svg {
+            display: none;
+            width: 10px;
+            height: 10px;
+        }
+
+        .component-chip.selected .chip-check svg {
+            display: block;
+        }
+
+        /* ===== NEW FIELDS ===== */
+        .text-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ccc;
+            font-family: inherit;
+            font-size: 13px;
+            background: #fff;
+            line-height: 1.5;
+            transition: border-color 0.2s;
+        }
+
+        .text-input:focus {
+            outline: none;
+            border-color: #1a1a1a;
+        }
+
+        .text-input::placeholder {
+            color: #bbb;
+        }
+
+        textarea.text-input {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .field-hint {
+            font-size: 10px;
+            color: #aaa;
+            margin-top: 6px;
+            letter-spacing: 0.02em;
+            line-height: 1.5;
+        }
+
+        .new-field-tag {
+            display: inline-block;
+            font-size: 8px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            background: #dbeafe;
+            color: #1d4ed8;
+            padding: 2px 6px;
+            margin-left: 6px;
+            vertical-align: middle;
+            font-weight: 500;
+        }
+
+        /* URL input with icon */
+        .url-input-wrapper {
+            position: relative;
+        }
+
+        .url-input-wrapper .text-input {
+            padding-left: 36px;
+        }
+
+        .url-input-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #bbb;
+        }
+
+        /* Buttons */
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 28px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 13px 16px;
+            font-family: inherit;
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-back {
+            background: #fff;
+            color: #1a1a1a;
+            border: 1px solid #ccc;
+        }
+
+        .btn-back:hover {
+            border-color: #1a1a1a;
+        }
+
+        .btn-submit {
+            background: #1a1a1a;
+            color: #fff;
+            border: 1px solid #1a1a1a;
+        }
+
+        .btn-submit:hover {
+            background: #000;
+        }
+
+        /* Divider */
+        .section-divider {
+            border: none;
+            border-top: 1px solid rgba(0,0,0,0.08);
+            margin: 24px 0;
+        }
+
+        /* Preview of what customer sees */
+        .customer-preview {
+            margin-top: 28px;
+            padding: 16px;
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+        }
+
+        .customer-preview-label {
+            font-size: 9px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: #0369a1;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .customer-preview-box {
+            background: #fff;
+            border: 1px solid rgba(0,0,0,0.08);
+            padding: 14px 16px;
+        }
+
+        .preview-notes {
+            font-size: 13px;
+            color: #444;
+            line-height: 1.6;
+            font-style: italic;
+            min-height: 20px;
+        }
+
+        .preview-notes.empty {
+            color: #ccc;
+            font-style: normal;
+        }
+
+        .preview-author {
+            font-size: 10px;
+            color: #aaa;
+            margin-top: 8px;
+        }
+
+        .preview-video {
+            display: none;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(0,0,0,0.06);
+        }
+
+        .preview-video.visible {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .preview-video-icon {
+            width: 28px;
+            height: 28px;
+            background: #1a1a1a;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .preview-video-icon svg {
+            width: 10px;
+            height: 10px;
+            fill: #fff;
+            margin-left: 1px;
+        }
+
+        .preview-video-text {
+            font-size: 11px;
+            color: #666;
+        }
+
+        @media (max-width: 480px) {
+            .container { padding: 20px 16px 40px; }
+            .components-grid { grid-template-columns: 1fr; }
+            .form-actions { flex-direction: column; gap: 8px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Demo banner -->
+        <div class="demo-banner">
+            <strong>Demo — Designer's View</strong> — This is what Erica sees when submitting a sketch. New fields highlighted.
+        </div>
+
+        <!-- Header -->
+        <div class="form-header">
+            <h1>Submit Sketch</h1>
+            <div class="deal-info">Deal #10760 — Fenn - showoff inc - test</div>
+        </div>
+
+        <!-- Step indicator: Step 1 done, Step 2 active -->
+        <div class="step-indicator">
+            <div class="step-dot completed">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <div class="step-line done"></div>
+            <div class="step-dot active">2</div>
+        </div>
+        <div class="step-label">Review &amp; Submit</div>
+
+        <!-- Sketch Preview -->
+        <div class="form-section">
+            <div class="section-label">Sketch File</div>
+            <div class="sketch-preview">
+                <img src="https://46092307.fs1.hubspotusercontent-na1.net/hubfs/46092307/sketch-uploads/10760%20Fenn%20-%20showoff%20inc%20-%20test-%20(1)-Feb-07-2026-02-37-53-6094-AM.jpg" alt="Sketch">
+            </div>
+            <div class="sketch-filename">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                10760 Fenn - showoff inc - test- (1).jpg
+            </div>
+        </div>
+
+        <!-- Costume Components -->
+        <div class="form-section">
+            <div class="section-label">Costume Components</div>
+            <div class="components-grid">
+                <div class="component-chip selected" onclick="this.classList.toggle('selected')">
+                    <div class="chip-check"><svg viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></div>
+                    One-Piece
+                </div>
+                <div class="component-chip" onclick="this.classList.toggle('selected')">
+                    <div class="chip-check"><svg viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></div>
+                    Two-Piece
+                </div>
+                <div class="component-chip" onclick="this.classList.toggle('selected')">
+                    <div class="chip-check"><svg viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></div>
+                    Sleeves
+                </div>
+                <div class="component-chip" onclick="this.classList.toggle('selected')">
+                    <div class="chip-check"><svg viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></div>
+                    Arm Drapes
+                </div>
+                <div class="component-chip" onclick="this.classList.toggle('selected')">
+                    <div class="chip-check"><svg viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></div>
+                    Mock Neck
+                </div>
+                <div class="component-chip" onclick="this.classList.toggle('selected')">
+                    <div class="chip-check"><svg viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></div>
+                    Mitts
+                </div>
+                <div class="component-chip" onclick="this.classList.toggle('selected')">
+                    <div class="chip-check"><svg viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></div>
+                    Mesh
+                </div>
+                <div class="component-chip" onclick="this.classList.toggle('selected')">
+                    <div class="chip-check"><svg viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></div>
+                    Skirt
+                </div>
+                <div class="component-chip" onclick="this.classList.toggle('selected')">
+                    <div class="chip-check"><svg viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></div>
+                    Pants
+                </div>
+            </div>
+        </div>
+
+        <hr class="section-divider">
+
+        <!-- ===== NEW: Designer Notes ===== -->
+        <div class="form-section">
+            <div class="section-label">
+                Design Notes for Customer
+                <span class="new-field-tag">New</span>
+            </div>
+            <textarea
+                class="text-input"
+                id="designerNotes"
+                placeholder="Optional — add a message the customer will see with their sketch..."
+                oninput="updatePreview()"
+            ></textarea>
+            <div class="field-hint">
+                This will appear on the customer's sketch review page below the sketch image. Use it to explain design choices, mention things to look at, or set expectations.
+            </div>
+        </div>
+
+        <!-- ===== NEW: Zoom Clip ===== -->
+        <div class="form-section">
+            <div class="section-label">
+                Zoom Clip Link
+                <span class="new-field-tag">New</span>
+            </div>
+            <div class="url-input-wrapper">
+                <svg class="url-input-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="1.5">
+                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                </svg>
+                <input
+                    type="url"
+                    class="text-input"
+                    id="zoomLink"
+                    placeholder="https://zoom.us/clips/..."
+                    oninput="updatePreview()"
+                >
+            </div>
+            <div class="field-hint">
+                Optional — paste a Zoom Clips link if you recorded a design walkthrough. The customer will see a play button to watch it.
+            </div>
+        </div>
+
+        <!-- Live preview of what customer will see -->
+        <div class="customer-preview" id="customerPreview">
+            <div class="customer-preview-label">Live preview — what the customer will see</div>
+            <div class="customer-preview-box">
+                <div class="preview-notes empty" id="previewNotes">Type a note above to see how it looks...</div>
+                <div class="preview-author" id="previewAuthor" style="display:none;">— Erica, Show Off Design Team</div>
+                <div class="preview-video" id="previewVideo">
+                    <div class="preview-video-icon">
+                        <svg viewBox="0 0 24 24"><polygon points="8,5 19,12 8,19"/></svg>
+                    </div>
+                    <div class="preview-video-text">Design Walkthrough Video — click to watch</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="form-actions">
+            <button class="btn btn-back" onclick="alert('Demo only — would go back to Step 1 (Line Items)')">
+                Back
+            </button>
+            <button class="btn btn-submit" onclick="handleSubmit()">
+                Submit Sketch
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function updatePreview() {
+            const notes = document.getElementById('designerNotes').value.trim();
+            const link = document.getElementById('zoomLink').value.trim();
+            const previewNotes = document.getElementById('previewNotes');
+            const previewAuthor = document.getElementById('previewAuthor');
+            const previewVideo = document.getElementById('previewVideo');
+
+            if (notes) {
+                previewNotes.textContent = '"' + notes + '"';
+                previewNotes.classList.remove('empty');
+                previewNotes.style.fontStyle = 'italic';
+                previewAuthor.style.display = 'block';
+            } else {
+                previewNotes.textContent = 'Type a note above to see how it looks...';
+                previewNotes.classList.add('empty');
+                previewNotes.style.fontStyle = 'normal';
+                previewAuthor.style.display = 'none';
+            }
+
+            if (link) {
+                previewVideo.classList.add('visible');
+            } else {
+                previewVideo.classList.remove('visible');
+            }
+        }
+
+        function handleSubmit() {
+            const notes = document.getElementById('designerNotes').value.trim();
+            const link = document.getElementById('zoomLink').value.trim();
+
+            const payload = {
+                dealNumber: '10760',
+                dealId: '55499241472',
+                items: [{ id: '50988281404', name: 'bye bye truck', quantity: '1', price: '50' }],
+                deletedItems: [],
+                costumeComponents: 'one_piece',
+                designerNotes: notes || null,
+                zoomClipUrl: link || null
+            };
+
+            console.log('DEMO — Would submit this payload:', JSON.stringify(payload, null, 2));
+
+            alert(
+                'DEMO — Sketch submitted!\n\n' +
+                'Designer notes: ' + (notes || '(none)') + '\n' +
+                'Zoom clip: ' + (link || '(none)') + '\n\n' +
+                'Check browser console for full payload.'
+            );
+        }
+    </script>
+</body>
+</html>

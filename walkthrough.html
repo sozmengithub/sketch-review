@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PO Quote Tool — How It Works</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --warm-bg: #faf8f5;
+      --card-bg: #ffffff;
+      --dark: #1a1614;
+      --text: #3d3530;
+      --text-muted: #8a7e76;
+      --accent-green: #4a7c6f;
+      --accent-green-light: #e8f2ef;
+      --accent-brown: #7c6a4a;
+      --accent-brown-light: #f5f0e8;
+      --accent-blue: #4a6a7c;
+      --accent-blue-light: #e8eff5;
+      --border: #ebe6e0;
+      --shadow: 0 4px 24px rgba(26,22,20,0.06);
+      --shadow-lg: 0 12px 48px rgba(26,22,20,0.10);
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--warm-bg);
+      color: var(--text);
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      background: var(--dark);
+      color: #fff;
+      padding: 80px 24px 60px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 120px;
+      background: linear-gradient(to bottom, transparent, var(--warm-bg));
+      pointer-events: none;
+    }
+    .hero-badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.15);
+      padding: 6px 16px;
+      border-radius: 100px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 24px;
+    }
+    .hero h1 {
+      font-size: clamp(36px, 5vw, 52px);
+      font-weight: 800;
+      letter-spacing: -1.5px;
+      margin-bottom: 16px;
+      line-height: 1.1;
+    }
+    .hero p {
+      font-size: 18px;
+      color: rgba(255,255,255,0.55);
+      max-width: 480px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* ── Flow bar ── */
+    .flow-wrap {
+      max-width: 960px;
+      margin: -28px auto 0;
+      padding: 0 24px;
+      position: relative;
+      z-index: 2;
+    }
+    .flow-bar {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 20px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      box-shadow: var(--shadow-lg);
+      flex-wrap: wrap;
+    }
+    .flow-pip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      white-space: nowrap;
+      padding: 4px 0;
+    }
+    .flow-pip .num {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; color: #fff; flex-shrink: 0;
+    }
+    .flow-pip.erica .num { background: var(--accent-green); }
+    .flow-pip.customer .num { background: var(--accent-brown); }
+    .flow-pip.auto .num { background: var(--accent-blue); }
+    .flow-arr { color: #d4cec7; margin: 0 10px; font-size: 16px; }
+
+    /* ── Legend ── */
+    .legend {
+      display: flex; gap: 28px; justify-content: center;
+      margin: 20px 0 0; font-size: 13px; color: var(--text-muted);
+    }
+    .legend span { display: flex; align-items: center; gap: 6px; }
+    .legend .dot { width: 8px; height: 8px; border-radius: 50%; }
+    .legend .dot.g { background: var(--accent-green); }
+    .legend .dot.b { background: var(--accent-brown); }
+    .legend .dot.bl { background: var(--accent-blue); }
+
+    /* ── Section containers ── */
+    .sections {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+
+    /* ── Step card ── */
+    .step {
+      margin-bottom: 48px;
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .step.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .step-label {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+    .step-num {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; font-weight: 800; color: #fff; flex-shrink: 0;
+    }
+    .step.erica .step-num { background: var(--accent-green); }
+    .step.customer .step-num { background: var(--accent-brown); }
+    .step.auto .step-num { background: var(--accent-blue); }
+
+    .step-meta { display: flex; flex-direction: column; }
+    .step-who {
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .step.erica .step-who { color: var(--accent-green); }
+    .step.customer .step-who { color: var(--accent-brown); }
+    .step.auto .step-who { color: var(--accent-blue); }
+    .step-title {
+      font-size: 24px; font-weight: 800; letter-spacing: -0.5px;
+      color: var(--dark);
+    }
+
+    .step-card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+    .step-card p {
+      font-size: 15px;
+      color: var(--text);
+      margin-bottom: 16px;
+      line-height: 1.7;
+    }
+    .step-card p:last-child { margin-bottom: 0; }
+
+    /* ── Live page embed ── */
+    .embed-wrap {
+      margin: 24px 0;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+    }
+    .embed-toolbar {
+      background: #f0ece7;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .embed-dots {
+      display: flex; gap: 6px;
+    }
+    .embed-dots span {
+      width: 10px; height: 10px; border-radius: 50%;
+    }
+    .embed-dots span:nth-child(1) { background: #e8685a; }
+    .embed-dots span:nth-child(2) { background: #f0b840; }
+    .embed-dots span:nth-child(3) { background: #62c554; }
+    .embed-url {
+      flex: 1;
+      background: #fff;
+      border-radius: 6px;
+      padding: 5px 12px;
+      font-size: 12px;
+      color: var(--text-muted);
+      font-family: 'SF Mono', 'Menlo', monospace;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .embed-frame {
+      width: 100%;
+      height: 600px;
+      border: none;
+      display: block;
+      background: #fff;
+    }
+    .embed-note {
+      background: #f8f6f2;
+      padding: 10px 16px;
+      font-size: 12px;
+      color: var(--text-muted);
+      text-align: center;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── Callout ── */
+    .callout {
+      display: flex;
+      gap: 14px;
+      padding: 16px 20px;
+      border-radius: 10px;
+      margin: 20px 0;
+      font-size: 14px;
+      line-height: 1.6;
+      align-items: flex-start;
+    }
+    .callout-icon { font-size: 18px; flex-shrink: 0; line-height: 1.5; }
+    .callout.green {
+      background: var(--accent-green-light);
+      border: 1px solid #c5ddd6;
+      color: #2a5a4a;
+    }
+    .callout.brown {
+      background: var(--accent-brown-light);
+      border: 1px solid #ddd4c0;
+      color: #5a4a2a;
+    }
+    .callout.blue {
+      background: var(--accent-blue-light);
+      border: 1px solid #c0d0dd;
+      color: #2a4a5a;
+    }
+
+    /* ── Email preview ── */
+    .email-mock {
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      margin: 20px 0;
+    }
+    .email-mock-header {
+      background: #f4f1ec;
+      padding: 12px 18px;
+      font-size: 13px;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+    }
+    .email-mock-header strong { color: var(--text); }
+    .email-mock-body {
+      padding: 24px;
+      font-size: 14px;
+      color: #555;
+      line-height: 1.8;
+      background: #fff;
+    }
+    .email-btn-mock {
+      display: inline-block;
+      background: var(--dark);
+      color: #fff;
+      padding: 10px 24px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      margin: 12px 6px 12px 0;
+    }
+    .email-btn-mock.secondary {
+      background: #e8e4df;
+      color: var(--dark);
+    }
+
+    /* ── Status badges ── */
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    .badge.draft { background: #fff3cd; color: #856404; }
+    .badge.sent { background: #cce5ff; color: #004085; }
+    .badge.final { background: #d4edda; color: #155724; }
+    .badge.received { background: #c8e6c9; color: #1b5e20; }
+
+    .lifecycle {
+      display: flex; align-items: center; justify-content: center;
+      gap: 0; margin: 20px 0; flex-wrap: wrap;
+    }
+    .lifecycle .arr { margin: 0 10px; color: #ccc; font-size: 14px; }
+
+    /* ── Connector ── */
+    .connector {
+      text-align: center;
+      padding: 8px 0;
+      opacity: 0;
+      transition: opacity 0.4s ease 0.3s;
+    }
+    .connector.visible { opacity: 1; }
+    .connector svg {
+      width: 24px; height: 32px;
+    }
+
+    /* ── FAQ ── */
+    .faq-heading {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--text-muted);
+      margin: 56px 0 20px;
+    }
+    .faq {
+      background: var(--card-bg);
+      border-radius: 12px;
+      margin-bottom: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+    .faq.visible { opacity: 1; transform: translateY(0); }
+    .faq summary {
+      padding: 18px 24px;
+      font-weight: 600;
+      font-size: 15px;
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: background 0.2s;
+    }
+    .faq summary:hover { background: #faf8f5; }
+    .faq summary::-webkit-details-marker { display: none; }
+    .faq summary::before {
+      content: '+';
+      width: 24px; height: 24px;
+      border-radius: 6px;
+      background: #f0ece7;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; color: var(--text-muted); font-size: 16px;
+      flex-shrink: 0;
+      transition: transform 0.2s;
+    }
+    .faq[open] summary::before {
+      content: '\2212';
+      background: var(--dark);
+      color: #fff;
+    }
+    .faq .faq-body {
+      padding: 0 24px 20px 60px;
+      color: var(--text-muted);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    /* ── Footer ── */
+    .footer {
+      text-align: center;
+      padding: 48px 24px;
+      color: #c4bdb5;
+      font-size: 12px;
+      letter-spacing: 0.3px;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 680px) {
+      .flow-bar { padding: 16px; gap: 4px; }
+      .flow-arr { display: none; }
+      .flow-pip { font-size: 11px; }
+      .step-card { padding: 24px 20px; }
+      .embed-frame { height: 420px; }
+      .hero { padding: 60px 20px 48px; }
+      .step-title { font-size: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-badge">Internal Walkthrough</div>
+    <h1>The PO Quote Tool</h1>
+    <p>How customers create their own quote, send it to their purchasing department, and upload their PO &mdash; without us playing middleman.</p>
+  </div>
+
+  <!-- Flow overview -->
+  <div class="flow-wrap">
+    <div class="flow-bar">
+      <div class="flow-pip erica"><span class="num">1</span> Build Quote</div>
+      <span class="flow-arr">&rarr;</span>
+      <div class="flow-pip erica"><span class="num">2</span> Send Link</div>
+      <span class="flow-arr">&rarr;</span>
+      <div class="flow-pip customer"><span class="num">3</span> Customer Edits &amp; Finalizes</div>
+      <span class="flow-arr">&rarr;</span>
+      <div class="flow-pip customer"><span class="num">4</span> Upload PO</div>
+      <span class="flow-arr">&rarr;</span>
+      <div class="flow-pip auto"><span class="num">5</span> Deal Updated</div>
+    </div>
+    <div class="legend">
+      <span><span class="dot g"></span> Erica does this</span>
+      <span><span class="dot b"></span> Customer does this</span>
+      <span><span class="dot bl"></span> Automatic</span>
+    </div>
+  </div>
+
+  <!-- Steps -->
+  <div class="sections">
+
+    <!-- ═══ STEP 1 ═══ -->
+    <div class="step erica">
+      <div class="step-label">
+        <div class="step-num">1</div>
+        <div class="step-meta">
+          <div class="step-who">Erica</div>
+          <div class="step-title">Build the Quote</div>
+        </div>
+      </div>
+      <div class="step-card">
+        <p>Erica clicks the <strong>"PO Quote"</strong> bookmark in Chrome. A popup asks for the deal number &mdash; she types it in and hits OK. The quote builder opens with everything pulled from HubSpot: customer name, email, and all line items.</p>
+        <p>She edits line items, adds or removes rows, fills in the school name, attention line, mailing address, and any comments for the school's finance department. Totals update automatically.</p>
+
+        <!-- LIVE EMBED: Admin page -->
+        <div class="embed-wrap">
+          <div class="embed-toolbar">
+            <div class="embed-dots"><span></span><span></span><span></span></div>
+            <div class="embed-url">sketch-review.vercel.app/po-quote.html?dealNumber=10808</div>
+          </div>
+          <iframe class="embed-frame" src="https://sketch-review.vercel.app/po-quote.html?dealNumber=10808&adminKey=213048de3f26dc3044a17883205be0c2" loading="lazy"></iframe>
+          <div class="embed-note">This is the live admin page for deal 10808 &mdash; scroll inside to see everything</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="connector">
+      <svg viewBox="0 0 24 32"><path d="M12 0 L12 28 M6 22 L12 28 L18 22" stroke="#d4cec7" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+    </div>
+
+    <!-- ═══ STEP 2 ═══ -->
+    <div class="step erica">
+      <div class="step-label">
+        <div class="step-num">2</div>
+        <div class="step-meta">
+          <div class="step-who">Erica</div>
+          <div class="step-title">Send the Review Link</div>
+        </div>
+      </div>
+      <div class="step-card">
+        <p>At the bottom of the admin page, Erica clicks <strong>"Send to Customer"</strong>. Two things happen:</p>
+        <p>1. The customer gets an email with a secure link to their quote dashboard<br>
+           2. A notification email arrives in the HubSpot inbox so the whole team can see it was sent</p>
+
+        <div class="email-mock">
+          <div class="email-mock-header">
+            <strong>From:</strong> support@showoffinc.com &nbsp;&middot;&nbsp; <strong>To:</strong> klgreer90@gmail.com
+          </div>
+          <div class="email-mock-body">
+            Hi Kacie,<br><br>
+            Your quote is ready for review. Click below to view your quote dashboard where you can review details, edit presentation fields, and finalize.<br><br>
+            <span class="email-btn-mock">Open Quote Dashboard</span><br><br>
+            <em style="color:#aaa; font-size:12px">Bookmark this email for easy access.</em>
+          </div>
+        </div>
+
+        <p>The status on the deal changes from <span class="badge draft">Draft</span> to <span class="badge sent">Sent to Customer</span>. From here, it's the customer's turn.</p>
+      </div>
+    </div>
+
+    <div class="connector">
+      <svg viewBox="0 0 24 32"><path d="M12 0 L12 28 M6 22 L12 28 L18 22" stroke="#d4cec7" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+    </div>
+
+    <!-- ═══ STEP 3 ═══ -->
+    <div class="step customer">
+      <div class="step-label">
+        <div class="step-num">3</div>
+        <div class="step-meta">
+          <div class="step-who">Customer</div>
+          <div class="step-title">Reviews, Edits &amp; Finalizes Their Quote</div>
+        </div>
+      </div>
+      <div class="step-card">
+        <p>The customer clicks the link in their email and lands on their own quote dashboard. This is the self-service tool &mdash; it looks like a formal document branded "Trimsuits by Show Off Inc." with all the line items Erica set up.</p>
+
+        <div class="callout brown">
+          <span class="callout-icon">&#9998;</span>
+          <span><strong>The customer can edit presentation fields</strong> &mdash; quote title, company name, attention line, mailing address. This lets them reformat the quote to match their school's procurement system. <strong>Line items and prices are locked &mdash; only Erica can change those.</strong></span>
+        </div>
+
+        <p>At the bottom of the page, the customer:</p>
+        <p>1. Enters their <strong>PO Number</strong> (if they have one already)<br>
+           2. Chooses <strong>who receives the formal quote</strong> &mdash; they can change the email and add CC recipients (their finance department, athletic director, etc.)<br>
+           3. Clicks <strong>"Finalize Quote Template"</strong></p>
+
+        <p>This creates a formal HubSpot quote and emails it to whoever the customer chose. <strong>The customer routes it to the right people at their school themselves &mdash; we don't have to play middleman.</strong></p>
+
+        <!-- LIVE EMBED: Customer review page -->
+        <div class="embed-wrap">
+          <div class="embed-toolbar">
+            <div class="embed-dots"><span></span><span></span><span></span></div>
+            <div class="embed-url">sketch-review.vercel.app/po-quote-review.html &mdash; What the customer sees</div>
+          </div>
+          <iframe class="embed-frame" style="height:700px" src="https://sketch-review.vercel.app/po-quote-review.html?dealId=57305639477&token=1da79e8f141d214a" loading="lazy"></iframe>
+          <div class="embed-note">This is the LIVE customer page for deal 10808 (Kacie Greer) &mdash; scroll inside to see the full quote, editable fields, PO number entry, and finalize button</div>
+        </div>
+
+        <div class="callout brown">
+          <span class="callout-icon">&#128172;</span>
+          <span>If the customer needs to change pricing or items, they click <strong>"Request Changes"</strong> which opens an email to support@showoffinc.com. That lands in our inbox &mdash; Erica adjusts on the admin page and re-sends.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="connector">
+      <svg viewBox="0 0 24 32"><path d="M12 0 L12 28 M6 22 L12 28 L18 22" stroke="#d4cec7" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+    </div>
+
+    <!-- ═══ STEP 4 ═══ -->
+    <div class="step customer">
+      <div class="step-label">
+        <div class="step-num">4</div>
+        <div class="step-meta">
+          <div class="step-who">Customer</div>
+          <div class="step-title">Uploads Their PO Document</div>
+        </div>
+      </div>
+      <div class="step-card">
+        <p>After finalizing, the page shows a success screen with a <strong>PO Upload</strong> section. The customer drags and drops their PO document (PDF, PNG, or JPG, max 3MB) and clicks <strong>"Upload PO"</strong>.</p>
+        <p>The file gets saved directly to the deal in HubSpot. Both the customer and our team get confirmation emails at support@showoffinc.com.</p>
+
+        <div class="callout brown">
+          <span class="callout-icon">&#128203;</span>
+          <span>Not every customer uploads right away. Schools can take weeks to issue a PO. The upload link stays active &mdash; they come back from the email anytime. The deal status stays at "Finalized" until they upload.</span>
+        </div>
+
+        <div class="callout blue">
+          <span class="callout-icon">&#128064;</span>
+          <span><strong>Team note:</strong> When a PO is uploaded, a notification hits the HubSpot inbox automatically. The PO document is linked on the deal record &mdash; no need to ask the customer to email it separately.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="connector">
+      <svg viewBox="0 0 24 32"><path d="M12 0 L12 28 M6 22 L12 28 L18 22" stroke="#d4cec7" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+    </div>
+
+    <!-- ═══ STEP 5 ═══ -->
+    <div class="step auto">
+      <div class="step-label">
+        <div class="step-num">5</div>
+        <div class="step-meta">
+          <div class="step-who">Automatic</div>
+          <div class="step-title">Everything Updates in HubSpot</div>
+        </div>
+      </div>
+      <div class="step-card">
+        <p>At every stage, the system automatically updates the deal in HubSpot &mdash; PO quote status, PO number, PO document link, and formal quote link. Notification emails go to <strong>support@showoffinc.com</strong> at each stage, so the whole team has visibility without needing to check the deal.</p>
+
+        <div class="lifecycle">
+          <span class="badge draft">Draft</span>
+          <span class="arr">&rarr;</span>
+          <span class="badge sent">Sent to Customer</span>
+          <span class="arr">&rarr;</span>
+          <span class="badge final">Finalized</span>
+          <span class="arr">&rarr;</span>
+          <span class="badge received">PO Received</span>
+        </div>
+
+        <p style="text-align:center; color:var(--text-muted); font-size:14px; margin-top:8px;">Status never goes backwards &mdash; it only moves forward.</p>
+      </div>
+    </div>
+
+    <!-- ═══ FAQ ═══ -->
+    <div class="faq-heading">Common Questions</div>
+
+    <details class="faq">
+      <summary>What if the customer needs to change pricing?</summary>
+      <div class="faq-body">They click "Request Changes" on the review page, which opens an email to support@showoffinc.com. That lands in our inbox. Erica adjusts line items on the admin page and re-sends the review link.</div>
+    </details>
+
+    <details class="faq">
+      <summary>Can the customer send the quote to someone else at the school?</summary>
+      <div class="faq-body">Yes &mdash; that's the whole point. When they finalize, they choose who gets the formal quote email and can add CC recipients. Finance department, athletic director, procurement office &mdash; they route it themselves. We never have to be the go-between.</div>
+    </details>
+
+    <details class="faq">
+      <summary>What if the customer doesn't upload a PO right away?</summary>
+      <div class="faq-body">Totally normal. Schools can take weeks to issue a PO. The link in the email stays active indefinitely &mdash; they come back whenever they're ready. The deal status stays at "Finalized" until they upload.</div>
+    </details>
+
+    <details class="faq">
+      <summary>How does the team know when a PO is uploaded?</summary>
+      <div class="faq-body">A notification email hits support@showoffinc.com automatically. The PO document is also linked directly on the HubSpot deal record &mdash; no need to ask the customer to email it separately.</div>
+    </details>
+
+    <details class="faq">
+      <summary>Can Erica re-send or edit a quote after it's been sent?</summary>
+      <div class="faq-body">Yes. She opens the admin page with the bookmark, makes changes, and clicks "Send to Customer" again. The customer gets a fresh email with the updated review link.</div>
+    </details>
+
+    <details class="faq">
+      <summary>How long is the quote valid?</summary>
+      <div class="faq-body">120 days from the date it's sent. After that, the formal quote expires and Erica would send a new one.</div>
+    </details>
+
+    <details class="faq">
+      <summary>Where is the formal quote document?</summary>
+      <div class="faq-body">After the customer finalizes, HubSpot hosts a branded quote page they can print or forward. The link is saved on the deal as "PO Quote Link" and also emailed to the customer and whoever they CC'd.</div>
+    </details>
+
+  </div>
+
+  <div class="footer">
+    Show Off Inc. &mdash; Internal Tool Walkthrough &mdash; April 2026
+  </div>
+
+  <!-- Scroll reveal animation -->
+  <script>
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+
+    document.querySelectorAll('.step, .connector, .faq').forEach(el => observer.observe(el));
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DEMO — Sketch Review with Add-Ons | Show Off</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: #fff;
+            color: #1a1a1a;
+            font-size: 13px;
+            font-weight: 400;
+            line-height: 1.5;
+            letter-spacing: 0.01em;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .svg-filters {
+            position: absolute;
+            width: 0;
+            height: 0;
+        }
+
+        .watermark-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 86vh;
+            font-weight: 500;
+            letter-spacing: -0.05em;
+            white-space: nowrap;
+            transform: translate(-50%, -50%) rotate(-50deg);
+            transform-origin: center center;
+            user-select: none;
+            color: transparent;
+            background: linear-gradient(
+                135deg,
+                rgba(0,0,0,0.08) 0%,
+                rgba(0,0,0,0.12) 20%,
+                rgba(0,0,0,0.06) 40%,
+                rgba(0,0,0,0.10) 60%,
+                rgba(0,0,0,0.07) 80%,
+                rgba(0,0,0,0.09) 100%
+            );
+            -webkit-background-clip: text;
+            background-clip: text;
+            filter: url(#ink-bleed);
+        }
+
+        .watermark-shadow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 86vh;
+            font-weight: 500;
+            letter-spacing: -0.05em;
+            white-space: nowrap;
+            transform: translate(-49.5%, -50.5%) rotate(-50deg);
+            transform-origin: center center;
+            user-select: none;
+            color: rgba(0,0,0,0.03);
+            filter: blur(2px);
+        }
+
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 40px 24px 60px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Demo banner */
+        .demo-banner {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            padding: 10px 14px;
+            margin-bottom: 20px;
+            font-size: 11px;
+            color: #92400e;
+            text-align: center;
+            letter-spacing: 0.05em;
+        }
+        .demo-banner strong {
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 28px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 22px;
+            font-weight: 500;
+            letter-spacing: 0.04em;
+        }
+
+        .order-number {
+            font-size: 10px;
+            color: #666;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        /* Sketch */
+        .sketch-section {
+            margin-bottom: 20px;
+        }
+
+        .sketch-frame {
+            aspect-ratio: 5/4;
+            background: rgba(255,255,255,0.85);
+            border: 1px solid rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            backdrop-filter: blur(8px);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .sketch-frame:hover::after {
+            content: 'Click to enlarge';
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            font-size: 10px;
+            color: #666;
+            background: rgba(255,255,255,0.9);
+            padding: 4px 8px;
+            letter-spacing: 0.05em;
+        }
+
+        .sketch-frame img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .sketch-placeholder {
+            color: #bbb;
+            font-size: 11px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+
+        /* ===== NEW: Designer Notes ===== */
+        .designer-notes {
+            margin-bottom: 20px;
+            padding: 14px 16px;
+            background: rgba(250, 249, 247, 0.95);
+            border: 1px solid rgba(0,0,0,0.08);
+            backdrop-filter: blur(8px);
+        }
+
+        .designer-notes-label {
+            font-size: 9px;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: #888;
+            margin-bottom: 8px;
+        }
+
+        .designer-notes-text {
+            font-size: 13px;
+            color: #444;
+            line-height: 1.6;
+            font-style: italic;
+        }
+
+        .designer-notes-author {
+            font-size: 10px;
+            color: #aaa;
+            margin-top: 8px;
+            letter-spacing: 0.05em;
+        }
+
+        /* ===== NEW: Zoom Clip ===== */
+        .video-section {
+            margin-bottom: 20px;
+        }
+
+        .video-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            background: rgba(250, 249, 247, 0.95);
+            border: 1px solid rgba(0,0,0,0.08);
+            backdrop-filter: blur(8px);
+            cursor: pointer;
+            text-decoration: none;
+            color: #1a1a1a;
+            transition: border-color 0.2s;
+        }
+
+        .video-link:hover {
+            border-color: rgba(0,0,0,0.2);
+        }
+
+        .video-icon {
+            width: 36px;
+            height: 36px;
+            background: #1a1a1a;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .video-icon svg {
+            width: 14px;
+            height: 14px;
+            fill: #fff;
+            margin-left: 2px;
+        }
+
+        .video-info {
+            flex: 1;
+        }
+
+        .video-title {
+            font-size: 12px;
+            font-weight: 500;
+            letter-spacing: 0.02em;
+        }
+
+        .video-subtitle {
+            font-size: 10px;
+            color: #888;
+            letter-spacing: 0.05em;
+            margin-top: 1px;
+        }
+
+        /* Lightbox */
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .lightbox.active {
+            display: flex;
+        }
+
+        .lightbox img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: #fff;
+            font-size: 24px;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Line Items */
+        .quote-section {
+            margin-bottom: 20px;
+        }
+
+        .section-label {
+            font-size: 9px;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: #888;
+            margin-bottom: 10px;
+        }
+
+        .quote-box {
+            background: rgba(255,255,255,0.9);
+            border: 1px solid rgba(0,0,0,0.1);
+            backdrop-filter: blur(8px);
+        }
+
+        .quote-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 14px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .quote-header:hover {
+            background: rgba(0,0,0,0.02);
+        }
+
+        .quote-total-display {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .quote-total-label {
+            font-size: 11px;
+            color: #666;
+        }
+
+        .quote-total-amount {
+            font-size: 16px;
+            font-weight: 500;
+            color: #1a1a1a;
+        }
+
+        .quote-toggle {
+            font-size: 10px;
+            color: #888;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .quote-toggle-icon {
+            transition: transform 0.2s ease;
+        }
+
+        .quote-box.expanded .quote-toggle-icon {
+            transform: rotate(180deg);
+        }
+
+        .line-items {
+            display: none;
+            border-top: 1px solid rgba(0,0,0,0.06);
+        }
+
+        .quote-box.expanded .line-items {
+            display: block;
+        }
+
+        .line-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 10px 14px;
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+        }
+
+        .line-item:last-child {
+            border-bottom: none;
+        }
+
+        .item-details {
+            flex: 1;
+        }
+
+        .item-name {
+            font-weight: 500;
+            font-size: 13px;
+        }
+
+        .item-meta {
+            font-size: 10px;
+            color: #888;
+            margin-top: 1px;
+        }
+
+        .item-price {
+            font-weight: 500;
+            font-size: 13px;
+            white-space: nowrap;
+            margin-left: 12px;
+        }
+
+        /* Totals */
+        .totals {
+            display: none;
+            background: rgba(248,248,248,0.9);
+            padding: 10px 14px;
+            border-top: 1px solid rgba(0,0,0,0.06);
+        }
+
+        .quote-box.expanded .totals {
+            display: block;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 3px 0;
+            font-size: 11px;
+            color: #666;
+        }
+
+        .total-row.grand-total {
+            padding-top: 8px;
+            margin-top: 6px;
+            border-top: 1px solid rgba(0,0,0,0.1);
+            font-size: 14px;
+            font-weight: 500;
+            color: #1a1a1a;
+        }
+
+        /* ===== NEW: Add-Ons Section ===== */
+        .addons-section {
+            margin-bottom: 20px;
+        }
+
+        .addons-box {
+            background: rgba(255,255,255,0.9);
+            border: 1px solid rgba(0,0,0,0.1);
+            backdrop-filter: blur(8px);
+        }
+
+        .addon-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 16px;
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+            transition: background 0.15s;
+        }
+
+        .addon-item:last-child {
+            border-bottom: none;
+        }
+
+        .addon-item:hover {
+            background: rgba(0,0,0,0.015);
+        }
+
+        .addon-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .addon-info {
+            flex: 1;
+        }
+
+        .addon-name {
+            font-weight: 500;
+            font-size: 13px;
+        }
+
+        .addon-desc {
+            font-size: 10px;
+            color: #888;
+            margin-top: 1px;
+            letter-spacing: 0.02em;
+        }
+
+        .addon-price {
+            font-size: 13px;
+            font-weight: 500;
+            color: #1a1a1a;
+            margin-right: 14px;
+            white-space: nowrap;
+        }
+
+        /* Toggle switch */
+        .toggle-switch {
+            position: relative;
+            width: 42px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ddd;
+            transition: 0.25s;
+            border-radius: 24px;
+        }
+
+        .toggle-slider:before {
+            content: "";
+            position: absolute;
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.25s;
+            border-radius: 50%;
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background-color: #1a1a1a;
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(18px);
+        }
+
+        .addon-item.active {
+            background: rgba(0,0,0,0.02);
+        }
+
+        .addon-added-tag {
+            display: none;
+            font-size: 9px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #16a34a;
+            font-weight: 500;
+        }
+
+        .addon-item.active .addon-added-tag {
+            display: inline;
+        }
+
+        /* Actions */
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 13px 16px;
+            font-family: inherit;
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: #1a1a1a;
+            color: #fff;
+            border: 1px solid #1a1a1a;
+        }
+
+        .btn-primary:hover {
+            background: #000;
+        }
+
+        .btn-primary:disabled {
+            background: #999;
+            border-color: #999;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.9);
+            color: #1a1a1a;
+            border: 1px solid #999;
+        }
+
+        .btn-secondary:hover {
+            border-color: #1a1a1a;
+        }
+
+        /* Revision Panel */
+        .revision-panel {
+            display: none;
+            padding-top: 16px;
+            border-top: 1px solid rgba(0,0,0,0.1);
+            margin-bottom: 16px;
+        }
+
+        .revision-panel.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .revision-notes {
+            width: 100%;
+            min-height: 100px;
+            padding: 10px 12px;
+            border: 1px solid #ccc;
+            font-family: inherit;
+            font-size: 13px;
+            resize: vertical;
+            background: rgba(255,255,255,0.95);
+            line-height: 1.5;
+        }
+
+        .revision-notes:focus {
+            outline: none;
+            border-color: #1a1a1a;
+        }
+
+        .revision-notes::placeholder {
+            color: #bbb;
+        }
+
+        .upload-area {
+            border: 1px dashed #aaa;
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s;
+            background: rgba(255,255,255,0.9);
+        }
+
+        .upload-area:hover {
+            border-color: #666;
+        }
+
+        .upload-text {
+            font-size: 11px;
+            color: #888;
+        }
+
+        .upload-text span {
+            color: #1a1a1a;
+            text-decoration: underline;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-list {
+            margin-top: 10px;
+        }
+
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            font-size: 11px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .file-remove {
+            color: #999;
+            cursor: pointer;
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .file-remove:hover {
+            color: #1a1a1a;
+        }
+
+        .submit-revision {
+            width: 100%;
+            margin-top: 14px;
+        }
+
+        .error-message {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 10px 12px;
+            font-size: 12px;
+            margin-top: 12px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        /* Loading & Success States */
+        .loading-view, .success-view {
+            display: none;
+            text-align: center;
+            padding: 80px 20px;
+        }
+
+        .loading-view.active, .success-view.active {
+            display: block;
+        }
+
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 2px solid #e0e0e0;
+            border-top-color: #1a1a1a;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .success-icon {
+            width: 36px;
+            height: 36px;
+            margin: 0 auto 18px;
+            border: 1px solid #1a1a1a;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .success-icon svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .success-title {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 20px;
+            font-weight: 400;
+            margin-bottom: 10px;
+        }
+
+        .success-message {
+            font-size: 12px;
+            color: #666;
+            line-height: 1.6;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+
+        .main-view.hidden {
+            display: none;
+        }
+
+        .btn-loading {
+            position: relative;
+            color: transparent !important;
+        }
+
+        .btn-loading::after {
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            top: 50%;
+            left: 50%;
+            margin: -6px 0 0 -6px;
+            border: 1px solid transparent;
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding-top: 20px;
+            font-size: 10px;
+            color: #aaa;
+            letter-spacing: 0.08em;
+        }
+
+        @media (max-width: 480px) {
+            .watermark, .watermark-shadow {
+                font-size: 70vh;
+            }
+
+            .container {
+                padding: 24px 16px 40px;
+            }
+
+            .actions {
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- SVG Filters for ink effect -->
+    <svg class="svg-filters">
+        <defs>
+            <filter id="ink-bleed" x="-10%" y="-10%" width="120%" height="120%">
+                <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="4" result="noise" seed="3"/>
+                <feDisplacementMap in="SourceGraphic" in2="noise" scale="4" xChannelSelector="R" yChannelSelector="G"/>
+            </filter>
+        </defs>
+    </svg>
+
+    <!-- Giant diagonal watermark -->
+    <div class="watermark-container">
+        <div class="watermark-shadow">showoff</div>
+        <div class="watermark">showoff</div>
+    </div>
+
+    <div class="container">
+        <!-- Demo banner -->
+        <div class="demo-banner">
+            <strong>Demo</strong> — This shows proposed add-ons, designer notes, and video clip features using real data from Deal #10760
+        </div>
+
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">showoff</div>
+        </div>
+
+        <!-- Main View -->
+        <div class="main-view" id="mainView">
+            <!-- Sketch -->
+            <div class="sketch-section">
+                <div class="sketch-frame" onclick="openLightbox()">
+                    <img id="sketchImage" src="https://46092307.fs1.hubspotusercontent-na1.net/hubfs/46092307/sketch-uploads/10760%20Fenn%20-%20showoff%20inc%20-%20test-%20(1)-Feb-07-2026-02-37-53-6094-AM.jpg" alt="Your Design">
+                    <span class="sketch-placeholder" id="sketchPlaceholder" style="display:none;">Loading...</span>
+                </div>
+            </div>
+
+            <!-- NEW: Designer Notes -->
+            <div class="designer-notes" id="designerNotes">
+                <div class="designer-notes-label">Note from your designer</div>
+                <div class="designer-notes-text">
+                    "I went with a higher neckline to complement the team's overall aesthetic. The sequin placement follows the diagonal line we discussed — let me know if you'd like it adjusted!"
+                </div>
+                <div class="designer-notes-author">— Erica, Show Off Design Team</div>
+            </div>
+
+            <!-- NEW: Zoom Clip -->
+            <div class="video-section" id="videoSection">
+                <a class="video-link" href="https://zoom.us/clips/example-demo-link" target="_blank" rel="noopener">
+                    <div class="video-icon">
+                        <svg viewBox="0 0 24 24"><polygon points="8,5 19,12 8,19"/></svg>
+                    </div>
+                    <div class="video-info">
+                        <div class="video-title">Design Walkthrough Video</div>
+                        <div class="video-subtitle">Your designer recorded a quick explanation of this sketch</div>
+                    </div>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="1.5">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                        <polyline points="15 3 21 3 21 9"/>
+                        <line x1="10" y1="14" x2="21" y2="3"/>
+                    </svg>
+                </a>
+            </div>
+
+            <!-- Quote Details - Collapsible -->
+            <div class="quote-section">
+                <div class="order-number">Order #10760 — Fenn</div>
+                <div class="quote-box expanded" id="quoteBox">
+                    <div class="quote-header" onclick="toggleQuote()">
+                        <div class="quote-total-display">
+                            <span class="quote-total-label">Total</span>
+                            <span class="quote-total-amount" id="totalDisplay">$50.00</span>
+                        </div>
+                        <div class="quote-toggle">
+                            <span>Details</span>
+                            <svg class="quote-toggle-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M6 9l6 6 6-6"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="line-items" id="lineItems">
+                        <div class="line-item">
+                            <div class="item-details">
+                                <div class="item-name">bye bye truck</div>
+                                <div class="item-meta">Qty: 1</div>
+                            </div>
+                            <div class="item-price">$50.00</div>
+                        </div>
+                    </div>
+                    <div class="totals" id="totalsSection">
+                        <div class="total-row">
+                            <span>Subtotal</span>
+                            <span id="subtotalDisplay">$50.00</span>
+                        </div>
+                        <div class="total-row" id="addonRow1" style="display:none;">
+                            <span>+ Hairpiece</span>
+                            <span>$30.00</span>
+                        </div>
+                        <div class="total-row" id="addonRow2" style="display:none;">
+                            <span>+ Bra Cups</span>
+                            <span>$21.50</span>
+                        </div>
+                        <div class="total-row">
+                            <span>Shipping</span>
+                            <span>TBD</span>
+                        </div>
+                        <div class="total-row grand-total">
+                            <span>Total</span>
+                            <span id="grandTotalDisplay">$50.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NEW: Optional Add-Ons -->
+            <div class="addons-section">
+                <div class="section-label">Optional Add-Ons</div>
+                <div class="addons-box">
+                    <div class="addon-item" id="addonHairpiece">
+                        <div class="addon-left">
+                            <div class="addon-info">
+                                <div class="addon-name">Hairpiece <span class="addon-added-tag">Added</span></div>
+                                <div class="addon-desc">Custom-matched hairpiece for your costume</div>
+                            </div>
+                        </div>
+                        <span class="addon-price">+$30.00</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="toggleHairpiece" onchange="updateAddons()">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="addon-item" id="addonBraCups">
+                        <div class="addon-left">
+                            <div class="addon-info">
+                                <div class="addon-name">Bra Cups <span class="addon-added-tag">Added</span></div>
+                                <div class="addon-desc">Sewn-in support cups for comfortable fit</div>
+                            </div>
+                        </div>
+                        <span class="addon-price">+$21.50</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="toggleBraCups" onchange="updateAddons()">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="actions" id="actionButtons">
+                <button class="btn btn-primary" id="approveBtn" onclick="handleApprove()">
+                    Approve
+                </button>
+                <button class="btn btn-secondary" id="revisionToggle" onclick="toggleRevision()">
+                    Request Changes
+                </button>
+            </div>
+
+            <!-- Revision Panel -->
+            <div class="revision-panel" id="revisionPanel">
+                <div class="form-group">
+                    <div class="section-label">What would you like changed?</div>
+                    <textarea
+                        class="revision-notes"
+                        id="revisionNotes"
+                        placeholder="Describe the changes you'd like..."
+                    ></textarea>
+                </div>
+
+                <div class="form-group">
+                    <div class="section-label">Reference Images (Optional)</div>
+                    <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+                        <div class="upload-text">
+                            <span>Choose files</span> or drag here
+                        </div>
+                    </div>
+                    <input type="file" id="fileInput" class="file-input" multiple accept="image/*" onchange="handleFiles(this.files)">
+                    <div class="file-list" id="fileList"></div>
+                </div>
+
+                <div class="error-message" id="errorMessage"></div>
+
+                <button class="btn btn-primary submit-revision" id="submitRevisionBtn" onclick="handleRevision()">
+                    Submit Request
+                </button>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div class="loading-view" id="loadingView">
+            <div class="spinner"></div>
+            <p class="loading-text" id="loadingText">Submitting...</p>
+        </div>
+
+        <!-- Approve Success -->
+        <div class="success-view" id="approveSuccess">
+            <div class="success-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M5 13l4 4L19 7"/>
+                </svg>
+            </div>
+            <h2 class="success-title">Design Approved</h2>
+            <p class="success-message" id="approveSuccessMessage">
+                Your invoice is ready in your inbox. With payment complete and measurements on file, you're into the production queue.
+            </p>
+        </div>
+
+        <!-- Revision Success -->
+        <div class="success-view" id="revisionSuccess">
+            <div class="success-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M5 13l4 4L19 7"/>
+                </svg>
+            </div>
+            <h2 class="success-title">Request Received</h2>
+            <p class="success-message">
+                We've received your revision request. Our design team will review your notes and send an updated sketch soon.
+            </p>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer" id="footer">
+            Show Off Inc.
+        </div>
+    </div>
+
+    <!-- Lightbox -->
+    <div class="lightbox" id="lightbox" onclick="closeLightbox()">
+        <div class="lightbox-close">&times;</div>
+        <img src="" alt="Design Preview" id="lightboxImg">
+    </div>
+
+    <script>
+        // ===== Real data from Deal #10760 =====
+        const BASE_SUBTOTAL = 50.00;
+        const ADDON_PRICES = {
+            hairpiece: 30.00,
+            braCups: 21.50
+        };
+
+        // ===== Add-On Logic =====
+        function updateAddons() {
+            const hairpiece = document.getElementById('toggleHairpiece').checked;
+            const braCups = document.getElementById('toggleBraCups').checked;
+
+            // Toggle active state on items
+            document.getElementById('addonHairpiece').classList.toggle('active', hairpiece);
+            document.getElementById('addonBraCups').classList.toggle('active', braCups);
+
+            // Show/hide addon rows in totals
+            document.getElementById('addonRow1').style.display = hairpiece ? 'flex' : 'none';
+            document.getElementById('addonRow2').style.display = braCups ? 'flex' : 'none';
+
+            // Calculate new total
+            let total = BASE_SUBTOTAL;
+            if (hairpiece) total += ADDON_PRICES.hairpiece;
+            if (braCups) total += ADDON_PRICES.braCups;
+
+            // Update all total displays
+            document.getElementById('totalDisplay').textContent = '$' + total.toFixed(2);
+            document.getElementById('grandTotalDisplay').textContent = '$' + total.toFixed(2);
+        }
+
+        // ===== Quote Toggle =====
+        function toggleQuote() {
+            document.getElementById('quoteBox').classList.toggle('expanded');
+        }
+
+        // ===== Lightbox =====
+        function openLightbox() {
+            const sketchImg = document.getElementById('sketchImage');
+            if (sketchImg && sketchImg.src) {
+                document.getElementById('lightboxImg').src = sketchImg.src;
+                document.getElementById('lightbox').classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeLightbox();
+        });
+
+        // ===== Revision Panel =====
+        function toggleRevision() {
+            const panel = document.getElementById('revisionPanel');
+            const actions = document.getElementById('actionButtons');
+
+            if (panel.classList.contains('active')) {
+                panel.classList.remove('active');
+                actions.style.display = 'flex';
+            } else {
+                panel.classList.add('active');
+                actions.style.display = 'none';
+            }
+        }
+
+        // ===== Approve (demo only — logs to console) =====
+        function handleApprove() {
+            const hairpiece = document.getElementById('toggleHairpiece').checked;
+            const braCups = document.getElementById('toggleBraCups').checked;
+
+            let addOns = [];
+            if (hairpiece) addOns.push({ name: 'Hairpiece', price: 30.00 });
+            if (braCups) addOns.push({ name: 'Bra Cups', price: 21.50 });
+
+            const summary = addOns.length > 0
+                ? '\n\nAdd-ons selected:\n' + addOns.map(a => '  - ' + a.name + ': $' + a.price.toFixed(2)).join('\n')
+                : '\n\nNo add-ons selected.';
+
+            const confirmed = confirm(
+                'Approve this sketch?' + summary +
+                '\n\nBy approving, you\'re confirming the design is final and ready for production. ' +
+                'You\'ll receive an invoice for payment immediately.'
+            );
+
+            if (!confirmed) return;
+
+            // Show what would be sent
+            const payload = {
+                dealId: '55499241472',
+                orderName: '10760  Fenn - showoff inc  - test- (1)',
+                action: 'approved',
+                addOns: addOns,
+                approvedAt: new Date().toISOString()
+            };
+
+            console.log('DEMO — Would send this payload:', JSON.stringify(payload, null, 2));
+
+            // Show success
+            document.getElementById('mainView').classList.add('hidden');
+
+            const msg = addOns.length > 0
+                ? 'Your invoice is ready in your inbox — including ' + addOns.map(a => a.name.toLowerCase()).join(' and ') + '. With payment complete and measurements on file, you\'re into the production queue.'
+                : 'Your invoice is ready in your inbox. With payment complete and measurements on file, you\'re into the production queue.';
+
+            document.getElementById('approveSuccessMessage').textContent = msg;
+            document.getElementById('approveSuccess').classList.add('active');
+            document.getElementById('footer').style.display = 'none';
+        }
+
+        // ===== Revision (demo only) =====
+        function handleRevision() {
+            const notes = document.getElementById('revisionNotes').value.trim();
+            if (!notes) {
+                document.getElementById('errorMessage').textContent = 'Please describe what changes you would like.';
+                document.getElementById('errorMessage').classList.add('show');
+                document.getElementById('revisionNotes').focus();
+                return;
+            }
+
+            console.log('DEMO — Revision notes:', notes);
+
+            document.getElementById('mainView').classList.add('hidden');
+            document.getElementById('revisionSuccess').classList.add('active');
+            document.getElementById('footer').style.display = 'none';
+        }
+
+        // ===== File handling (kept functional for demo) =====
+        let uploadedFiles = [];
+
+        function handleFiles(files) {
+            for (let file of files) {
+                if (file.type.startsWith('image/') && file.size <= 10 * 1024 * 1024) {
+                    uploadedFiles.push(file);
+                }
+            }
+            updateFileList();
+        }
+
+        function updateFileList() {
+            const list = document.getElementById('fileList');
+            list.innerHTML = uploadedFiles.map((file, i) =>
+                '<div class="file-item"><span>' + file.name + '</span><span class="file-remove" onclick="removeFile(' + i + ')">Remove</span></div>'
+            ).join('');
+        }
+
+        function removeFile(index) {
+            uploadedFiles.splice(index, 1);
+            updateFileList();
+        }
+
+        // Drag and drop
+        const uploadArea = document.getElementById('uploadArea');
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#1a1a1a';
+        });
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.borderColor = '#aaa';
+        });
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#aaa';
+            handleFiles(e.dataTransfer.files);
+        });
+    </script>
+</body>
+</html>
