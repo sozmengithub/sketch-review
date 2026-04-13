@@ -1331,6 +1331,28 @@
                     }
                 }
 
+                // Load sketch from API if not in URL params
+                if (!sketchUrl && data.sketchUrl) {
+                    sketchUrl = data.sketchUrl;
+                    const isPdf = sketchUrl.toLowerCase().endsWith('.pdf');
+                    if (isPdf) {
+                        document.getElementById('sketchPdfBtn').style.display = 'flex';
+                        document.getElementById('sketchPlaceholder').style.display = 'none';
+                        document.getElementById('sketchFrame').style.cursor = 'default';
+                        document.getElementById('sketchFrame').classList.add('pdf-mode');
+                    } else {
+                        const img = document.getElementById('sketchImage');
+                        img.src = sketchUrl;
+                        img.onload = () => {
+                            img.style.display = 'block';
+                            document.getElementById('sketchPlaceholder').style.display = 'none';
+                        };
+                        img.onerror = () => {
+                            document.getElementById('sketchPlaceholder').textContent = 'Unable to load sketch';
+                        };
+                    }
+                }
+
                 // Show video section if present
                 if (data.sketchVideoUrl) {
                     document.getElementById('videoLink').href = data.sketchVideoUrl;

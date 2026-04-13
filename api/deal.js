@@ -49,7 +49,7 @@ export default async function handler(req, res) {
     let hubspotDealId = dealId;
 
     const directResponse = await fetch(
-      `https://api.hubapi.com/crm/v3/objects/deals/${dealId}?properties=dealname,amount,designer_notes,sketch_video_url,has_stoning,stoning_budget_low,stoning_budget_high,sketch_options,is_po_customer,sketch_approved,ofcostumes,is_alteration,shipping_street_address__deal_,shipping_street_address_2__deal_,shipping_city,shipping_state,shipping_zip_code,shipping_address_confirmed_date`,
+      `https://api.hubapi.com/crm/v3/objects/deals/${dealId}?properties=dealname,amount,designer_notes,sketch_video_url,has_stoning,stoning_budget_low,stoning_budget_high,sketch_options,is_po_customer,sketch_approved,ofcostumes,is_alteration,shipping_street_address__deal_,shipping_street_address_2__deal_,shipping_city,shipping_state,shipping_zip_code,shipping_address_confirmed_date,sketch,sketch_public_url,approved_sketch_link`,
       { headers }
     );
 
@@ -72,7 +72,7 @@ export default async function handler(req, res) {
                 value: dealId
               }]
             }],
-            properties: ['dealname', 'amount', 'designer_notes', 'sketch_video_url', 'has_stoning', 'stoning_budget_low', 'stoning_budget_high', 'sketch_options', 'is_po_customer', 'sketch_approved', 'ofcostumes', 'is_alteration', 'shipping_street_address__deal_', 'shipping_street_address_2__deal_', 'shipping_city', 'shipping_state', 'shipping_zip_code', 'shipping_address_confirmed_date'],
+            properties: ['dealname', 'amount', 'designer_notes', 'sketch_video_url', 'has_stoning', 'stoning_budget_low', 'stoning_budget_high', 'sketch_options', 'is_po_customer', 'sketch_approved', 'ofcostumes', 'is_alteration', 'shipping_street_address__deal_', 'shipping_street_address_2__deal_', 'shipping_city', 'shipping_state', 'shipping_zip_code', 'shipping_address_confirmed_date', 'sketch', 'sketch_public_url', 'approved_sketch_link'],
             limit: 1
           })
         }
@@ -147,6 +147,28 @@ export default async function handler(req, res) {
       }
     }
 
+    // Resolve sketch URL: signed URL from file ID (priority) > approved_sketch_link > sketch_public_url
+    let sketchUrl = null;
+    const sketchFileId = deal.properties.sketch;
+    if (sketchFileId) {
+      try {
+        const signedRes = await fetch(
+          `https://api.hubapi.com/files/v3/files/${sketchFileId}/signed-url`,
+          { headers }
+        );
+        if (signedRes.ok) {
+          const signedData = await signedRes.json();
+          sketchUrl = signedData.url;
+        }
+      } catch (e) { /* fall through to other sources */ }
+    }
+    if (!sketchUrl && deal.properties.approved_sketch_link) {
+      sketchUrl = deal.properties.approved_sketch_link;
+    }
+    if (!sketchUrl && deal.properties.sketch_public_url) {
+      sketchUrl = deal.properties.sketch_public_url;
+    }
+
     // Calculate total
     const total = lineItems.reduce((sum, item) => sum + (item.amount || item.price * item.quantity), 0);
 
@@ -174,6 +196,7 @@ export default async function handler(req, res) {
         zip: deal.properties.shipping_zip_code || ''
       },
       shippingConfirmed: !!deal.properties.shipping_address_confirmed_date,
+      sketchUrl: sketchUrl,
       sketchOptions: (() => {
         try {
           const raw = deal.properties.sketch_options;
