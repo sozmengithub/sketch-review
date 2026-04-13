@@ -1228,7 +1228,7 @@
     <script>
         // Get URL parameters
         const urlParams = new URLSearchParams(window.location.search);
-        const dealId = urlParams.get('dealId');
+        const dealId = urlParams.get('dealId') || urlParams.get('dealNumber');
         let sketchUrl = urlParams.get('sketchUrl');
         let orderName = urlParams.get('orderName') || 'Your Order';
 
