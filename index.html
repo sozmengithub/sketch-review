@@ -1577,7 +1577,7 @@
             document.getElementById('loadingView').classList.add('active');
 
             const payload = {
-                dealId: dealId,
+                dealId: window._hubspotDealId,
                 orderName: orderName,
                 action: 'approved',
                 addOns: addOns,
@@ -1686,7 +1686,7 @@
             );
 
             const payload = {
-                dealId: dealId,
+                dealId: window._hubspotDealId,
                 orderName: orderName,
                 action: 'revision_requested',
                 revisionNotes: notes,
