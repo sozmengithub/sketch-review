@@ -1503,7 +1503,7 @@
 
         function handleFiles(files) {
             for (let file of files) {
-                if (file.type.startsWith('image/') && file.size <= 10 * 1024 * 1024) {
+                if (file.type.startsWith('image/') && file.size <= 25 * 1024 * 1024) {
                     uploadedFiles.push(file);
                 }
             }
@@ -1537,6 +1537,42 @@
                 reader.onload = () => resolve(reader.result);
                 reader.onerror = reject;
                 reader.readAsDataURL(file);
+            });
+        }
+
+        // Resize + JPEG-recompress before encoding. Avoids iOS Safari memory crashes
+        // when multiple phone photos would otherwise be base64-bundled at full resolution.
+        function compressImageToDataURL(file, maxDim, quality) {
+            maxDim = maxDim || 1600;
+            quality = quality || 0.8;
+            return new Promise((resolve, reject) => {
+                const objUrl = URL.createObjectURL(file);
+                const img = new Image();
+                img.onload = function() {
+                    let w = img.naturalWidth, h = img.naturalHeight;
+                    if (w > maxDim || h > maxDim) {
+                        const r = Math.min(maxDim / w, maxDim / h);
+                        w = Math.round(w * r);
+                        h = Math.round(h * r);
+                    }
+                    const canvas = document.createElement('canvas');
+                    canvas.width = w;
+                    canvas.height = h;
+                    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                    URL.revokeObjectURL(objUrl);
+                    canvas.toBlob(function(blob) {
+                        if (!blob) { reject(new Error('toBlob failed')); return; }
+                        const reader = new FileReader();
+                        reader.onload = () => resolve(reader.result);
+                        reader.onerror = reject;
+                        reader.readAsDataURL(blob);
+                    }, 'image/jpeg', quality);
+                };
+                img.onerror = function() {
+                    URL.revokeObjectURL(objUrl);
+                    reject(new Error('image load failed'));
+                };
+                img.src = objUrl;
             });
         }
 
@@ -1677,13 +1713,28 @@
             document.getElementById('loadingText').textContent = 'Submitting your revision request...';
             document.getElementById('loadingView').classList.add('active');
 
-            const referenceImages = await Promise.all(
-                uploadedFiles.map(async (file) => ({
-                    name: file.name,
-                    type: file.type,
-                    data: await fileToBase64(file)
-                }))
-            );
+            // Process photos one at a time (sequential, not Promise.all) so iOS Safari
+            // doesn't have to hold every original photo + every base64 string in memory
+            // simultaneously. Each photo is also resized to max 1600px and JPEG-recompressed.
+            const referenceImages = [];
+            for (let i = 0; i < uploadedFiles.length; i++) {
+                const file = uploadedFiles[i];
+                document.getElementById('loadingText').textContent =
+                    'Preparing photo ' + (i + 1) + ' of ' + uploadedFiles.length + '...';
+                let dataUrl;
+                try {
+                    dataUrl = await compressImageToDataURL(file, 1600, 0.8);
+                } catch (e) {
+                    dataUrl = await fileToBase64(file);
+                }
+                const baseName = file.name.replace(/\.[^/.]+$/, '');
+                referenceImages.push({
+                    name: baseName + '.jpg',
+                    type: 'image/jpeg',
+                    data: dataUrl
+                });
+            }
+            document.getElementById('loadingText').textContent = 'Submitting your revision request...';
 
             const payload = {
                 dealId: window._hubspotDealId,
