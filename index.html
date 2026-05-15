@@ -1418,6 +1418,7 @@
         loadDealData();
 
         let uploadedFiles = [];
+        let fileRejections = [];
 
         function toggleQuote() {
             document.getElementById('quoteBox').classList.toggle('expanded');
@@ -1501,34 +1502,71 @@
             }
         }
 
+        function escapeHtml(s) {
+            return String(s).replace(/[&<>"']/g, function(c) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+            });
+        }
+
         function handleFiles(files) {
             for (let file of files) {
-                if (file.type.startsWith('image/') && file.size <= 25 * 1024 * 1024) {
-                    uploadedFiles.push(file);
+                if (!file.type.startsWith('image/')) {
+                    fileRejections.push({ name: file.name, reason: 'unsupported format (' + (file.type || 'unknown') + ')' });
+                    continue;
                 }
+                if (file.size > 50 * 1024 * 1024) {
+                    const mb = (file.size / 1024 / 1024).toFixed(1);
+                    fileRejections.push({ name: file.name, reason: 'too big (' + mb + ' MB, max 50 MB)' });
+                    continue;
+                }
+                uploadedFiles.push(file);
             }
             updateFileList();
+            updateUploadPrompt();
             if (uploadedFiles.length > 0) {
                 document.getElementById('uploadArea').classList.add('has-files');
             }
         }
 
+        function updateUploadPrompt() {
+            const promptEl = document.querySelector('#uploadArea .upload-text');
+            if (!promptEl) return;
+            if (uploadedFiles.length > 0) {
+                promptEl.innerHTML = '<span>+ Add another photo</span>';
+            } else {
+                promptEl.innerHTML = '<span>Choose files</span> or drag here';
+            }
+        }
+
         function updateFileList() {
             const list = document.getElementById('fileList');
-            list.innerHTML = uploadedFiles.map((file, i) => `
-                <div class="file-item">
-                    <span>${file.name}</span>
-                    <span class="file-remove" onclick="removeFile(${i})">Remove</span>
-                </div>
-            `).join('');
+            const accepted = uploadedFiles.map((file, i) =>
+                '<div class="file-item">' +
+                    '<span>' + escapeHtml(file.name) + '</span>' +
+                    '<span class="file-remove" onclick="removeFile(' + i + ')">Remove</span>' +
+                '</div>'
+            ).join('');
+            const rejected = fileRejections.map((r, i) =>
+                '<div class="file-item" style="color:#b00020;background:#fef2f2;border:1px solid #fecaca;">' +
+                    '<span>' + escapeHtml(r.name) + ' — ' + escapeHtml(r.reason) + '</span>' +
+                    '<span class="file-remove" onclick="dismissRejection(' + i + ')">Dismiss</span>' +
+                '</div>'
+            ).join('');
+            list.innerHTML = accepted + rejected;
         }
 
         function removeFile(index) {
             uploadedFiles.splice(index, 1);
             updateFileList();
+            updateUploadPrompt();
             if (uploadedFiles.length === 0) {
                 document.getElementById('uploadArea').classList.remove('has-files');
             }
+        }
+
+        function dismissRejection(index) {
+            fileRejections.splice(index, 1);
+            updateFileList();
         }
 
         function fileToBase64(file) {

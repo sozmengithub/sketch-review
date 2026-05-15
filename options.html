@@ -786,25 +786,54 @@
 
         // -- Revision Submit --
         let uploadedFiles = [];
+        let fileRejections = [];
 
         function handleFiles(files) {
             for (let file of files) {
-                if (file.type.startsWith('image/') && file.size <= 25 * 1024 * 1024) uploadedFiles.push(file);
+                if (!file.type.startsWith('image/')) {
+                    fileRejections.push({ name: file.name, reason: 'unsupported format (' + (file.type || 'unknown') + ')' });
+                    continue;
+                }
+                if (file.size > 50 * 1024 * 1024) {
+                    var mb = (file.size / 1024 / 1024).toFixed(1);
+                    fileRejections.push({ name: file.name, reason: 'too big (' + mb + ' MB, max 50 MB)' });
+                    continue;
+                }
+                uploadedFiles.push(file);
             }
             updateFileList();
+            updateUploadPrompt();
             if (uploadedFiles.length > 0) document.getElementById('uploadArea').classList.add('has-files');
         }
 
+        function updateUploadPrompt() {
+            var promptEl = document.querySelector('#uploadArea .upload-text');
+            if (!promptEl) return;
+            promptEl.innerHTML = uploadedFiles.length > 0
+                ? '<span>+ Add another photo</span>'
+                : '<span>Choose files</span> or drag here';
+        }
+
         function updateFileList() {
-            document.getElementById('fileList').innerHTML = uploadedFiles.map(function(file, i) {
+            var accepted = uploadedFiles.map(function(file, i) {
                 return '<div class="file-item"><span>' + escapeHtml(file.name) + '</span><span class="file-remove" onclick="removeFile(' + i + ')">Remove</span></div>';
             }).join('');
+            var rejected = fileRejections.map(function(r, i) {
+                return '<div class="file-item" style="color:#b00020;background:#fef2f2;border:1px solid #fecaca;"><span>' + escapeHtml(r.name) + ' — ' + escapeHtml(r.reason) + '</span><span class="file-remove" onclick="dismissRejection(' + i + ')">Dismiss</span></div>';
+            }).join('');
+            document.getElementById('fileList').innerHTML = accepted + rejected;
         }
 
         function removeFile(index) {
             uploadedFiles.splice(index, 1);
             updateFileList();
+            updateUploadPrompt();
             if (uploadedFiles.length === 0) document.getElementById('uploadArea').classList.remove('has-files');
+        }
+
+        function dismissRejection(index) {
+            fileRejections.splice(index, 1);
+            updateFileList();
         }
 
         function fileToBase64(file) {
