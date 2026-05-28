@@ -979,6 +979,28 @@
                             <span class="toggle-slider"></span>
                         </label>
                     </div>
+                    <div class="addon-item" id="addonGrowPleat" style="display:none">
+                        <div class="addon-info">
+                            <div class="addon-name">Grow Pleat <span class="addon-added-tag">Added</span></div>
+                            <div class="addon-desc">A hidden pleat that can be let out later as the dancer grows</div>
+                        </div>
+                        <span class="addon-price">+$30.00</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="toggleGrowPleat" onchange="updateAddons()">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="addon-item" id="addonGrowRoom" style="display:none">
+                        <div class="addon-info">
+                            <div class="addon-name">Grow Room <span class="addon-added-tag">Added</span></div>
+                            <div class="addon-desc">Patternmakers pad measurements so the dancer can grow into the costume</div>
+                        </div>
+                        <span class="addon-price">+$10.00</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="toggleGrowRoom" onchange="updateAddons()">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
                     <div class="addon-item" id="addonBraCups">
                         <div class="addon-info">
                             <div class="addon-name">Bra Cups <span class="addon-added-tag">Added</span></div>
@@ -992,6 +1014,9 @@
                     </div>
                     <div class="addon-disclaimer" id="braCupsDisclaimer">
                         We can attach in-house bra cups to the costume. However, this is a more subjective request that can be difficult to get exactly right without a fitting, as it depends not only on measurements but also on body type and personal strap-tightness preference. Additional adjustments may be needed.
+                    </div>
+                    <div class="addon-disclaimer" id="addonLockDisclaimer">
+                        <strong>Important:</strong> Add-ons lock at payment. Please choose any add-ons before paying. If you're unsure or have questions please reach out prior to finalizing payment.
                     </div>
                 </div>
             </div>
@@ -1236,7 +1261,15 @@
         const WEBHOOK_URL = 'https://showoffinc.app.n8n.cloud/webhook/sketch-review';
 
         // Add-on pricing
-        const ADDON_PRICES = { hairpiece: 30.00, braCups: 21.50 };
+        const ADDON_PRICES = { hairpiece: 30.00, braCups: 21.50, growPleat: 30.00, growRoom: 10.00 };
+
+        // Phase 3 feature flag: Grow Pleat + Grow Room on the sketch page.
+        // Default OFF (customers see only Hairpiece + Bra Cups, unchanged).
+        // Flip to true to go live. Test on production without exposing customers
+        // by adding ?showGrowAddons=1 to the URL.
+        const SHOW_GROW_ADDONS = false;
+        const GROW_ENABLED = SHOW_GROW_ADDONS ||
+            new URLSearchParams(window.location.search).get('showGrowAddons') === '1';
         let baseSubtotal = 0;
         let costumeCount = 1;
         let hasPayer = false;
@@ -1322,6 +1355,25 @@
                 baseSubtotal = total;
                 document.getElementById('totalDisplay').textContent = '$' + total.toFixed(2);
 
+                // Pre-check add-on switches from the customer's intake picks (Phase 3).
+                // ALL of this is gated behind the feature flag — when off, the page
+                // behaves exactly as it did before Phase 3 (toggles start unchecked).
+                if (GROW_ENABLED) {
+                    var tHair = document.getElementById('toggleHairpiece');
+                    var tBra = document.getElementById('toggleBraCups');
+                    var tPleat = document.getElementById('toggleGrowPleat');
+                    var tRoom = document.getElementById('toggleGrowRoom');
+                    document.getElementById('addonGrowPleat').style.display = '';
+                    document.getElementById('addonGrowRoom').style.display = '';
+                    var lockDisc = document.getElementById('addonLockDisclaimer');
+                    if (lockDisc) lockDisc.classList.add('visible');
+                    if (tHair) tHair.checked = !!data.addonHairpiece;
+                    if (tBra) tBra.checked = !!data.addonBraCups;
+                    if (tPleat) tPleat.checked = !!data.addonGrowPleat;
+                    if (tRoom) tRoom.checked = !!data.addonGrowRoom;
+                    updateAddons();
+                }
+
                 // Show designer notes if present
                 if (data.designerNotes) {
                     document.getElementById('designerNotesText').textContent = '\u201C' + data.designerNotes + '\u201D';
@@ -1397,6 +1449,14 @@
                             <span>+ Bra Cups</span>
                             <span id="addonPrice2">$${(ADDON_PRICES.braCups * costumeCount).toFixed(2)}</span>
                         </div>
+                        <div class="total-row" id="addonRow3" style="display:none">
+                            <span>+ Grow Pleat</span>
+                            <span id="addonPrice3">$${(ADDON_PRICES.growPleat * costumeCount).toFixed(2)}</span>
+                        </div>
+                        <div class="total-row" id="addonRow4" style="display:none">
+                            <span>+ Grow Room</span>
+                            <span id="addonPrice4">$${(ADDON_PRICES.growRoom * costumeCount).toFixed(2)}</span>
+                        </div>
                         <div class="total-row grand-total">
                             <span>Total</span>
                             <span id="grandTotalDisplay">$${total.toFixed(2)}</span>
@@ -1455,27 +1515,41 @@
         function updateAddons() {
             const hairpiece = document.getElementById('toggleHairpiece').checked;
             const braCups = document.getElementById('toggleBraCups').checked;
+            const growPleat = document.getElementById('toggleGrowPleat').checked;
+            const growRoom = document.getElementById('toggleGrowRoom').checked;
 
             document.getElementById('addonHairpiece').classList.toggle('active', hairpiece);
             document.getElementById('addonBraCups').classList.toggle('active', braCups);
+            document.getElementById('addonGrowPleat').classList.toggle('active', growPleat);
+            document.getElementById('addonGrowRoom').classList.toggle('active', growRoom);
 
             var disclaimer = document.getElementById('braCupsDisclaimer');
             if (disclaimer) disclaimer.classList.toggle('visible', braCups);
 
             var row1 = document.getElementById('addonRow1');
             var row2 = document.getElementById('addonRow2');
+            var row3 = document.getElementById('addonRow3');
+            var row4 = document.getElementById('addonRow4');
             if (row1) row1.style.display = hairpiece ? 'flex' : 'none';
             if (row2) row2.style.display = braCups ? 'flex' : 'none';
+            if (row3) row3.style.display = growPleat ? 'flex' : 'none';
+            if (row4) row4.style.display = growRoom ? 'flex' : 'none';
 
             var total = baseSubtotal;
             if (hairpiece) total += ADDON_PRICES.hairpiece * costumeCount;
             if (braCups) total += ADDON_PRICES.braCups * costumeCount;
+            if (growPleat) total += ADDON_PRICES.growPleat * costumeCount;
+            if (growRoom) total += ADDON_PRICES.growRoom * costumeCount;
 
             // Update displayed prices to reflect costume count
             var p1 = document.getElementById('addonPrice1');
             var p2 = document.getElementById('addonPrice2');
+            var p3 = document.getElementById('addonPrice3');
+            var p4 = document.getElementById('addonPrice4');
             if (p1) p1.textContent = '$' + (ADDON_PRICES.hairpiece * costumeCount).toFixed(2);
             if (p2) p2.textContent = '$' + (ADDON_PRICES.braCups * costumeCount).toFixed(2);
+            if (p3) p3.textContent = '$' + (ADDON_PRICES.growPleat * costumeCount).toFixed(2);
+            if (p4) p4.textContent = '$' + (ADDON_PRICES.growRoom * costumeCount).toFixed(2);
 
             document.getElementById('totalDisplay').textContent = '$' + total.toFixed(2);
             var gt = document.getElementById('grandTotalDisplay');
@@ -1619,6 +1693,8 @@
             var addOns = [];
             if (document.getElementById('toggleHairpiece').checked) addOns.push({ name: 'Hairpiece', price: 30.00 });
             if (document.getElementById('toggleBraCups').checked) addOns.push({ name: 'Bra Cups', price: 21.50 });
+            if (GROW_ENABLED && document.getElementById('toggleGrowPleat').checked) addOns.push({ name: 'Grow Pleat', price: 30.00 });
+            if (GROW_ENABLED && document.getElementById('toggleGrowRoom').checked) addOns.push({ name: 'Grow Room', price: 10.00 });
 
             var addonSummary = addOns.length > 0
                 ? '\n\nAdd-ons selected:\n' + addOns.map(function(a) { return '  \u2022 ' + a.name + ': $' + a.price.toFixed(2); }).join('\n')

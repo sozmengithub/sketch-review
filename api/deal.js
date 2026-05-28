@@ -49,7 +49,7 @@ export default async function handler(req, res) {
     let hubspotDealId = dealId;
 
     const directResponse = await fetch(
-      `https://api.hubapi.com/crm/v3/objects/deals/${dealId}?properties=dealname,amount,designer_notes,sketch_video_url,has_stoning,stoning_budget_low,stoning_budget_high,sketch_options,is_po_customer,sketch_approved,ofcostumes,is_alteration,shipping_street_address__deal_,shipping_street_address_2__deal_,shipping_city,shipping_state,shipping_zip_code,shipping_address_confirmed_date,sketch,sketch_public_url,approved_sketch_link`,
+      `https://api.hubapi.com/crm/v3/objects/deals/${dealId}?properties=dealname,amount,designer_notes,sketch_video_url,has_stoning,stoning_budget_low,stoning_budget_high,sketch_options,is_po_customer,sketch_approved,ofcostumes,is_alteration,shipping_street_address__deal_,shipping_street_address_2__deal_,shipping_city,shipping_state,shipping_zip_code,shipping_address_confirmed_date,sketch,sketch_public_url,approved_sketch_link,added_grow_pleat____30_,added_grow_room___10_,hairpieces,has_bra_cups`,
       { headers }
     );
 
@@ -72,7 +72,7 @@ export default async function handler(req, res) {
                 value: dealId
               }]
             }],
-            properties: ['dealname', 'amount', 'designer_notes', 'sketch_video_url', 'has_stoning', 'stoning_budget_low', 'stoning_budget_high', 'sketch_options', 'is_po_customer', 'sketch_approved', 'ofcostumes', 'is_alteration', 'shipping_street_address__deal_', 'shipping_street_address_2__deal_', 'shipping_city', 'shipping_state', 'shipping_zip_code', 'shipping_address_confirmed_date', 'sketch', 'sketch_public_url', 'approved_sketch_link'],
+            properties: ['dealname', 'amount', 'designer_notes', 'sketch_video_url', 'has_stoning', 'stoning_budget_low', 'stoning_budget_high', 'sketch_options', 'is_po_customer', 'sketch_approved', 'ofcostumes', 'is_alteration', 'shipping_street_address__deal_', 'shipping_street_address_2__deal_', 'shipping_city', 'shipping_state', 'shipping_zip_code', 'shipping_address_confirmed_date', 'sketch', 'sketch_public_url', 'approved_sketch_link', 'added_grow_pleat____30_', 'added_grow_room___10_', 'hairpieces', 'has_bra_cups'],
             limit: 1
           })
         }
@@ -188,6 +188,10 @@ export default async function handler(req, res) {
       isAlteration: deal.properties.is_alteration === 'true',
       sketchApproved: deal.properties.sketch_approved || null,
       ofcostumes: parseInt(deal.properties.ofcostumes) || 1,
+      addonGrowPleat: deal.properties.added_grow_pleat____30_ === 'true',
+      addonGrowRoom: deal.properties.added_grow_room___10_ === 'true',
+      addonHairpiece: deal.properties.hairpieces === 'Hairpiece',
+      addonBraCups: deal.properties.has_bra_cups === 'true',
       shippingAddress: {
         street: deal.properties.shipping_street_address__deal_ || '',
         street2: deal.properties.shipping_street_address_2__deal_ || '',
