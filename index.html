@@ -1467,6 +1467,10 @@
                     document.querySelector('.quote-section').style.display = 'none';
                 }
 
+                // Re-sync add-on rows + grand total now that totalsSection exists
+                // (the pre-fill call above ran before this section was rendered).
+                if (GROW_ENABLED) updateAddons();
+
             } catch (error) {
                 console.error('Error loading deal data:', error);
                 // Hide quote section on error
@@ -1515,8 +1519,8 @@
         function updateAddons() {
             const hairpiece = document.getElementById('toggleHairpiece').checked;
             const braCups = document.getElementById('toggleBraCups').checked;
-            const growPleat = document.getElementById('toggleGrowPleat').checked;
-            const growRoom = document.getElementById('toggleGrowRoom').checked;
+            const growPleat = GROW_ENABLED && document.getElementById('toggleGrowPleat').checked;
+            const growRoom = GROW_ENABLED && document.getElementById('toggleGrowRoom').checked;
 
             document.getElementById('addonHairpiece').classList.toggle('active', hairpiece);
             document.getElementById('addonBraCups').classList.toggle('active', braCups);
