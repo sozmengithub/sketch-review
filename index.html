@@ -1016,7 +1016,10 @@
                         We can attach in-house bra cups to the costume. However, this is a more subjective request that can be difficult to get exactly right without a fitting, as it depends not only on measurements but also on body type and personal strap-tightness preference. Additional adjustments may be needed.
                     </div>
                     <div class="addon-disclaimer" id="addonLockDisclaimer">
-                        <strong>Important:</strong> Add-ons lock at payment. Please choose any add-ons before paying. If you're unsure or have questions please reach out prior to finalizing payment.
+                        <strong>Important:</strong> This is on because you selected it on your measurement form. If you turn it off you won't be able to add it back later — this is your last chance.
+                    </div>
+                    <div class="addon-disclaimer" id="growLockNote">
+                        <strong>Note:</strong> Your invoice has already been sent, so these add-ons can't be changed here. Please contact us if you need to adjust them.
                     </div>
                 </div>
             </div>
@@ -1350,27 +1353,44 @@
                 window._shippingConfirmed = data.shippingConfirmed || false;
                 window._hubspotDealId = data.dealId;
 
-                // Display total
+                // Display total — EXCLUDE grow line items from the base; grow is
+                // represented by the toggles below so it isn't double-counted.
                 const total = data.total || data.amount || 0;
-                baseSubtotal = total;
-                document.getElementById('totalDisplay').textContent = '$' + total.toFixed(2);
+                baseSubtotal = total - (data.growPleatAmount || 0) - (data.growRoomAmount || 0);
+                document.getElementById('totalDisplay').textContent = '$' + baseSubtotal.toFixed(2);
 
-                // Pre-check add-on switches from the customer's intake picks (Phase 3).
-                // ALL of this is gated behind the feature flag — when off, the page
-                // behaves exactly as it did before Phase 3 (toggles start unchecked).
+                // Grow add-ons (Phase 3 rework). Feature-flagged. Grow toggle shows if
+                // ELIGIBLE (Erica's rules) OR already on the deal; pre-ON from existing
+                // line items; disclaimer ONLY when pre-ON; LOCKED if an invoice exists.
                 if (GROW_ENABLED) {
                     var tHair = document.getElementById('toggleHairpiece');
                     var tBra = document.getElementById('toggleBraCups');
                     var tPleat = document.getElementById('toggleGrowPleat');
                     var tRoom = document.getElementById('toggleGrowRoom');
-                    document.getElementById('addonGrowPleat').style.display = '';
-                    document.getElementById('addonGrowRoom').style.display = '';
-                    var lockDisc = document.getElementById('addonLockDisclaimer');
-                    if (lockDisc) lockDisc.classList.add('visible');
                     if (tHair) tHair.checked = !!data.addonHairpiece;
                     if (tBra) tBra.checked = !!data.addonBraCups;
-                    if (tPleat) tPleat.checked = !!data.addonGrowPleat;
-                    if (tRoom) tRoom.checked = !!data.addonGrowRoom;
+
+                    var pleatShow = !!data.growPleatEligible || !!data.hasGrowPleatItem;
+                    var roomShow = !!data.growRoomEligible || !!data.hasGrowRoomItem;
+                    document.getElementById('addonGrowPleat').style.display = pleatShow ? '' : 'none';
+                    document.getElementById('addonGrowRoom').style.display = roomShow ? '' : 'none';
+                    if (tPleat) tPleat.checked = !!data.hasGrowPleatItem;
+                    if (tRoom) tRoom.checked = !!data.hasGrowRoomItem;
+
+                    // Track pre-existing state (drives the "you picked it on your
+                    // measurement form" disclaimer + the keep-vs-fresh-add price math).
+                    window._growPleatPreOn = !!data.hasGrowPleatItem && pleatShow;
+                    window._growRoomPreOn = !!data.hasGrowRoomItem && roomShow;
+                    window._growPreOn = window._growPleatPreOn || window._growRoomPreOn;
+
+                    // Lock grow toggles if an invoice already exists (changes can't reach it).
+                    window._growLocked = !!data.hasInvoice;
+                    if (window._growLocked) {
+                        if (tPleat) tPleat.disabled = true;
+                        if (tRoom) tRoom.disabled = true;
+                        var lockNote = document.getElementById('growLockNote');
+                        if (lockNote && (pleatShow || roomShow)) lockNote.classList.add('visible');
+                    }
                     updateAddons();
                 }
 
@@ -1424,9 +1444,9 @@
                     document.getElementById('stoningRequiredHint').style.display = 'block';
                 }
 
-                // Populate line items
+                // Populate line items (exclude grow items — shown as toggles above, not double-listed)
                 if (data.lineItems && data.lineItems.length > 0) {
-                    document.getElementById('lineItems').innerHTML = data.lineItems.map(item => `
+                    document.getElementById('lineItems').innerHTML = data.lineItems.filter(item => item.productId !== '21854296417' && item.productId !== '21854296420').map(item => `
                         <div class="line-item">
                             <div class="item-details">
                                 <div class="item-name">${item.name}</div>
@@ -1529,6 +1549,11 @@
 
             var disclaimer = document.getElementById('braCupsDisclaimer');
             if (disclaimer) disclaimer.classList.toggle('visible', braCups);
+
+            // Grow disclaimer ("you selected it on your measurement form…") shows ONLY
+            // when grow was pre-ON (already a line item from the measurement form).
+            var growDisc = document.getElementById('addonLockDisclaimer');
+            if (growDisc) growDisc.classList.toggle('visible', !!window._growPreOn);
 
             var row1 = document.getElementById('addonRow1');
             var row2 = document.getElementById('addonRow2');
@@ -1693,15 +1718,20 @@
         }
 
         async function handleApprove() {
-            // Build add-ons list
+            // Hairpiece/Bra Cups bill via the addOns array. Grow Pleat/Room bill via
+            // explicit booleans handled server-side by the n8n grow-reconcile node
+            // (deduped by product id) \u2014 NOT via addOns, so they can't double-bill.
             var addOns = [];
             if (document.getElementById('toggleHairpiece').checked) addOns.push({ name: 'Hairpiece', price: 30.00 });
             if (document.getElementById('toggleBraCups').checked) addOns.push({ name: 'Bra Cups', price: 21.50 });
-            if (GROW_ENABLED && document.getElementById('toggleGrowPleat').checked) addOns.push({ name: 'Grow Pleat', price: 30.00 });
-            if (GROW_ENABLED && document.getElementById('toggleGrowRoom').checked) addOns.push({ name: 'Grow Room', price: 10.00 });
+            var growPleatOn = GROW_ENABLED && document.getElementById('toggleGrowPleat').checked;
+            var growRoomOn = GROW_ENABLED && document.getElementById('toggleGrowRoom').checked;
 
-            var addonSummary = addOns.length > 0
-                ? '\n\nAdd-ons selected:\n' + addOns.map(function(a) { return '  \u2022 ' + a.name + ': $' + a.price.toFixed(2); }).join('\n')
+            var summaryLines = addOns.map(function(a) { return '  \u2022 ' + a.name + ': $' + a.price.toFixed(2); });
+            if (growPleatOn) summaryLines.push('  \u2022 Grow Pleat: $30.00 each');
+            if (growRoomOn) summaryLines.push('  \u2022 Grow Room: $10.00 each');
+            var addonSummary = summaryLines.length > 0
+                ? '\n\nAdd-ons selected:\n' + summaryLines.join('\n')
                 : '';
 
             var stoningSummary = hasStoning
@@ -1735,6 +1765,8 @@
                 orderName: orderName,
                 action: 'approved',
                 addOns: addOns,
+                growPleat: growPleatOn,
+                growRoom: growRoomOn,
                 approvedAt: new Date().toISOString(),
                 stoningBudgetApproved: hasStoning,
                 stoningBudgetLow: hasStoning ? stoningBudgetLow : null,
