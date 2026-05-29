@@ -1016,7 +1016,7 @@
                         We can attach in-house bra cups to the costume. However, this is a more subjective request that can be difficult to get exactly right without a fitting, as it depends not only on measurements but also on body type and personal strap-tightness preference. Additional adjustments may be needed.
                     </div>
                     <div class="addon-disclaimer" id="addonLockDisclaimer">
-                        <strong>Important:</strong> This is on because you selected it on your measurement form. If you turn it off you won't be able to add it back later — this is your last chance.
+                        <strong>Important:</strong> This add-on was selected for your order. If you turn it off you won't be able to add it back later — this is your last chance.
                     </div>
                     <div class="addon-disclaimer" id="growLockNote">
                         <strong>Note:</strong> Your invoice has already been sent, so these add-ons can't be changed here. Please contact us if you need to adjust them.
@@ -1270,7 +1270,7 @@
         // Default OFF (customers see only Hairpiece + Bra Cups, unchanged).
         // Flip to true to go live. Test on production without exposing customers
         // by adding ?showGrowAddons=1 to the URL.
-        const SHOW_GROW_ADDONS = false;
+        const SHOW_GROW_ADDONS = true;
         const GROW_ENABLED = SHOW_GROW_ADDONS ||
             new URLSearchParams(window.location.search).get('showGrowAddons') === '1';
         let baseSubtotal = 0;
@@ -1374,14 +1374,18 @@
                     var roomShow = !!data.growRoomEligible || !!data.hasGrowRoomItem;
                     document.getElementById('addonGrowPleat').style.display = pleatShow ? '' : 'none';
                     document.getElementById('addonGrowRoom').style.display = roomShow ? '' : 'none';
-                    if (tPleat) tPleat.checked = !!data.hasGrowPleatItem;
-                    if (tRoom) tRoom.checked = !!data.hasGrowRoomItem;
+                    // Pre-ON from an existing grow line item OR the customer's intake
+                    // pre-pick (deal prop). Either way, approving bills it once (the
+                    // n8n grow-reconcile creates the line item if it isn't there yet).
+                    var pleatPreOn = !!data.hasGrowPleatItem || (!!data.addonGrowPleat && pleatShow);
+                    var roomPreOn = !!data.hasGrowRoomItem || (!!data.addonGrowRoom && roomShow);
+                    if (tPleat) tPleat.checked = pleatPreOn;
+                    if (tRoom) tRoom.checked = roomPreOn;
 
-                    // Track pre-existing state (drives the "you picked it on your
-                    // measurement form" disclaimer + the keep-vs-fresh-add price math).
-                    window._growPleatPreOn = !!data.hasGrowPleatItem && pleatShow;
-                    window._growRoomPreOn = !!data.hasGrowRoomItem && roomShow;
-                    window._growPreOn = window._growPleatPreOn || window._growRoomPreOn;
+                    // Pre-ON drives the disclaimer + keep-vs-fresh-add price math.
+                    window._growPleatPreOn = pleatPreOn;
+                    window._growRoomPreOn = roomPreOn;
+                    window._growPreOn = pleatPreOn || roomPreOn;
 
                     // Lock grow toggles if an invoice already exists (changes can't reach it).
                     window._growLocked = !!data.hasInvoice;
