@@ -1,3 +1,5 @@
+import { detectGrowItems, growEligibility } from './_grow.js';
+
 async function reportError(system, endpoint, error, dealId, dealName) {
   try {
     await fetch('https://showoffinc.app.n8n.cloud/webhook/error-alert', {
@@ -49,7 +51,7 @@ export default async function handler(req, res) {
     let hubspotDealId = dealId;
 
     const directResponse = await fetch(
-      `https://api.hubapi.com/crm/v3/objects/deals/${dealId}?properties=dealname,amount,designer_notes,sketch_video_url,has_stoning,stoning_budget_low,stoning_budget_high,sketch_options,is_po_customer,sketch_approved,ofcostumes,is_alteration,shipping_street_address__deal_,shipping_street_address_2__deal_,shipping_city,shipping_state,shipping_zip_code,shipping_address_confirmed_date,sketch,sketch_public_url,approved_sketch_link,added_grow_pleat____30_,added_grow_room___10_,hairpieces,has_bra_cups`,
+      `https://api.hubapi.com/crm/v3/objects/deals/${dealId}?properties=dealname,amount,designer_notes,sketch_video_url,has_stoning,stoning_budget_low,stoning_budget_high,sketch_options,is_po_customer,sketch_approved,ofcostumes,is_alteration,shipping_street_address__deal_,shipping_street_address_2__deal_,shipping_city,shipping_state,shipping_zip_code,shipping_address_confirmed_date,sketch,sketch_public_url,approved_sketch_link,added_grow_pleat____30_,added_grow_room___10_,hairpieces,has_bra_cups,sport__deal_,costume_components,company_name`,
       { headers }
     );
 
@@ -72,7 +74,7 @@ export default async function handler(req, res) {
                 value: dealId
               }]
             }],
-            properties: ['dealname', 'amount', 'designer_notes', 'sketch_video_url', 'has_stoning', 'stoning_budget_low', 'stoning_budget_high', 'sketch_options', 'is_po_customer', 'sketch_approved', 'ofcostumes', 'is_alteration', 'shipping_street_address__deal_', 'shipping_street_address_2__deal_', 'shipping_city', 'shipping_state', 'shipping_zip_code', 'shipping_address_confirmed_date', 'sketch', 'sketch_public_url', 'approved_sketch_link', 'added_grow_pleat____30_', 'added_grow_room___10_', 'hairpieces', 'has_bra_cups'],
+            properties: ['dealname', 'amount', 'designer_notes', 'sketch_video_url', 'has_stoning', 'stoning_budget_low', 'stoning_budget_high', 'sketch_options', 'is_po_customer', 'sketch_approved', 'ofcostumes', 'is_alteration', 'shipping_street_address__deal_', 'shipping_street_address_2__deal_', 'shipping_city', 'shipping_state', 'shipping_zip_code', 'shipping_address_confirmed_date', 'sketch', 'sketch_public_url', 'approved_sketch_link', 'added_grow_pleat____30_', 'added_grow_room___10_', 'hairpieces', 'has_bra_cups', 'sport__deal_', 'costume_components', 'company_name'],
             limit: 1
           })
         }
@@ -128,7 +130,7 @@ export default async function handler(req, res) {
             headers,
             body: JSON.stringify({
               inputs: lineItemIds.map(id => ({ id })),
-              properties: ['name', 'price', 'quantity', 'amount', 'description']
+              properties: ['name', 'price', 'quantity', 'amount', 'description', 'hs_product_id']
             })
           }
         );
@@ -141,7 +143,8 @@ export default async function handler(req, res) {
             price: parseFloat(item.properties.price) || 0,
             quantity: parseInt(item.properties.quantity) || 1,
             amount: parseFloat(item.properties.amount) || 0,
-            description: item.properties.description || ''
+            description: item.properties.description || '',
+            productId: item.properties.hs_product_id || ''
           }));
         }
       }
@@ -172,6 +175,30 @@ export default async function handler(req, res) {
     // Calculate total
     const total = lineItems.reduce((sum, item) => sum + (item.amount || item.price * item.quantity), 0);
 
+    // Grow add-ons (Phase 3 rework): pre-ON state is driven by existing grow
+    // LINE ITEMS (created by the measurement form), eligibility by Erica's rules,
+    // and we lock the toggle if an invoice already exists (grow changes wouldn't
+    // reach an existing invoice). See Measurement_Addons_Grow_Rework_Spec.md.
+    const grow = detectGrowItems(lineItems);
+    const growElig = growEligibility(
+      deal.properties.sport__deal_,
+      deal.properties.costume_components,
+      deal.properties.company_name
+    );
+
+    // Does the deal already have ANY invoice? (lock grow changes if so)
+    let hasInvoice = false;
+    try {
+      const invRes = await fetch(
+        `https://api.hubapi.com/crm/v4/objects/deals/${hubspotDealId}/associations/invoices`,
+        { headers }
+      );
+      if (invRes.ok) {
+        const invData = await invRes.json();
+        hasInvoice = (invData.results || []).length > 0;
+      }
+    } catch (e) { /* non-critical; default false (do not lock on lookup error) */ }
+
     return res.status(200).json({
       dealId: deal.id,
       dealName: deal.properties.dealname || 'Your Order',
@@ -188,8 +215,18 @@ export default async function handler(req, res) {
       isAlteration: deal.properties.is_alteration === 'true',
       sketchApproved: deal.properties.sketch_approved || null,
       ofcostumes: parseInt(deal.properties.ofcostumes) || 1,
+      // Grow: pre-ON from existing line items; eligibility from Erica's rules; lock if invoiced
+      hasGrowPleatItem: grow.hasGrowPleatItem,
+      hasGrowRoomItem: grow.hasGrowRoomItem,
+      growPleatAmount: grow.growPleatAmount,
+      growRoomAmount: grow.growRoomAmount,
+      growPleatEligible: growElig.growPleatEligible,
+      growRoomEligible: growElig.growRoomEligible,
+      hasInvoice: hasInvoice,
+      // Legacy deal-prop flags (kept as fallback; pre-ON is line-item driven now)
       addonGrowPleat: deal.properties.added_grow_pleat____30_ === 'true',
       addonGrowRoom: deal.properties.added_grow_room___10_ === 'true',
+      // Hairpiece/Bra Cups: pre-fill from intake pick; sketch page charges these (unchanged)
       addonHairpiece: deal.properties.hairpieces === 'Hairpiece',
       addonBraCups: deal.properties.has_bra_cups === 'true',
       shippingAddress: {
