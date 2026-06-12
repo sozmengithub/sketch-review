@@ -1,4 +1,5 @@
 import { detectGrowItems, growEligibility } from './_grow.js';
+import { prototypeShippingPending, PROTO_SHIPPING_PRICE } from './_prototype.js';
 
 async function reportError(system, endpoint, error, dealId, dealName) {
   try {
@@ -51,7 +52,7 @@ export default async function handler(req, res) {
     let hubspotDealId = dealId;
 
     const directResponse = await fetch(
-      `https://api.hubapi.com/crm/v3/objects/deals/${dealId}?properties=dealname,amount,designer_notes,sketch_video_url,has_stoning,stoning_budget_low,stoning_budget_high,sketch_options,is_po_customer,sketch_approved,ofcostumes,is_alteration,shipping_street_address__deal_,shipping_street_address_2__deal_,shipping_city,shipping_state,shipping_zip_code,shipping_address_confirmed_date,sketch,sketch_public_url,approved_sketch_link,added_grow_pleat____30_,added_grow_room___10_,hairpieces,has_bra_cups,sport__deal_,costume_components,company_name`,
+      `https://api.hubapi.com/crm/v3/objects/deals/${dealId}?properties=dealname,amount,designer_notes,sketch_video_url,has_stoning,stoning_budget_low,stoning_budget_high,sketch_options,is_po_customer,sketch_approved,ofcostumes,is_alteration,shipping_street_address__deal_,shipping_street_address_2__deal_,shipping_city,shipping_state,shipping_zip_code,shipping_address_confirmed_date,sketch,sketch_public_url,approved_sketch_link,added_grow_pleat____30_,added_grow_room___10_,hairpieces,has_bra_cups,sport__deal_,costume_components,company_name,prototype_method`,
       { headers }
     );
 
@@ -74,7 +75,7 @@ export default async function handler(req, res) {
                 value: dealId
               }]
             }],
-            properties: ['dealname', 'amount', 'designer_notes', 'sketch_video_url', 'has_stoning', 'stoning_budget_low', 'stoning_budget_high', 'sketch_options', 'is_po_customer', 'sketch_approved', 'ofcostumes', 'is_alteration', 'shipping_street_address__deal_', 'shipping_street_address_2__deal_', 'shipping_city', 'shipping_state', 'shipping_zip_code', 'shipping_address_confirmed_date', 'sketch', 'sketch_public_url', 'approved_sketch_link', 'added_grow_pleat____30_', 'added_grow_room___10_', 'hairpieces', 'has_bra_cups', 'sport__deal_', 'costume_components', 'company_name'],
+            properties: ['dealname', 'amount', 'designer_notes', 'sketch_video_url', 'has_stoning', 'stoning_budget_low', 'stoning_budget_high', 'sketch_options', 'is_po_customer', 'sketch_approved', 'ofcostumes', 'is_alteration', 'shipping_street_address__deal_', 'shipping_street_address_2__deal_', 'shipping_city', 'shipping_state', 'shipping_zip_code', 'shipping_address_confirmed_date', 'sketch', 'sketch_public_url', 'approved_sketch_link', 'added_grow_pleat____30_', 'added_grow_room___10_', 'hairpieces', 'has_bra_cups', 'sport__deal_', 'costume_components', 'company_name', 'prototype_method'],
             limit: 1
           })
         }
@@ -226,6 +227,11 @@ export default async function handler(req, res) {
       // Legacy deal-prop flags (kept as fallback; pre-ON is line-item driven now)
       addonGrowPleat: deal.properties.added_grow_pleat____30_ === 'true',
       addonGrowRoom: deal.properties.added_grow_room___10_ === 'true',
+      // Prototype: $99 "Prototype 2-Way Shipping" auto-adds at approval (n8n).
+      // Pending = method is 'shipping' and the item isn't on the deal yet —
+      // the page shows it as a read-only row so the reviewed total matches the invoice.
+      prototypeShippingPending: prototypeShippingPending(deal.properties.prototype_method, lineItems),
+      prototypeShippingPrice: PROTO_SHIPPING_PRICE,
       // Hairpiece/Bra Cups: pre-fill from intake pick; sketch page charges these (unchanged)
       addonHairpiece: deal.properties.hairpieces === 'Hairpiece',
       addonBraCups: deal.properties.has_bra_cups === 'true',

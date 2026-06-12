@@ -1359,6 +1359,10 @@
                 baseSubtotal = total - (data.growPleatAmount || 0) - (data.growRoomAmount || 0);
                 document.getElementById('totalDisplay').textContent = '$' + baseSubtotal.toFixed(2);
 
+                // Prototype: $99 two-way shipping auto-adds at approval (read-only,
+                // not a toggle) — show it now so the reviewed total matches the invoice.
+                window._protoShipPending = !!data.prototypeShippingPending;
+
                 // Grow add-ons (Phase 3 rework). Feature-flagged. Grow toggle shows if
                 // ELIGIBLE (Erica's rules) OR already on the deal; pre-ON from existing
                 // line items; disclaimer ONLY when pre-ON; LOCKED if an invoice exists.
@@ -1481,6 +1485,10 @@
                             <span>+ Grow Room</span>
                             <span id="addonPrice4">$${(ADDON_PRICES.growRoom * costumeCount).toFixed(2)}</span>
                         </div>
+                        <div class="total-row" id="addonRowProto" style="display:none">
+                            <span>+ Prototype 2-Way Shipping <span style="color:#888;font-size:0.85em;">(added at approval)</span></span>
+                            <span>$99.00</span>
+                        </div>
                         <div class="total-row grand-total">
                             <span>Total</span>
                             <span id="grandTotalDisplay">$${total.toFixed(2)}</span>
@@ -1493,7 +1501,8 @@
 
                 // Re-sync add-on rows + grand total now that totalsSection exists
                 // (the pre-fill call above ran before this section was rendered).
-                if (GROW_ENABLED) updateAddons();
+                // Unconditional: the prototype row must render even if grow is off.
+                updateAddons();
 
             } catch (error) {
                 console.error('Error loading deal data:', error);
@@ -1567,12 +1576,15 @@
             if (row2) row2.style.display = braCups ? 'flex' : 'none';
             if (row3) row3.style.display = growPleat ? 'flex' : 'none';
             if (row4) row4.style.display = growRoom ? 'flex' : 'none';
+            var rowProto = document.getElementById('addonRowProto');
+            if (rowProto) rowProto.style.display = window._protoShipPending ? 'flex' : 'none';
 
             var total = baseSubtotal;
             if (hairpiece) total += ADDON_PRICES.hairpiece * costumeCount;
             if (braCups) total += ADDON_PRICES.braCups * costumeCount;
             if (growPleat) total += ADDON_PRICES.growPleat * costumeCount;
             if (growRoom) total += ADDON_PRICES.growRoom * costumeCount;
+            if (window._protoShipPending) total += 99;
 
             // Update displayed prices to reflect costume count
             var p1 = document.getElementById('addonPrice1');
