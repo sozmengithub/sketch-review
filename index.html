@@ -1283,31 +1283,42 @@
 
         // Display order info — label is set in HTML, no override needed
 
-        // Load sketch image or PDF
-        const isPdfSketch = sketchUrl && sketchUrl.toLowerCase().endsWith('.pdf');
-        if (sketchUrl && isPdfSketch) {
-            document.getElementById('sketchPdfBtn').style.display = 'flex';
-            document.getElementById('sketchPlaceholder').style.display = 'none';
-            document.getElementById('sketchFrame').style.cursor = 'default';
-            document.getElementById('sketchFrame').classList.add('pdf-mode');
-        } else if (sketchUrl) {
-            const img = document.getElementById('sketchImage');
-            img.src = sketchUrl;
-            img.onload = () => {
-                img.style.display = 'block';
+        // Sketch rendering. The sketchUrl baked into old email links is only a
+        // FALLBACK: the live API is the source of truth, so a revised sketch shows
+        // even through review buttons in previously sent emails. Signed API URLs
+        // carry query strings, so PDF detection must ignore everything after '?'.
+        function isPdfUrl(u) {
+            return !!u && u.toLowerCase().split('?')[0].endsWith('.pdf');
+        }
+        function renderSketch(url) {
+            if (!url) {
+                document.getElementById('sketchPlaceholder').textContent = 'No sketch available';
+                return;
+            }
+            sketchUrl = url;
+            if (isPdfUrl(url)) {
+                document.getElementById('sketchPdfBtn').style.display = 'flex';
                 document.getElementById('sketchPlaceholder').style.display = 'none';
-            };
-            img.onerror = () => {
-                document.getElementById('sketchPlaceholder').textContent = 'Unable to load sketch';
-            };
-        } else {
-            document.getElementById('sketchPlaceholder').textContent = 'No sketch available';
+                document.getElementById('sketchFrame').style.cursor = 'default';
+                document.getElementById('sketchFrame').classList.add('pdf-mode');
+            } else {
+                const img = document.getElementById('sketchImage');
+                img.src = url;
+                img.onload = () => {
+                    img.style.display = 'block';
+                    document.getElementById('sketchPlaceholder').style.display = 'none';
+                };
+                img.onerror = () => {
+                    document.getElementById('sketchPlaceholder').textContent = 'Unable to load sketch';
+                };
+            }
         }
 
         // Fetch deal data and line items from HubSpot via API
         async function loadDealData() {
             if (!dealId) {
                 document.getElementById('totalDisplay').textContent = '$0.00';
+                renderSketch(sketchUrl);
                 return;
             }
 
@@ -1411,27 +1422,9 @@
                     }
                 }
 
-                // Load sketch from API if not in URL params
-                if (!sketchUrl && data.sketchUrl) {
-                    sketchUrl = data.sketchUrl;
-                    const isPdf = sketchUrl.toLowerCase().endsWith('.pdf');
-                    if (isPdf) {
-                        document.getElementById('sketchPdfBtn').style.display = 'flex';
-                        document.getElementById('sketchPlaceholder').style.display = 'none';
-                        document.getElementById('sketchFrame').style.cursor = 'default';
-                        document.getElementById('sketchFrame').classList.add('pdf-mode');
-                    } else {
-                        const img = document.getElementById('sketchImage');
-                        img.src = sketchUrl;
-                        img.onload = () => {
-                            img.style.display = 'block';
-                            document.getElementById('sketchPlaceholder').style.display = 'none';
-                        };
-                        img.onerror = () => {
-                            document.getElementById('sketchPlaceholder').textContent = 'Unable to load sketch';
-                        };
-                    }
-                }
+                // Sketch: API first (always the current version), email-link URL
+                // param only as fallback when the API has none.
+                renderSketch(data.sketchUrl || sketchUrl);
 
                 // Show video section if present
                 if (data.sketchVideoUrl) {
@@ -1506,6 +1499,8 @@
 
             } catch (error) {
                 console.error('Error loading deal data:', error);
+                // API down: fall back to the sketch URL baked into the email link
+                renderSketch(sketchUrl);
                 // Hide quote section on error
                 document.querySelector('.quote-section').style.display = 'none';
             }
