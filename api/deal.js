@@ -52,7 +52,7 @@ export default async function handler(req, res) {
     let hubspotDealId = dealId;
 
     const directResponse = await fetch(
-      `https://api.hubapi.com/crm/v3/objects/deals/${dealId}?properties=dealname,amount,designer_notes,sketch_video_url,has_stoning,stoning_budget_low,stoning_budget_high,sketch_options,is_po_customer,sketch_approved,ofcostumes,is_alteration,shipping_street_address__deal_,shipping_street_address_2__deal_,shipping_city,shipping_state,shipping_zip_code,shipping_address_confirmed_date,sketch,sketch_public_url,approved_sketch_link,added_grow_pleat____30_,added_grow_room___10_,hairpieces,has_bra_cups,sport__deal_,costume_components,company_name,prototype_method`,
+      `https://api.hubapi.com/crm/v3/objects/deals/${dealId}?properties=dealname,amount,designer_notes,sketch_video_url,has_stoning,stoning_budget_low,stoning_budget_high,sketch_options,is_po_customer,sketch_approved,ofcostumes,is_alteration,shipping_street_address__deal_,shipping_street_address_2__deal_,shipping_city,shipping_state,shipping_zip_code,shipping_address_confirmed_date,sketch,sketch_public_url,approved_sketch_link,added_grow_pleat____30_,added_grow_room___10_,hairpieces,has_bra_cups,sport__deal_,costume_components,company_name,prototype_method,lock_sketch_approve`,
       { headers }
     );
 
@@ -75,7 +75,7 @@ export default async function handler(req, res) {
                 value: dealId
               }]
             }],
-            properties: ['dealname', 'amount', 'designer_notes', 'sketch_video_url', 'has_stoning', 'stoning_budget_low', 'stoning_budget_high', 'sketch_options', 'is_po_customer', 'sketch_approved', 'ofcostumes', 'is_alteration', 'shipping_street_address__deal_', 'shipping_street_address_2__deal_', 'shipping_city', 'shipping_state', 'shipping_zip_code', 'shipping_address_confirmed_date', 'sketch', 'sketch_public_url', 'approved_sketch_link', 'added_grow_pleat____30_', 'added_grow_room___10_', 'hairpieces', 'has_bra_cups', 'sport__deal_', 'costume_components', 'company_name', 'prototype_method'],
+            properties: ['dealname', 'amount', 'designer_notes', 'sketch_video_url', 'has_stoning', 'stoning_budget_low', 'stoning_budget_high', 'sketch_options', 'is_po_customer', 'sketch_approved', 'ofcostumes', 'is_alteration', 'shipping_street_address__deal_', 'shipping_street_address_2__deal_', 'shipping_city', 'shipping_state', 'shipping_zip_code', 'shipping_address_confirmed_date', 'sketch', 'sketch_public_url', 'approved_sketch_link', 'added_grow_pleat____30_', 'added_grow_room___10_', 'hairpieces', 'has_bra_cups', 'sport__deal_', 'costume_components', 'company_name', 'prototype_method', 'lock_sketch_approve'],
             limit: 1
           })
         }
@@ -213,6 +213,10 @@ export default async function handler(req, res) {
       stoningBudgetLow: parseFloat(deal.properties.stoning_budget_low) || null,
       stoningBudgetHigh: parseFloat(deal.properties.stoning_budget_high) || null,
       isPoCustomer: deal.properties.is_po_customer === 'true',
+      // Internal lock: hide the customer Approve button on the review page
+      // (already-paid deals whose sketch was reopened/resubmitted). Request
+      // Design Change stays available. Set only per-deal by Erica/Scott.
+      lockSketchApprove: deal.properties.lock_sketch_approve === 'true',
       isAlteration: deal.properties.is_alteration === 'true',
       sketchApproved: deal.properties.sketch_approved || null,
       ofcostumes: parseInt(deal.properties.ofcostumes) || 1,

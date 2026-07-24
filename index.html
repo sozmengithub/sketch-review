@@ -1075,7 +1075,7 @@
 
             <!-- Actions -->
             <div class="actions" id="actionButtons">
-                <div style="flex:1; text-align:center;">
+                <div style="flex:1; text-align:center;" id="approveCol">
                     <button class="btn btn-primary" id="approveBtn" onclick="handleApprove()" style="width:100%">
                         Approve Your Design As Is
                     </button>
@@ -1087,6 +1087,10 @@
                     </button>
                     <div class="btn-hint">Send design change requests to your designer</div>
                 </div>
+            </div>
+
+            <div id="approveLockedNote" style="display:none; margin-top:14px; padding:12px 14px; background:#f5f5f7; border-radius:10px; color:#333; font-size:14px; line-height:1.5; text-align:center;">
+                This design is already approved and paid, so there's nothing more to approve. If you'd like a change, use <strong>Request Design Change</strong> above or just reply to us.
             </div>
 
             <!-- Revision Panel -->
@@ -1359,6 +1363,16 @@
                 isPoCustomer = data.isPoCustomer || false;
                 costumeCount = data.ofcostumes || 1;
 
+                // Lock the Approve button for already-paid deals whose sketch was
+                // reopened/resubmitted (customer must not re-approve and spawn a new
+                // invoice). Request Design Change stays available. Per-deal flag.
+                if (data.lockSketchApprove) {
+                    var _apCol = document.getElementById('approveCol');
+                    if (_apCol) _apCol.style.display = 'none';
+                    var _apNote = document.getElementById('approveLockedNote');
+                    if (_apNote) _apNote.style.display = 'block';
+                }
+
                 // Store shipping address for post-approval confirmation
                 window._shippingAddress = data.shippingAddress || {};
                 window._shippingConfirmed = data.shippingConfirmed || false;
@@ -1517,7 +1531,7 @@
         }
 
         function openLightbox() {
-            if (isPdfSketch) {
+            if (isPdfUrl(sketchUrl)) {
                 window.open(sketchUrl, '_blank');
                 return;
             }
