@@ -52,7 +52,7 @@ export default async function handler(req, res) {
     let hubspotDealId = dealId;
 
     const directResponse = await fetch(
-      `https://api.hubapi.com/crm/v3/objects/deals/${dealId}?properties=dealname,amount,designer_notes,sketch_video_url,has_stoning,stoning_budget_low,stoning_budget_high,sketch_options,is_po_customer,sketch_approved,ofcostumes,is_alteration,shipping_street_address__deal_,shipping_street_address_2__deal_,shipping_city,shipping_state,shipping_zip_code,shipping_address_confirmed_date,sketch,sketch_public_url,approved_sketch_link,added_grow_pleat____30_,added_grow_room___10_,hairpieces,has_bra_cups,sport__deal_,costume_components,company_name,prototype_method,lock_sketch_approve`,
+      `https://api.hubapi.com/crm/v3/objects/deals/${dealId}?properties=dealname,amount,designer_notes,sketch_video_url,has_stoning,stoning_budget_low,stoning_budget_high,sketch_options,is_po_customer,sketch_approved,sketch_last_viewed_at,ofcostumes,is_alteration,shipping_street_address__deal_,shipping_street_address_2__deal_,shipping_city,shipping_state,shipping_zip_code,shipping_address_confirmed_date,sketch,sketch_public_url,approved_sketch_link,added_grow_pleat____30_,added_grow_room___10_,hairpieces,has_bra_cups,sport__deal_,costume_components,company_name,prototype_method,lock_sketch_approve`,
       { headers }
     );
 
@@ -75,7 +75,7 @@ export default async function handler(req, res) {
                 value: dealId
               }]
             }],
-            properties: ['dealname', 'amount', 'designer_notes', 'sketch_video_url', 'has_stoning', 'stoning_budget_low', 'stoning_budget_high', 'sketch_options', 'is_po_customer', 'sketch_approved', 'ofcostumes', 'is_alteration', 'shipping_street_address__deal_', 'shipping_street_address_2__deal_', 'shipping_city', 'shipping_state', 'shipping_zip_code', 'shipping_address_confirmed_date', 'sketch', 'sketch_public_url', 'approved_sketch_link', 'added_grow_pleat____30_', 'added_grow_room___10_', 'hairpieces', 'has_bra_cups', 'sport__deal_', 'costume_components', 'company_name', 'prototype_method', 'lock_sketch_approve'],
+            properties: ['dealname', 'amount', 'designer_notes', 'sketch_video_url', 'has_stoning', 'stoning_budget_low', 'stoning_budget_high', 'sketch_options', 'is_po_customer', 'sketch_approved', 'sketch_last_viewed_at', 'ofcostumes', 'is_alteration', 'shipping_street_address__deal_', 'shipping_street_address_2__deal_', 'shipping_city', 'shipping_state', 'shipping_zip_code', 'shipping_address_confirmed_date', 'sketch', 'sketch_public_url', 'approved_sketch_link', 'added_grow_pleat____30_', 'added_grow_room___10_', 'hairpieces', 'has_bra_cups', 'sport__deal_', 'costume_components', 'company_name', 'prototype_method', 'lock_sketch_approve'],
             limit: 1
           })
         }
@@ -199,6 +199,18 @@ export default async function handler(req, res) {
         hasInvoice = (invData.results || []).length > 0;
       }
     } catch (e) { /* non-critical; default false (do not lock on lookup error) */ }
+
+    // "Customer opened it" for Erica's cockpit (2026-09-28). Staff links carry
+    // &staff=1 and are not counted; at most one write per 30 minutes; never
+    // blocks the page.
+    if (String(req.query.staff || '') !== '1') {
+      const lastSeen = Date.parse(deal.properties.sketch_last_viewed_at || '');
+      if (!Number.isFinite(lastSeen) || Date.now() - lastSeen > 30 * 60 * 1000) {
+        try {
+          await fetch(`https://api.hubapi.com/crm/v3/objects/deals/${deal.id}`, { method: 'PATCH', headers, body: JSON.stringify({ properties: { sketch_last_viewed_at: new Date().toISOString() } }), signal: AbortSignal.timeout(4000) });
+        } catch (e) { /* never block the customer's page */ }
+      }
+    }
 
     return res.status(200).json({
       dealId: deal.id,

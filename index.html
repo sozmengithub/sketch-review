@@ -1327,7 +1327,7 @@
             }
 
             try {
-                const response = await fetch(`/api/deal?dealId=${dealId}`);
+                const response = await fetch(`/api/deal?dealId=${dealId}${new URLSearchParams(location.search).get('staff') === '1' ? '&staff=1' : ''}`);
                 if (!response.ok) throw new Error('Failed to fetch');
 
                 const data = await response.json();
