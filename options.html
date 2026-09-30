@@ -641,7 +641,7 @@
 
     <script>
         const urlParams = new URLSearchParams(window.location.search);
-        const dealId = urlParams.get('dealId');
+        const dealId = urlParams.get('dealId') || urlParams.get('dealNumber');   // same as index.html: an order-number link works too
         let sketchUrl = urlParams.get('sketchUrl');
         let orderName = urlParams.get('orderName') || 'Your Order';
 
