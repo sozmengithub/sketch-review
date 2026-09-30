@@ -12,8 +12,8 @@
 
   var CSS = '' +
     '.sks{margin:14px 0 4px;font-family:inherit}' +
-    '.sks-row{display:flex;gap:8px;flex-wrap:wrap}' +
-    '.sks-btn{flex:1 1 0;min-width:92px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1.5px solid #d9d1c5;background:#fff;color:#14201b;border-radius:999px;padding:9px 14px;font:600 15px/1 -apple-system,"Segoe UI",Roboto,sans-serif;cursor:pointer;-webkit-tap-highlight-color:transparent}' +
+    '.sks-row{display:flex;gap:6px;flex-wrap:nowrap}' +
+    '.sks-btn{flex:1 1 0;min-width:0;min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1.5px solid #d9d1c5;background:#fff;color:#14201b;border-radius:999px;padding:9px 8px;font:600 14.5px/1 -apple-system,"Segoe UI",Roboto,sans-serif;white-space:nowrap;cursor:pointer;-webkit-tap-highlight-color:transparent}' +
     '.sks-btn:hover{border-color:#0f7a52;color:#0b5d3f}' +
     '.sks-btn:focus-visible{outline:3px solid rgba(15,122,82,.35);outline-offset:2px}' +
     '.sks-btn[disabled]{opacity:.5;cursor:default}' +
