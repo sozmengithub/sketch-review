@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Print the sketch</title>
+<style>
+  html,body{margin:0;background:#fff;color:#14201b;font-family:-apple-system,"Segoe UI",Roboto,sans-serif}
+  .bar{display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;padding:14px 16px;border-bottom:1px solid #e8e1d6;background:#fffdf9}
+  .bar p{margin:0;font-size:15px}
+  .bar button{min-height:44px;border:0;border-radius:999px;background:#0f7a52;color:#fff;font:600 16px -apple-system,"Segoe UI",Roboto,sans-serif;padding:10px 22px;cursor:pointer}
+  .bar button:focus-visible{outline:3px solid rgba(15,122,82,.35);outline-offset:2px}
+  .page{padding:16px;text-align:center}
+  .page img{max-width:100%;height:auto}
+  .msg{max-width:480px;margin:60px auto;padding:0 20px;font-size:17px;line-height:1.5}
+  @media print{ .bar{display:none} .page{padding:0} .page img{max-width:100%;max-height:100vh;object-fit:contain} @page{margin:10mm} }
+</style>
+</head>
+<body>
+<div class="bar" id="bar" hidden><p>Your sketch is ready to print.</p><button type="button" id="go">Print</button></div>
+<div class="page" id="page"><p class="msg" id="msg">Loading the sketch…</p></div>
+<script>
+(function(){
+  var id=new URLSearchParams(location.search).get('dealId')||'';
+  var msg=document.getElementById('msg');
+  var fail=function(t){ msg.textContent=t; };
+  if(!/^\d{6,15}$/.test(id)){ fail('This print link is not complete. Go back and tap Print again.'); return; }
+  var file='/api/sketch-file?dealId='+encodeURIComponent(id);
+  fetch(file+'&check=1').then(function(r){ return r.json(); }).then(function(j){
+    if(!j||!j.ok){
+      fail(j&&j.reason==='not_shareable' ? 'This sketch file can’t be printed from here. Email support@showoffinc.com and Erica will send you a copy.'
+        : j&&j.reason==='no_sketch' ? 'There is no sketch on this order yet.'
+        : 'The sketch could not be loaded right now. Please try again in a minute.');
+      return;
+    }
+    if(j.kind==='pdf'){ location.replace(file); return; }   // the phone's or computer's PDF viewer has its own print button
+    var img=new Image(); img.alt='Costume sketch';
+    img.onload=function(){
+      var page=document.getElementById('page'); page.innerHTML=''; page.appendChild(img);
+      document.getElementById('bar').hidden=false;
+      document.getElementById('go').onclick=function(){ window.print(); };
+      setTimeout(function(){ try{ window.print(); }catch(e){} },400);
+    };
+    img.onerror=function(){ fail('The sketch could not be loaded right now. Please try again in a minute.'); };
+    img.src=file;
+  }).catch(function(){ fail('The sketch could not be loaded right now. Please try again in a minute.'); });
+})();
+</script>
+</body>
+</html>

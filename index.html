@@ -912,6 +912,7 @@
 </head>
 <body>
 <script src="/staff-preview.js"></script>
+<script src="/sketch-share.js"></script>
     <!-- Grain texture -->
     <div class="grain-overlay"></div>
 
@@ -939,6 +940,8 @@
                     </div>
                     <span class="sketch-placeholder" id="sketchPlaceholder">Loading...</span>
                 </div>
+                <!-- Save / Print / Share the sketch picture (no prices). Filled once the order loads. -->
+                <div id="sketchShare"></div>
             </div>
 
             <!-- Designer Notes (shown by JS if data exists) -->
@@ -1328,7 +1331,7 @@
             }
 
             try {
-                const response = await fetch(`/api/deal?dealId=${dealId}${new URLSearchParams(location.search).get('staff') === '1' ? '&staff=1' : ''}`);
+                const response = await fetch(`/api/deal?dealId=${dealId}${window.SO_STAFF ? '&staff=1' : ''}`);
                 if (!response.ok) throw new Error('Failed to fetch');
 
                 const data = await response.json();
@@ -1440,6 +1443,11 @@
                 // Sketch: API first (always the current version), email-link URL
                 // param only as fallback when the API has none.
                 renderSketch(data.sketchUrl || sketchUrl);
+                if (data.dealId && window.SketchShare) {
+                    const slot = document.getElementById('sketchShare');
+                    slot.setAttribute('data-sketch-share', String(data.dealId));
+                    window.SketchShare.mount(slot);
+                }
 
                 // Show video section if present
                 if (data.sketchVideoUrl) {

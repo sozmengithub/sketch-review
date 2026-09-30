@@ -681,7 +681,7 @@
             if (!dealId) return;
 
             try {
-                const response = await fetch('/api/deal?dealId=' + dealId + (new URLSearchParams(location.search).get('staff') === '1' ? '&staff=1' : ''));
+                const response = await fetch('/api/deal?dealId=' + dealId + (window.SO_STAFF ? '&staff=1' : ''));
                 if (!response.ok) throw new Error('Failed to fetch');
                 const data = await response.json();
 
