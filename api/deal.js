@@ -23,6 +23,14 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
+  // A HEAD request is a link checker or monitor, never a person (Scott
+  // 2026-09-29: 20 HEAD checks every 5 min logged a fake "customer opened the
+  // sketch" on an old UAB order). Answer it without reading anything, and say
+  // who asked so the source can be found.
+  if (req.method === 'HEAD') {
+    console.log('[deal HEAD]', JSON.stringify({ dealId: req.query.dealId || req.query.dealNumber || '', ua: String(req.headers['user-agent'] || '').slice(0, 200), ref: req.headers.referer || '', ip: req.headers['x-forwarded-for'] || '' }));
+    return res.status(200).end();
+  }
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
