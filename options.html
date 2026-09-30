@@ -642,7 +642,7 @@
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         const dealId = urlParams.get('dealId');
-        const sketchUrl = urlParams.get('sketchUrl');
+        let sketchUrl = urlParams.get('sketchUrl');
         let orderName = urlParams.get('orderName') || 'Your Order';
 
         const WEBHOOK_URL = 'https://showoffinc.app.n8n.cloud/webhook/sketch-review';
@@ -654,21 +654,27 @@
         let stoningBudgetHigh = 0;
         let sketchOptions = null;
 
-        // Load sketch image/PDF
-        const isPdfSketch = sketchUrl && sketchUrl.toLowerCase().endsWith('.pdf');
-        if (sketchUrl && isPdfSketch) {
-            document.getElementById('sketchPdfBtn').style.display = 'flex';
-            document.getElementById('sketchPlaceholder').style.display = 'none';
-            document.getElementById('sketchFrame').style.cursor = 'default';
-            document.getElementById('sketchFrame').classList.add('pdf-mode');
-        } else if (sketchUrl) {
-            const img = document.getElementById('sketchImage');
-            img.src = sketchUrl;
-            img.onload = () => { img.style.display = 'block'; document.getElementById('sketchPlaceholder').style.display = 'none'; };
-            img.onerror = () => { document.getElementById('sketchPlaceholder').textContent = 'Unable to load sketch'; };
-        } else {
-            document.getElementById('sketchPlaceholder').textContent = 'No sketch available';
+        // Load sketch image/PDF. A link with only the order id (the dashboard's
+        // Review & approve, the index redirect) carries no sketchUrl: the order
+        // data fills it in (2026-09-29: multi-option sketches showed "No sketch available").
+        let isPdfSketch = false;
+        function renderSketchImage(fallback) {
+            isPdfSketch = !!sketchUrl && sketchUrl.toLowerCase().split('?')[0].endsWith('.pdf');
+            if (sketchUrl && isPdfSketch) {
+                document.getElementById('sketchPdfBtn').style.display = 'flex';
+                document.getElementById('sketchPlaceholder').style.display = 'none';
+                document.getElementById('sketchFrame').style.cursor = 'default';
+                document.getElementById('sketchFrame').classList.add('pdf-mode');
+            } else if (sketchUrl) {
+                const img = document.getElementById('sketchImage');
+                img.src = sketchUrl;
+                img.onload = () => { img.style.display = 'block'; document.getElementById('sketchPlaceholder').style.display = 'none'; };
+                img.onerror = () => { document.getElementById('sketchPlaceholder').textContent = 'Unable to load sketch'; };
+            } else {
+                document.getElementById('sketchPlaceholder').textContent = fallback ? 'No sketch available' : 'Loading the sketch…';
+            }
         }
+        renderSketchImage(false);
 
         // Fetch deal data
         async function loadDealData() {
@@ -679,6 +685,8 @@
                 if (!response.ok) throw new Error('Failed to fetch');
                 const data = await response.json();
 
+                if (!sketchUrl && data.sketchUrl) sketchUrl = data.sketchUrl;
+                renderSketchImage(true);
                 if (data.dealName) orderName = data.dealName;
                 hasPayer = data.hasPayer || false;
 
@@ -715,6 +723,7 @@
                 }
 
             } catch (error) {
+                renderSketchImage(true);
                 console.error('Error loading deal data:', error);
                 document.getElementById('optionsSection').innerHTML =
                     '<p style="text-align:center; color:#888; font-size:12px;">Unable to load order details.</p>';
