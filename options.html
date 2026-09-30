@@ -448,6 +448,7 @@
 </head>
 <body>
 <script src="/staff-preview.js"></script>
+<script src="/sketch-share.js"></script>
     <div class="grain-overlay"></div>
 
     <div class="container">
@@ -473,6 +474,8 @@
                     </div>
                     <span class="sketch-placeholder" id="sketchPlaceholder">Loading...</span>
                 </div>
+                <!-- Save / Print / Share the sketch picture (no prices). -->
+                <div id="sketchShare"></div>
             </div>
 
             <!-- Designer Notes -->
@@ -687,6 +690,11 @@
 
                 if (!sketchUrl && data.sketchUrl) sketchUrl = data.sketchUrl;
                 renderSketchImage(true);
+                if (data.dealId && window.SketchShare) {
+                    const slot = document.getElementById('sketchShare');
+                    slot.setAttribute('data-sketch-share', String(data.dealId));
+                    window.SketchShare.mount(slot);
+                }
                 if (data.dealName) orderName = data.dealName;
                 hasPayer = data.hasPayer || false;
 
