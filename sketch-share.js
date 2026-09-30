@@ -9,6 +9,12 @@
   var BASE = 'https://sketch-review.vercel.app';
   var fileUrl = function (id, dl) { return BASE + '/api/sketch-file?dealId=' + encodeURIComponent(id) + (dl ? '&dl=1' : ''); };
   var printUrl = function (id) { return BASE + '/print.html?dealId=' + encodeURIComponent(id); };
+  // Never leave the buttons waiting forever: a slow answer becomes a clear "Try again".
+  var timed = function (url, ms) {
+    var c = window.AbortController ? new AbortController() : null;
+    var t = c ? setTimeout(function () { c.abort(); }, ms) : 0;
+    return fetch(url, c ? { signal: c.signal } : undefined).then(function (r) { clearTimeout(t); return r; }, function (e) { clearTimeout(t); throw e; });
+  };
 
   var CSS = '' +
     '.sks{margin:14px 0 4px;font-family:inherit}' +
@@ -65,7 +71,7 @@
 
     function check() {
       note.textContent = 'Checking the sketch file…'; say('');
-      fetch(fileUrl(id) + '&check=1').then(function (r) { return r.json().catch(function () { return { ok: false, reason: 'unavailable' }; }); }).then(function (j) {
+      timed(fileUrl(id) + '&check=1', 15000).then(function (r) { return r.json().catch(function () { return { ok: false, reason: 'unavailable' }; }); }).then(function (j) {
         if (j && j.ok) {
           info = j; enable(true);
           getBlob().catch(function () {});   // fetch now: iPhones only allow the share menu right after a tap, not after a wait
@@ -87,7 +93,7 @@
 
     function getBlob() {
       if (blob) return Promise.resolve(blob);
-      return fetch(fileUrl(id)).then(function (r) { if (!r.ok) throw new Error('file ' + r.status); return r.blob(); }).then(function (b) { if (!b || !b.size) throw new Error('empty'); blob = b; return b; });
+      return timed(fileUrl(id), 25000).then(function (r) { if (!r.ok) throw new Error('file ' + r.status); return r.blob(); }).then(function (b) { if (!b || !b.size) throw new Error('empty'); blob = b; return b; });
     }
 
     function doSave() {
