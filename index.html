@@ -1231,7 +1231,7 @@
             </div>
             <h2 class="success-title">Design Approved</h2>
             <p class="success-message">
-                This design has already been approved and your order is being processed. If you need to make changes, please contact us at <a href="mailto:support@showoffinc.com" style="color: #c9a84c;">support@showoffinc.com</a>.
+                This design has already been approved and your order is being processed. Your approved sketch is below. If you need to make changes, please contact us at <a href="mailto:support@showoffinc.com" style="color: #c9a84c;">support@showoffinc.com</a>.
             </p>
         </div>
 
@@ -1322,6 +1322,17 @@
             }
         }
 
+        // The sketch picture (or PDF button) + the Save / Print / Share row.
+        // Used by the review view AND the already-approved view.
+        function showSketch(data) {
+            renderSketch(data.sketchUrl || sketchUrl);
+            if (data.dealId && window.SketchShare) {
+                const slot = document.getElementById('sketchShare');
+                slot.setAttribute('data-sketch-share', String(data.dealId));
+                window.SketchShare.mount(slot);
+            }
+        }
+
         // Fetch deal data and line items from HubSpot via API
         async function loadDealData() {
             if (!dealId) {
@@ -1345,9 +1356,16 @@
                 // Lock page if already actioned
                 var sketchStatus = data.sketchApproved;
                 if (sketchStatus === 'Approved' || sketchStatus === 'Yes') {
+                    // 2026-10-02: an approved order still SHOWS the sketch (Ashley Clark /
+                    // Eden Rasch 10934 opened her old email link and got "Design Approved"
+                    // with no picture, then wrote in asking for the drawing). The sketch
+                    // frame + Save / Print / Share row move under the approved notice.
                     document.getElementById('mainView').classList.add('hidden');
-                    document.getElementById('alreadyApprovedView').classList.add('active');
+                    var approvedView = document.getElementById('alreadyApprovedView');
+                    approvedView.appendChild(document.querySelector('.sketch-section'));
+                    approvedView.classList.add('active');
                     document.getElementById('footer').style.display = 'none';
+                    showSketch(data);
                     return;
                 }
                 if (sketchStatus === 'Revision Requested') {
@@ -1442,12 +1460,7 @@
 
                 // Sketch: API first (always the current version), email-link URL
                 // param only as fallback when the API has none.
-                renderSketch(data.sketchUrl || sketchUrl);
-                if (data.dealId && window.SketchShare) {
-                    const slot = document.getElementById('sketchShare');
-                    slot.setAttribute('data-sketch-share', String(data.dealId));
-                    window.SketchShare.mount(slot);
-                }
+                showSketch(data);
 
                 // Show video section if present
                 if (data.sketchVideoUrl) {
