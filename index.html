@@ -1249,6 +1249,21 @@
             </p>
         </div>
 
+        <!-- No sketch on this order (catalog orders; 11087 2026-10-18 typed a
+             revision into an empty page). No Approve, no Request Design Change. -->
+        <div class="success-view" id="noSketchView">
+            <div class="success-icon" style="border-color: #b08d3e;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#b08d3e" stroke-width="1.5">
+                    <path d="M12 6v6l4 2"/>
+                    <circle cx="12" cy="12" r="10"/>
+                </svg>
+            </div>
+            <h2 class="success-title">No Sketch On This Order Yet</h2>
+            <p class="success-message">
+                There is nothing to approve here right now. If you asked for a color or design change, Erica will email you a sketch to approve first. Questions? Email <a href="mailto:support@showoffinc.com">support@showoffinc.com</a>.
+            </p>
+        </div>
+
         <!-- Footer -->
         <div class="footer" id="footer">
             Show Off Inc.
@@ -1371,6 +1386,14 @@
                 if (sketchStatus === 'Revision Requested') {
                     document.getElementById('mainView').classList.add('hidden');
                     document.getElementById('revisionInProgressView').classList.add('active');
+                    document.getElementById('footer').style.display = 'none';
+                    return;
+                }
+                // No sketch file anywhere (catalog orders): never show live
+                // Approve / Request Design Change buttons on an empty frame.
+                if (!data.sketchUrl && !sketchUrl) {
+                    document.getElementById('mainView').classList.add('hidden');
+                    document.getElementById('noSketchView').classList.add('active');
                     document.getElementById('footer').style.display = 'none';
                     return;
                 }
