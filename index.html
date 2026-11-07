@@ -1849,9 +1849,9 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
-                });
+                }).catch(function() { return null; });
 
-                if (response.ok) {
+                if ((response && response.ok) || await answerSaved('Approved')) {
                     document.getElementById('loadingView').classList.remove('active');
 
                     // Build final success message for later
@@ -1914,6 +1914,20 @@
             }
         }
 
+        // The robot saves the customer's answer first and replies only after the bill.
+        // When that reply fails, ask the order before offering the button again: an
+        // answer that was saved must never get its button back.
+        async function answerSaved(status) {
+            for (var i = 0; i < 2; i++) {
+                try {
+                    var r = await fetch('/api/deal?dealId=' + (window._hubspotDealId || dealId) + (window.SO_STAFF ? '&staff=1' : ''));
+                    if (r.ok && (await r.json()).sketchApproved === status) return true;
+                } catch (e) { /* ask once more */ }
+                await new Promise(function(done) { setTimeout(done, 1500); });
+            }
+            return false;
+        }
+
         async function handleRevision() {
             const btn = document.getElementById('submitRevisionBtn');
             const notes = document.getElementById('revisionNotes').value.trim();
@@ -1971,9 +1985,9 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
-                });
+                }).catch(function() { return null; });
 
-                if (response.ok) {
+                if ((response && response.ok) || await answerSaved('Revision Requested')) {
                     document.getElementById('loadingView').classList.remove('active');
                     document.getElementById('revisionSuccess').classList.add('active');
                     document.getElementById('footer').style.display = 'none';
